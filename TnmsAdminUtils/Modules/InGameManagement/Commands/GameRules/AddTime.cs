@@ -26,13 +26,13 @@ public class AddTime(IServiceProvider provider) : TnmsAbstractCommandBase(provid
         switch (context.Validator)
         {
             case ArgumentCountValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "AddTime.Notification.Usage"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "AddTime.Notification.Usage"));
                 break;
             case PermissionValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
                 break;
             case IRangedArgumentValidator rangedArgumentValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.ArgumentIsMustBeInRange", rangedArgumentValidator.ArgumentIndex, rangedArgumentValidator.GetRangeDescription()));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.ArgumentIsMustBeInRange", rangedArgumentValidator.ArgumentIndex, rangedArgumentValidator.GetRangeDescription()));
                 break;
         }
         
@@ -68,7 +68,7 @@ public class AddTime(IServiceProvider provider) : TnmsAbstractCommandBase(provid
             
                 gameClient.GetPlayerController()?
                     .PrintToChat(
-                        LocalizeWithPluginPrefix(gameClient, "AddTime.Broadcast.TimeShortened", executor, diffTime));
+                        ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "AddTime.Broadcast.TimeShortened", executor, diffTime));
             }
         }
         else
@@ -82,7 +82,7 @@ public class AddTime(IServiceProvider provider) : TnmsAbstractCommandBase(provid
             
                 gameClient.GetPlayerController()?
                     .PrintToChat(
-                        LocalizeWithPluginPrefix(gameClient, "AddTime.Broadcast.TimeAdded", executor, extendSeconds));
+                        ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "AddTime.Broadcast.TimeAdded", executor, extendSeconds));
             }
         }
         

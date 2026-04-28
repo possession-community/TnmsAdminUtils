@@ -27,13 +27,13 @@ public class Slay(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         switch (context.Validator)
         {
             case ArgumentCountValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Slap.Notification.Usage"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Slap.Notification.Usage"));
                 break;
             case PermissionValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
                 break;
             case ExtendableTargetValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
                 break;
         }
         
@@ -63,7 +63,7 @@ public class Slay(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             
             gameClient.GetPlayerController()?
                 .PrintToChat(
-                    LocalizeWithPluginPrefix(gameClient, "Slay.Broadcast.Slayed", executor, targets.GetTargetName(Plugin.Localizer.GetClientCulture(gameClient)))
+                    ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Slay.Broadcast.Slayed", executor, targets.GetTargetName(Plugin.Localizer.GetClientCulture(gameClient)))
                 );
         }
     }

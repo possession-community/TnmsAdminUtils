@@ -26,7 +26,7 @@ public class Cvar(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         switch (context.Validator)
         {
             case ArgumentCountValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Cvar.Notification.Usage"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Cvar.Notification.Usage"));
                 break;
         }
         
@@ -39,13 +39,13 @@ public class Cvar(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         
         if (cvar == null)
         {
-            PrintMessageToServerOrPlayerChat(client, LocalizeWithPluginPrefix(client, "Cvar.Notification.CvarNotFound", commandInfo.GetArg(1)));
+            PrintMessageToServerOrPlayerChat(client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(client, "Cvar.Notification.CvarNotFound", commandInfo.GetArg(1)));
             return;
         }
 
         if (commandInfo.ArgCount <= 1)
         {
-            PrintMessageToServerOrPlayerChat(client, LocalizeWithPluginPrefix(client, "Cvar.Notification.CurrentCvarValueAndType", commandInfo.GetArg(1), cvar.GetCvarValueString(), cvar.Type.ToString()));
+            PrintMessageToServerOrPlayerChat(client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(client, "Cvar.Notification.CurrentCvarValueAndType", commandInfo.GetArg(1), cvar.GetCvarValueString(), cvar.Type.ToString()));
             return;
         }
         
@@ -72,7 +72,7 @@ public class Cvar(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             
             gameClient.GetPlayerController()?
                 .PrintToChat(
-                    LocalizeWithPluginPrefix(gameClient, "Cvar.Broadcast.CvarSet", executor, cvar.Name, value));
+                    ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Cvar.Broadcast.CvarSet", executor, cvar.Name, value));
         }
     }
 

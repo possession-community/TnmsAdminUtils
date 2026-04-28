@@ -24,7 +24,7 @@ public class Rcon(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         switch (context.Validator)
         {
             case ArgumentCountValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Rcon.Notification.Usage"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Rcon.Notification.Usage"));
                 break;
         }
         
@@ -50,7 +50,7 @@ public class Rcon(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             
             gameClient.GetPlayerController()?
                 .PrintToChat(
-                    LocalizeWithPluginPrefix(gameClient, "Rcon.Broadcast.CommandExecuted", executor, commandToExecute));
+                    ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Rcon.Broadcast.CommandExecuted", executor, commandToExecute));
         }
     }
 }

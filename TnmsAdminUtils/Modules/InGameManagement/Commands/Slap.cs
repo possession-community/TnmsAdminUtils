@@ -29,16 +29,16 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         switch (context.Validator)
         {
             case ArgumentCountValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Slay.Notification.Usage"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Slay.Notification.Usage"));
                 break;
             case PermissionValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
                 break;
             case ExtendableTargetValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
                 break;
             case IRangedArgumentValidator rangedArgumentValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.ArgumentIsMustBeInRange", rangedArgumentValidator.ArgumentIndex, rangedArgumentValidator.GetRangeDescription()));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.ArgumentIsMustBeInRange", rangedArgumentValidator.ArgumentIndex, rangedArgumentValidator.GetRangeDescription()));
                 break;
         }
         
@@ -94,7 +94,7 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             
                 gameClient.GetPlayerController()?
                     .PrintToChat(
-                        LocalizeWithPluginPrefix(gameClient, "Slap.Broadcast.Slapped.WithDamage", executor, targets.GetTargetName(Plugin.Localizer.GetClientCulture(gameClient)), damage)
+                        ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Slap.Broadcast.Slapped.WithDamage", executor, targets.GetTargetName(Plugin.Localizer.GetClientCulture(gameClient)), damage)
                     );
             }
         }
@@ -108,7 +108,7 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             
                 gameClient.GetPlayerController()?
                     .PrintToChat(
-                        LocalizeWithPluginPrefix(gameClient, "Slap.Broadcast.Slapped.NoDamage", executor, targets.GetTargetName(Plugin.Localizer.GetClientCulture(gameClient)))
+                        ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Slap.Broadcast.Slapped.NoDamage", executor, targets.GetTargetName(Plugin.Localizer.GetClientCulture(gameClient)))
                     );
             }
         }

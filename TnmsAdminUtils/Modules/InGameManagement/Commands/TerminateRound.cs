@@ -28,10 +28,10 @@ public class TerminateRound(IServiceProvider provider) : TnmsAbstractCommandBase
         switch (context.Validator)
         {
             case PermissionValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
                 break;
             case IRangedArgumentValidator rangedArgumentValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.ArgumentIsMustBeInRange", rangedArgumentValidator.ArgumentIndex, rangedArgumentValidator.GetRangeDescription()));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.ArgumentIsMustBeInRange", rangedArgumentValidator.ArgumentIndex, rangedArgumentValidator.GetRangeDescription()));
                 break;
         }
         
@@ -66,7 +66,7 @@ public class TerminateRound(IServiceProvider provider) : TnmsAbstractCommandBase
             
             gameClient.GetPlayerController()?
                 .PrintToChat(
-                    LocalizeWithPluginPrefix(gameClient, "TerminateRound.Broadcast.RoundTerminated", executor, delaySeconds, reason.ToString()));
+                    ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "TerminateRound.Broadcast.RoundTerminated", executor, delaySeconds, reason.ToString()));
         }
         
         GameRulesUtil.TerminateRound(delaySeconds, reason, true);

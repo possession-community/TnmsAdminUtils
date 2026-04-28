@@ -27,13 +27,13 @@ public class Goto(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         switch (context.Validator)
         {
             case ArgumentCountValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Teleport.Notification.Goto.Usage"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Teleport.Notification.Goto.Usage"));
                 break;
             case PermissionValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
                 break;
             case ExtendableTargetValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
                 break;
         }
         
@@ -50,7 +50,7 @@ public class Goto(IServiceProvider provider): TnmsAbstractCommandBase(provider)
 
         if (!targets.IsSingleTarget)
         {
-            PrintMessageToServerOrPlayerChat(client, LocalizeWithPluginPrefix(client, "Common.ValidationFailure.MultipleTargetsFound"));
+            PrintMessageToServerOrPlayerChat(client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(client, "Common.ValidationFailure.MultipleTargetsFound"));
             return;
         }
         
@@ -58,7 +58,7 @@ public class Goto(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         
         if (targetPawn == null)
         {
-            PrintMessageToServerOrPlayerChat(client, LocalizeWithPluginPrefix(client, "Common.ValidationFailure.NoValidTargetsFound"));
+            PrintMessageToServerOrPlayerChat(client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(client, "Common.ValidationFailure.NoValidTargetsFound"));
             return;
         }
         
@@ -75,7 +75,7 @@ public class Goto(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         
             gameClient.GetPlayerController()?
                 .PrintToChat(
-                    LocalizeWithPluginPrefix(gameClient, "Teleport.Broadcast.Goto", executor, targetName));
+                    ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Teleport.Broadcast.Goto", executor, targetName));
         }
     }
 }

@@ -27,13 +27,13 @@ public class ReplicateCvar(IServiceProvider provider): TnmsAbstractCommandBase(p
         switch (context.Validator)
         {
             case PermissionValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
                 break;
             case ArgumentCountValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "ReplicateCvar.Notification.Usage"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "ReplicateCvar.Notification.Usage"));
                 break;
             case ExtendableTargetValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
                 break;
         }
         return ValidationFailureResult.SilentAbort();
@@ -48,7 +48,7 @@ public class ReplicateCvar(IServiceProvider provider): TnmsAbstractCommandBase(p
         
         if (cvar == null)
         {
-            PrintMessageToServerOrPlayerChat(client, LocalizeWithPluginPrefix(client, "Cvar.Notification.CvarNotFound", commandInfo.GetArg(2)));
+            PrintMessageToServerOrPlayerChat(client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(client, "Cvar.Notification.CvarNotFound", commandInfo.GetArg(2)));
             return;
         }
         
@@ -83,6 +83,6 @@ public class ReplicateCvar(IServiceProvider provider): TnmsAbstractCommandBase(p
         
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {PlayerUtil.GetPlayerName(client)} replicated ConVar to {targets.GetTargetName()} | ConVar: {cvar.Name}, value: {value}");
         
-        client.GetPlayerController()?.PrintToChat(LocalizeWithPluginPrefix(client, "ReplicateCvar.Notification.Replicated", cvar.Name, value, targets.GetTargetName(Plugin.Localizer.GetClientCulture(client))));
+        client.GetPlayerController()?.PrintToChat(((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(client, "ReplicateCvar.Notification.Replicated", cvar.Name, value, targets.GetTargetName(Plugin.Localizer.GetClientCulture(client))));
     }
 }

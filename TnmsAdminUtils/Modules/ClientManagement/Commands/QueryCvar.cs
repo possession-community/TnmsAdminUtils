@@ -28,10 +28,10 @@ public class QueryCvar(IServiceProvider provider): TnmsAbstractCommandBase(provi
         switch (context.Validator)
         {
             case ArgumentCountValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "QueryCvar.Notification.Usage"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "QueryCvar.Notification.Usage"));
                 break;
             case ExtendableTargetValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
                 break;
         }
         
@@ -67,7 +67,7 @@ public class QueryCvar(IServiceProvider provider): TnmsAbstractCommandBase(provi
         }
         
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {PlayerUtil.GetPlayerName(client)} requested query cvar '{commandInfo.GetArg(2)}' for {targets.GetTargetName()}");
-        client.GetPlayerController()?.PrintToChat(LocalizeWithPluginPrefix(client, "Common.Notification.SeeConsole"));
+        client.GetPlayerController()?.PrintToChat(((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(client, "Common.Notification.SeeConsole"));
     }
 
     private class QueryCvarResults(int targetClientCount, ISharedSystem sharedSystem): IDisposable
