@@ -1,14 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <Version>0.0.1</Version>
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RepositoryUrl>https://github.com/possession-community/TnmsAdminUtils</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ModSharp.Sharp.Shared" Version="2.0.69" ExcludeAssets="runtime" />
-        <PackageReference Include="TnmsPluginFoundation" Version="0.0.5" ExcludeAssets="runtime" />
+        <PackageReference Include="ModSharp.Sharp.Shared" Version="2.1.121" ExcludeAssets="runtime" />
+        <PackageReference Include="TnmsPluginFoundation" Version="0.0.8" ExcludeAssets="runtime" />
         
         <!-- While Dev -->
 <!--        <ProjectReference Include="..\..\TNMSPluginFoundation\TnmsPluginFoundation\TnmsPluginFoundation.csproj" ExcludeAssets="all" />-->
