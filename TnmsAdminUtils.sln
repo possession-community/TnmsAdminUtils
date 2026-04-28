@@ -1,8 +1,5 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TnmsAdminUtils", "TnmsAdminUtils\TnmsAdminUtils.csproj", "{C215B8D3-A02A-4593-8F15-5EB654F8A26D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TnmsPluginFoundation", "..\TNMSPluginFoundation\TnmsPluginFoundation\TnmsPluginFoundation.csproj", "{9A10A921-6363-47B7-8EF6-791520E58330}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +11,5 @@ Global
 		{C215B8D3-A02A-4593-8F15-5EB654F8A26D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C215B8D3-A02A-4593-8F15-5EB654F8A26D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C215B8D3-A02A-4593-8F15-5EB654F8A26D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9A10A921-6363-47B7-8EF6-791520E58330}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9A10A921-6363-47B7-8EF6-791520E58330}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9A10A921-6363-47B7-8EF6-791520E58330}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9A10A921-6363-47B7-8EF6-791520E58330}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
