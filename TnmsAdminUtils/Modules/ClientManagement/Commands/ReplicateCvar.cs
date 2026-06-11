@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Sharp.Shared.Objects;
 using Sharp.Shared.Types;
-using TnmsExtendableTargeting.Shared;
+using TnmsAdminUtils.Utils;
 using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
@@ -20,7 +20,7 @@ public class ReplicateCvar(IServiceProvider provider): TnmsAbstractCommandBase(p
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator("tnms.adminutil.management.server.command.rcvar", true))
         .Add(new ArgumentCountValidator(3, true))
-        .Add(new ExtendableTargetValidator(1, true, true));
+        .Add(new TargetValidator(1, true, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)
     {
@@ -32,7 +32,7 @@ public class ReplicateCvar(IServiceProvider provider): TnmsAbstractCommandBase(p
             case ArgumentCountValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "ReplicateCvar.Notification.Usage"));
                 break;
-            case ExtendableTargetValidator:
+            case TargetValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
                 break;
         }
@@ -52,7 +52,7 @@ public class ReplicateCvar(IServiceProvider provider): TnmsAbstractCommandBase(p
             return;
         }
         
-        var targets = validatedArguments!.GetArgument<ITargetingResult>(1)!;
+        var targets = validatedArguments!.GetArgument<List<IGameClient>>(1)!;
         
         string value = commandInfo.GetArg(3);
 
@@ -63,7 +63,7 @@ public class ReplicateCvar(IServiceProvider provider): TnmsAbstractCommandBase(p
             if (!conVarHasReplicateFlag)
                 cvar.Flags |= Sharp.Shared.Enums.ConVarFlags.Replicated;
 
-            foreach (var target in targets.GetTargets())
+            foreach (var target in targets)
             {
                 if (target.IsFakeClient || target.IsHltv)
                     continue;
@@ -83,6 +83,6 @@ public class ReplicateCvar(IServiceProvider provider): TnmsAbstractCommandBase(p
         
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {PlayerUtil.GetPlayerName(client)} replicated ConVar to {targets.GetTargetName()} | ConVar: {cvar.Name}, value: {value}");
         
-        client.GetPlayerController()?.PrintToChat(((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(client, "ReplicateCvar.Notification.Replicated", cvar.Name, value, targets.GetTargetName(Plugin.Localizer.GetClientCulture(client))));
+        client.GetPlayerController()?.PrintToChat(((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(client, "ReplicateCvar.Notification.Replicated", cvar.Name, value, targets.GetTargetName()));
     }
 }

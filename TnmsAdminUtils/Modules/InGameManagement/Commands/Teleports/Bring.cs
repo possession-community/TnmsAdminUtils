@@ -1,7 +1,6 @@
-﻿using System.Globalization;
-using Sharp.Shared.Objects;
+﻿using Sharp.Shared.Objects;
 using Sharp.Shared.Types;
-using TnmsExtendableTargeting.Shared;
+using TnmsAdminUtils.Utils;
 using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
@@ -20,7 +19,7 @@ public class Bring(IServiceProvider provider): TnmsAbstractCommandBase(provider)
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.bring", true))
         .Add(new ArgumentCountValidator(1, true))
-        .Add(new ExtendableTargetValidator(1, true));
+        .Add(new TargetValidator(1, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)
     {
@@ -32,7 +31,7 @@ public class Bring(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             case PermissionValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
                 break;
-            case ExtendableTargetValidator:
+            case TargetValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
                 break;
         }
@@ -46,9 +45,9 @@ public class Bring(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         if (executorPawn == null)
             return;
         
-        var targets = validatedArguments!.GetArgument<ITargetingResult>(1)!;
+        var targets = validatedArguments!.GetArgument<List<IGameClient>>(1)!;
 
-        foreach (var gameClient in targets.GetTargets())
+        foreach (var gameClient in targets)
         {
             var pawn = gameClient.GetPlayerController()?.GetPlayerPawn();
             
@@ -70,7 +69,7 @@ public class Bring(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         
             gameClient.GetPlayerController()?
                 .PrintToChat(
-                    ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Teleport.Broadcast.Bring", executor, targets.GetTargetName(Plugin.Localizer.GetClientCulture(gameClient))));
+                    ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Teleport.Broadcast.Bring", executor, targets.GetTargetName()));
         }
     }
 }

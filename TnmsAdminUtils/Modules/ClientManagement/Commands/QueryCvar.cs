@@ -2,7 +2,7 @@
 using Sharp.Shared.Enums;
 using Sharp.Shared.Objects;
 using Sharp.Shared.Types;
-using TnmsExtendableTargeting.Shared;
+using TnmsAdminUtils.Utils;
 using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
@@ -21,7 +21,7 @@ public class QueryCvar(IServiceProvider provider): TnmsAbstractCommandBase(provi
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator("tnms.adminutil.management.server.command.qcvar", true))
         .Add(new ArgumentCountValidator(2, true))
-        .Add(new ExtendableTargetValidator(1, true, true));
+        .Add(new TargetValidator(1, true, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)
     {
@@ -30,7 +30,7 @@ public class QueryCvar(IServiceProvider provider): TnmsAbstractCommandBase(provi
             case ArgumentCountValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "QueryCvar.Notification.Usage"));
                 break;
-            case ExtendableTargetValidator:
+            case TargetValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
                 break;
         }
@@ -43,11 +43,11 @@ public class QueryCvar(IServiceProvider provider): TnmsAbstractCommandBase(provi
         if (client == null)
             return;
         
-        var targets = validatedArguments!.GetArgument<ITargetingResult>(1)!;
+        var targets = validatedArguments!.GetArgument<List<IGameClient>>(1)!;
 
-        var results = new QueryCvarResults(targets.GetTargets().Count(g => !g.IsFakeClient), SharedSystem);
-        
-        foreach (var target in targets.GetTargets())
+        var results = new QueryCvarResults(targets.Count(g => !g.IsFakeClient), SharedSystem);
+
+        foreach (var target in targets)
         {
             if (target.IsFakeClient || target.IsHltv)
                 continue;

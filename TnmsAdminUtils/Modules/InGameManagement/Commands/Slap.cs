@@ -1,7 +1,6 @@
-﻿using System.Globalization;
-using Sharp.Shared.Objects;
+﻿using Sharp.Shared.Objects;
 using Sharp.Shared.Types;
-using TnmsExtendableTargeting.Shared;
+using TnmsAdminUtils.Utils;
 using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
@@ -21,7 +20,7 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.slay", true))
         .Add(new ArgumentCountValidator(1, true))
-        .Add(new ExtendableTargetValidator(1, true))
+        .Add(new TargetValidator(1, true))
         .Add(new RangedArgumentValidator<int>(0, int.MaxValue, 2, 0, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)
@@ -34,7 +33,7 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             case PermissionValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
                 break;
-            case ExtendableTargetValidator:
+            case TargetValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
                 break;
             case IRangedArgumentValidator rangedArgumentValidator:
@@ -47,10 +46,10 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
 
     protected override void ExecuteCommand(IGameClient? client, StringCommand commandInfo, ValidatedArguments? validatedArguments)
     {
-        var targets = validatedArguments!.GetArgument<ITargetingResult>(1)!;
+        var targets = validatedArguments!.GetArgument<List<IGameClient>>(1)!;
         int damage = validatedArguments.GetArgument<int>(2);
 
-        foreach (var gameClient in targets.GetTargets())
+        foreach (var gameClient in targets)
         {
             var pawn = gameClient?.GetPlayerController()?.GetPlayerPawn();
             
@@ -81,7 +80,7 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         }
 
         string executor = PlayerUtil.GetPlayerName(client);
-        string targetName = targets.GetTargetName(CultureInfo.CurrentCulture);
+        string targetName = targets.GetTargetName();
 
         
         if (damage > 0)
@@ -94,7 +93,7 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             
                 gameClient.GetPlayerController()?
                     .PrintToChat(
-                        ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Slap.Broadcast.Slapped.WithDamage", executor, targets.GetTargetName(Plugin.Localizer.GetClientCulture(gameClient)), damage)
+                        ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Slap.Broadcast.Slapped.WithDamage", executor, targets.GetTargetName(), damage)
                     );
             }
         }
@@ -108,7 +107,7 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             
                 gameClient.GetPlayerController()?
                     .PrintToChat(
-                        ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Slap.Broadcast.Slapped.NoDamage", executor, targets.GetTargetName(Plugin.Localizer.GetClientCulture(gameClient)))
+                        ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Slap.Broadcast.Slapped.NoDamage", executor, targets.GetTargetName())
                     );
             }
         }

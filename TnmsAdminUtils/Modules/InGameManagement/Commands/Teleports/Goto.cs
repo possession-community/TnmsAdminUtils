@@ -1,7 +1,5 @@
-﻿using System.Globalization;
-using Sharp.Shared.Objects;
+﻿using Sharp.Shared.Objects;
 using Sharp.Shared.Types;
-using TnmsExtendableTargeting.Shared;
 using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
@@ -20,7 +18,7 @@ public class Goto(IServiceProvider provider): TnmsAbstractCommandBase(provider)
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.goto", true))
         .Add(new ArgumentCountValidator(1, true))
-        .Add(new ExtendableTargetValidator(1, true));
+        .Add(new TargetValidator(1, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)
     {
@@ -32,7 +30,7 @@ public class Goto(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             case PermissionValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
                 break;
-            case ExtendableTargetValidator:
+            case TargetValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
                 break;
         }
@@ -46,15 +44,15 @@ public class Goto(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         if (executorPawn == null)
             return;
         
-        var targets = validatedArguments!.GetArgument<ITargetingResult>(1)!;
+        var targets = validatedArguments!.GetArgument<List<IGameClient>>(1)!;
 
-        if (!targets.IsSingleTarget)
+        if (targets.Count != 1)
         {
             PrintMessageToServerOrPlayerChat(client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(client, "Common.ValidationFailure.MultipleTargetsFound"));
             return;
         }
         
-        var targetPawn = targets.GetTargets().FirstOrDefault()?.GetPlayerController()?.GetPlayerPawn();
+        var targetPawn = targets.FirstOrDefault()?.GetPlayerController()?.GetPlayerPawn();
         
         if (targetPawn == null)
         {

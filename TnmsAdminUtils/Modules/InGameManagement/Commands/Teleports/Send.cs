@@ -1,7 +1,6 @@
-﻿using System.Globalization;
-using Sharp.Shared.Objects;
+﻿using Sharp.Shared.Objects;
 using Sharp.Shared.Types;
-using TnmsExtendableTargeting.Shared;
+using TnmsAdminUtils.Utils;
 using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
@@ -20,8 +19,8 @@ public class Send(IServiceProvider provider): TnmsAbstractCommandBase(provider)
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.send", true))
         .Add(new ArgumentCountValidator(2, true))
-        .Add(new ExtendableTargetValidator(1, true))
-        .Add(new ExtendableTargetValidator(2, true));
+        .Add(new TargetValidator(1, true))
+        .Add(new TargetValidator(2, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)
     {
@@ -33,7 +32,7 @@ public class Send(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             case PermissionValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));
                 break;
-            case ExtendableTargetValidator:
+            case TargetValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NoValidTargetsFound"));
                 break;
         }
@@ -43,16 +42,16 @@ public class Send(IServiceProvider provider): TnmsAbstractCommandBase(provider)
 
     protected override void ExecuteCommand(IGameClient? client, StringCommand commandInfo, ValidatedArguments? validatedArguments)
     {
-        var targets = validatedArguments!.GetArgument<ITargetingResult>(1)!;
-        var sendTarget = validatedArguments!.GetArgument<ITargetingResult>(2)!;
+        var targets = validatedArguments!.GetArgument<List<IGameClient>>(1)!;
+        var sendTarget = validatedArguments!.GetArgument<List<IGameClient>>(2)!;
 
-        if (!sendTarget.IsSingleTarget)
+        if (sendTarget.Count != 1)
         {
             PrintMessageToServerOrPlayerChat(client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(client, "Common.ValidationFailure.MultipleTargetsFound"));
             return;
         }
         
-        var sendTargetPawn = sendTarget.GetTargets()[0].GetPlayerController()?.GetPlayerPawn();
+        var sendTargetPawn = sendTarget[0].GetPlayerController()?.GetPlayerPawn();
 
         if (sendTargetPawn == null)
         {
@@ -60,7 +59,7 @@ public class Send(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             return;
         }
         
-        foreach (var gameClient in targets.GetTargets())
+        foreach (var gameClient in targets)
         {
             var pawn = gameClient.GetPlayerController()?.GetPlayerPawn();
             
@@ -70,7 +69,7 @@ public class Send(IServiceProvider provider): TnmsAbstractCommandBase(provider)
             pawn.Teleport(sendTargetPawn.GetAbsOrigin());
         }
 
-        string targetName = targets.GetTargetName(CultureInfo.CurrentCulture);
+        string targetName = targets.GetTargetName();
         string sendTargetName = sendTargetPawn.GetController()?.PlayerName ?? "N/A";
         string executor = PlayerUtil.GetPlayerName(client);
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} sent {targetName} to {sendTargetName}");
@@ -82,7 +81,7 @@ public class Send(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         
             gameClient.GetPlayerController()?
                 .PrintToChat(
-                    ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Teleport.Broadcast.Send", executor, targets.GetTargetName(Plugin.Localizer.GetClientCulture(gameClient)), sendTargetName));
+                    ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Teleport.Broadcast.Send", executor, targets.GetTargetName(), sendTargetName));
         }
     }
 }
