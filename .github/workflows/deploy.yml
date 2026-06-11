@@ -12,8 +12,8 @@ jobs:
       projects: TnmsAdminUtils
       platforms: linux-x64 win-x64
       main-artifact-name: TnmsAdminUtils
-      main-artifact-include: modules locales
-      top-level-dirs: locales
+      main-artifact-include: modules
+      custom-dirs: lang
       shared-dlls-to-remove: |
         TnmsPluginFoundation.dll
 
