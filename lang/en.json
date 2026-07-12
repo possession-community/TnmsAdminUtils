@@ -54,5 +54,14 @@
     "Color.Notification.InvalidColor": "Invalid color. Available: red, green, blue, yellow, orange, purple, cyan, pink, white, black",
     "Color.Broadcast.ColorSet": "Admin {LIME}{0}{WHITE} set {LIME}{1}{WHITE} color to {LIME}{2}{WHITE}",
     "Glow.Notification.Usage": "Usage: !glow <player> <0|1> [color]",
-    "Glow.Broadcast.GlowSet": "Admin {LIME}{0}{WHITE} set glow {LIME}{2}{WHITE} on {LIME}{1}{WHITE}"
+    "Glow.Broadcast.GlowSet": "Admin {LIME}{0}{WHITE} set glow {LIME}{2}{WHITE} on {LIME}{1}{WHITE}",
+
+    "Hp.Notification.Usage": "Usage: !hp <player> <health>",
+    "Hp.Broadcast.HealthSet": "Admin {LIME}{0}{WHITE} set {LIME}{1}{WHITE} health to {LIME}{2}{WHITE}",
+    "God.Notification.Usage": "Usage: !god <player> <0|1>",
+    "God.Broadcast.GodModeSet": "Admin {LIME}{0}{WHITE} set god mode {LIME}{2}{WHITE} on {LIME}{1}{WHITE}",
+    "Speed.Notification.Usage": "Usage: !speed <player> <value>",
+    "Speed.Broadcast.SpeedSet": "Admin {LIME}{0}{WHITE} set {LIME}{1}{WHITE} speed to {LIME}{2}{WHITE}",
+    "Gravity.Notification.Usage": "Usage: !gravity <player> <scale>",
+    "Gravity.Broadcast.GravitySet": "Admin {LIME}{0}{WHITE} set {LIME}{1}{WHITE} gravity to {LIME}{2}{WHITE}"
 }
