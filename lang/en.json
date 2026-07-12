@@ -63,5 +63,13 @@
     "Speed.Notification.Usage": "Usage: !speed <player> <value>",
     "Speed.Broadcast.SpeedSet": "Admin {LIME}{0}{WHITE} set {LIME}{1}{WHITE} speed to {LIME}{2}{WHITE}",
     "Gravity.Notification.Usage": "Usage: !gravity <player> <scale>",
-    "Gravity.Broadcast.GravitySet": "Admin {LIME}{0}{WHITE} set {LIME}{1}{WHITE} gravity to {LIME}{2}{WHITE}"
+    "Gravity.Broadcast.GravitySet": "Admin {LIME}{0}{WHITE} set {LIME}{1}{WHITE} gravity to {LIME}{2}{WHITE}",
+
+    "NoClip.Notification.Usage": "Usage: !noclip <player> [0|1]",
+    "NoClip.Broadcast.NoClipSet": "Admin {LIME}{0}{WHITE} set noclip {LIME}{2}{WHITE} on {LIME}{1}{WHITE}",
+    "Bury.Notification.Usage": "Usage: !bury <player>",
+    "Bury.Broadcast.Buried": "Admin {LIME}{0}{WHITE} buried {LIME}{1}{WHITE}",
+    "Bury.Broadcast.Unburied": "Admin {LIME}{0}{WHITE} unburied {LIME}{1}{WHITE}",
+    "Respawn.Notification.Usage": "Usage: !respawn <player>",
+    "Respawn.Broadcast.Respawned": "Admin {LIME}{0}{WHITE} respawned {LIME}{1}{WHITE}"
 }
