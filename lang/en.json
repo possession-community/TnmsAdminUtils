@@ -92,5 +92,8 @@
     "YesNoVote.Notification.Usage": "Usage: !ynvote <question>",
     "YesNoVote.Broadcast.VoteStarted": "Admin {LIME}{0}{WHITE} started a vote: {LIME}{1}{WHITE}",
     "YesNoVote.Broadcast.VotePassed": "Vote passed: {LIME}{0}{WHITE} (Yes: {LIME}{1}{WHITE} / No: {LIME}{2}{WHITE})",
-    "YesNoVote.Broadcast.VoteFailed": "Vote failed: {LIME}{0}{WHITE} (Yes: {LIME}{1}{WHITE} / No: {LIME}{2}{WHITE})"
+    "YesNoVote.Broadcast.VoteFailed": "Vote failed: {LIME}{0}{WHITE} (Yes: {LIME}{1}{WHITE} / No: {LIME}{2}{WHITE})",
+
+    "AdminChat.Broadcast.ToAll": "{PURPLE}[ADMIN]{WHITE} {0}",
+    "AdminChat.Broadcast.ToAdmin": "{PURPLE}[ADMIN {LIME}{0}{PURPLE}]{WHITE} {1}"
 }

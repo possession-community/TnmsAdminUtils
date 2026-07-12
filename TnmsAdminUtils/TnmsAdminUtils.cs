@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Sharp.Shared;
 using Sharp.Shared.Objects;
+using TnmsAdminUtils.Modules.Chat;
 using TnmsAdminUtils.Modules.ClientManagement;
 using TnmsAdminUtils.Modules.InGameManagement;
 using TnmsAdminUtils.Modules.ServerManagement;
@@ -25,10 +26,22 @@ public class TnmsAdminUtils(
     public override string PluginPrefix => "Plugin.Prefix";
     public override bool UseTranslationKeyInPluginPrefix => true;
 
+    private AdminChatListener? _adminChatListener;
+
     protected override void TnmsOnPluginLoad(bool hotReload)
     {
         AddTnmsCommandsUnderNamespace("TnmsAdminUtils", true);
+
+        _adminChatListener = new AdminChatListener(this, SharedSystem);
+        SharedSystem.GetClientManager().InstallClientListener(_adminChatListener);
+
         Logger.LogInformation("TnmsAdminUtils is initialized");
+    }
+
+    protected override void TnmsOnPluginUnload(bool hotReload)
+    {
+        if (_adminChatListener != null)
+            SharedSystem.GetClientManager().RemoveClientListener(_adminChatListener);
     }
 
     /// <summary>
