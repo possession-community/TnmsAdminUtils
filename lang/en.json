@@ -71,5 +71,15 @@
     "Bury.Broadcast.Buried": "Admin {LIME}{0}{WHITE} buried {LIME}{1}{WHITE}",
     "Bury.Broadcast.Unburied": "Admin {LIME}{0}{WHITE} unburied {LIME}{1}{WHITE}",
     "Respawn.Notification.Usage": "Usage: !respawn <player>",
-    "Respawn.Broadcast.Respawned": "Admin {LIME}{0}{WHITE} respawned {LIME}{1}{WHITE}"
+    "Respawn.Broadcast.Respawned": "Admin {LIME}{0}{WHITE} respawned {LIME}{1}{WHITE}",
+
+    "Team.Notification.Usage": "Usage: !team <player> <ct|t|spec>",
+    "Team.Notification.SwapUsage": "Usage: !swap <player>",
+    "Team.Notification.InvalidTeam": "Invalid team specified. Use ct, t, or spec.",
+    "Team.Broadcast.TeamChanged": "Admin {LIME}{0}{WHITE} moved {LIME}{1}{WHITE} to {LIME}{2}{WHITE}",
+    "Team.Broadcast.TeamSwapped": "Admin {LIME}{0}{WHITE} swapped {LIME}{1}{WHITE} to opposite team",
+    "WeaponGive.Notification.Usage": "Usage: !give <player> <weapon>",
+    "WeaponGive.Broadcast.WeaponGiven": "Admin {LIME}{0}{WHITE} gave {LIME}{2}{WHITE} to {LIME}{1}{WHITE}",
+    "Rename.Notification.Usage": "Usage: !rename <player> <newname>",
+    "Rename.Broadcast.Renamed": "Admin {LIME}{0}{WHITE} renamed {LIME}{1}{WHITE} to {LIME}{2}{WHITE}"
 }
