@@ -92,7 +92,6 @@
 |---|---|---|
 | !vote \<question\> \<option1\> \<option2\> [...] | tnms.adminutil.vote.command.vote | 複数選択肢投票を開始 (NativeVoteManagerMS) |
 | !ynvote \<question\> | tnms.adminutil.vote.command.vote | Yes/No 投票を開始 (CS2 ネイティブ投票 UI) |
-| !cancelvote | tnms.adminutil.vote.command.vote | 進行中の投票をキャンセル |
 
 ## ターゲット指定子
 

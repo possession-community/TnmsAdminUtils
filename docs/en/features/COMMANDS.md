@@ -92,7 +92,6 @@ Available colors: `red`, `green`, `blue`, `yellow`, `orange`, `purple`, `cyan`, 
 |---|---|---|
 | !vote \<question\> \<option1\> \<option2\> [...] | tnms.adminutil.vote.command.vote | Start a multi-choice vote (NativeVoteManagerMS) |
 | !ynvote \<question\> | tnms.adminutil.vote.command.vote | Start a Yes/No vote (CS2 native vote UI) |
-| !cancelvote | tnms.adminutil.vote.command.vote | Cancel the current vote |
 
 ## Target Specifiers
 

@@ -85,9 +85,7 @@
 
     "Vote.Notification.Usage": "Usage: !vote <question> <option1> <option2> [option3...]",
     "Vote.Notification.InProgress": "A vote is already in progress.",
-    "Vote.Notification.NoVoteInProgress": "No vote is currently in progress.",
     "Vote.Broadcast.VoteStarted": "Admin {LIME}{0}{WHITE} started a vote: {LIME}{1}{WHITE}",
-    "Vote.Broadcast.VoteCancelled": "Admin {LIME}{0}{WHITE} cancelled the vote",
 
     "YesNoVote.Notification.Usage": "Usage: !ynvote <question>",
     "YesNoVote.Broadcast.VoteStarted": "Admin {LIME}{0}{WHITE} started a vote: {LIME}{1}{WHITE}",
