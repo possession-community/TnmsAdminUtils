@@ -81,5 +81,16 @@
     "WeaponGive.Notification.Usage": "Usage: !give <player> <weapon>",
     "WeaponGive.Broadcast.WeaponGiven": "Admin {LIME}{0}{WHITE} gave {LIME}{2}{WHITE} to {LIME}{1}{WHITE}",
     "Rename.Notification.Usage": "Usage: !rename <player> <newname>",
-    "Rename.Broadcast.Renamed": "Admin {LIME}{0}{WHITE} renamed {LIME}{1}{WHITE} to {LIME}{2}{WHITE}"
+    "Rename.Broadcast.Renamed": "Admin {LIME}{0}{WHITE} renamed {LIME}{1}{WHITE} to {LIME}{2}{WHITE}",
+
+    "Vote.Notification.Usage": "Usage: !vote <question> <option1> <option2> [option3...]",
+    "Vote.Notification.InProgress": "A vote is already in progress.",
+    "Vote.Notification.NoVoteInProgress": "No vote is currently in progress.",
+    "Vote.Broadcast.VoteStarted": "Admin {LIME}{0}{WHITE} started a vote: {LIME}{1}{WHITE}",
+    "Vote.Broadcast.VoteCancelled": "Admin {LIME}{0}{WHITE} cancelled the vote",
+
+    "YesNoVote.Notification.Usage": "Usage: !ynvote <question>",
+    "YesNoVote.Broadcast.VoteStarted": "Admin {LIME}{0}{WHITE} started a vote: {LIME}{1}{WHITE}",
+    "YesNoVote.Broadcast.VotePassed": "Vote passed: {LIME}{0}{WHITE} (Yes: {LIME}{1}{WHITE} / No: {LIME}{2}{WHITE})",
+    "YesNoVote.Broadcast.VoteFailed": "Vote failed: {LIME}{0}{WHITE} (Yes: {LIME}{1}{WHITE} / No: {LIME}{2}{WHITE})"
 }

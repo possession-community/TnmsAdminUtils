@@ -12,6 +12,7 @@
         <PackageReference Include="ModSharp.Sharp.Shared" Version="2.1.123" ExcludeAssets="runtime" />
 
         <ProjectReference Include="..\..\TNMSPluginFoundation\TnmsPluginFoundation\TnmsPluginFoundation.csproj" Private="false" ExcludeAssets="runtime" PrivateAssets="runtime" />
+        <PackageReference Include="NativeVoteManagerMS.Shared" Version="*" ExcludeAssets="runtime" />
     </ItemGroup>
 
     <ItemGroup>
