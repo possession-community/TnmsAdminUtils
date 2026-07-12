@@ -17,7 +17,7 @@ public class HSay(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.chat.command.say", true))
+        .Add(new PermissionValidator("tnms.adminutil.chat.command.say.hint", true))
         .Add(new ArgumentCountValidator(1, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)

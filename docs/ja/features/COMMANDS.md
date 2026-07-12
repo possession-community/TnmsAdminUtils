@@ -7,12 +7,12 @@
 
 | コマンド | 権限ノード | 説明 |
 |---|---|---|
-| !say \<message\> | tnms.adminutil.chat.command.say | 全プレイヤーにチャットでメッセージ送信 |
-| !csay \<message\> | tnms.adminutil.chat.command.say | 全プレイヤーにセンター表示でメッセージ送信 |
-| !hsay \<message\> | tnms.adminutil.chat.command.say | 全プレイヤーにヒント表示でメッセージ送信 |
-| !asay \<message\> | tnms.adminutil.chat.command.say | 管理者のみにメッセージ送信 |
-| !psay \<player\> \<message\> | tnms.adminutil.chat.command.say | 特定プレイヤーにプライベートメッセージ送信 |
-| @\<message\> (チャット) | tnms.adminutil.chat.command.say | 管理者ブロードキャスト — 一般には `[ADMIN] msg`、管理者には `[ADMIN 名前] msg` |
+| !say \<message\> | tnms.adminutil.chat.command.say.normal | 全プレイヤーにチャットでメッセージ送信 |
+| !csay \<message\> | tnms.adminutil.chat.command.say.center | 全プレイヤーにセンター表示でメッセージ送信 |
+| !hsay \<message\> | tnms.adminutil.chat.command.say.hint | 全プレイヤーにヒント表示でメッセージ送信 |
+| !asay \<message\> | tnms.adminutil.chat.command.say.admins | 管理者のみにメッセージ送信 |
+| !psay \<player\> \<message\> | tnms.adminutil.chat.command.say.private | 特定プレイヤーにプライベートメッセージ送信 |
+| @\<message\> (チャット) | tnms.adminutil.chat.command.say.admins | 管理者ブロードキャスト — 一般には `[ADMIN] msg`、管理者には `[ADMIN 名前] msg` |
 
 ## プレイヤー管理コマンド
 

@@ -7,12 +7,12 @@ In chat, `!slay` / `css_slay` can also be used.
 
 | Command | Permission Node | Description |
 |---|---|---|
-| !say \<message\> | tnms.adminutil.chat.command.say | Send a message to all players via chat |
-| !csay \<message\> | tnms.adminutil.chat.command.say | Send a message to all players via center display |
-| !hsay \<message\> | tnms.adminutil.chat.command.say | Send a message to all players via hint display |
-| !asay \<message\> | tnms.adminutil.chat.command.say | Send a message to admins only |
-| !psay \<player\> \<message\> | tnms.adminutil.chat.command.say | Send a private message to a specific player |
-| @\<message\> (in chat) | tnms.adminutil.chat.command.say | Admin broadcast — non-admins see `[ADMIN] msg`, admins see `[ADMIN name] msg` |
+| !say \<message\> | tnms.adminutil.chat.command.say.normal | Send a message to all players via chat |
+| !csay \<message\> | tnms.adminutil.chat.command.say.center | Send a message to all players via center display |
+| !hsay \<message\> | tnms.adminutil.chat.command.say.hint | Send a message to all players via hint display |
+| !asay \<message\> | tnms.adminutil.chat.command.say.admins | Send a message to admins only |
+| !psay \<player\> \<message\> | tnms.adminutil.chat.command.say.private | Send a private message to a specific player |
+| @\<message\> (in chat) | tnms.adminutil.chat.command.say.admins | Admin broadcast — non-admins see `[ADMIN] msg`, admins see `[ADMIN name] msg` |
 
 ## Player Management Commands
 

@@ -16,7 +16,7 @@ public class ASay(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.chat.command.say", true))
+        .Add(new PermissionValidator("tnms.adminutil.chat.command.say.admins", true))
         .Add(new ArgumentCountValidator(1, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)
@@ -45,7 +45,7 @@ public class ASay(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;
 
-            if (!adminManager.PlayerHasPermission(gameClient.SteamId, "tnms.adminutil.chat.command.say"))
+            if (!adminManager.PlayerHasPermission(gameClient.SteamId, "tnms.adminutil.chat.command.say.admins"))
                 continue;
 
             gameClient.GetPlayerController()?

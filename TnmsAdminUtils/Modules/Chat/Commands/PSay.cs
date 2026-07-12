@@ -17,7 +17,7 @@ public class PSay(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.chat.command.say", true))
+        .Add(new PermissionValidator("tnms.adminutil.chat.command.say.private", true))
         .Add(new ArgumentCountValidator(2, true))
         .Add(new TargetValidator(1, true));
 
