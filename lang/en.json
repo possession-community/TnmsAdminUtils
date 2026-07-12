@@ -30,5 +30,13 @@
     "AddTime.Broadcast.TimeShortened": "Admin {LIME}{0}{WHITE} shortened the current round by {LIME}{1}{WHITE} seconds",
     "QueryCvar.Notification.Usage": "Usage: !qcvar <target> <cvar>",
     "ReplicateCvar.Notification.Usage": "Usage: !rcvar <target> <cvar> <value>",
-    "ReplicateCvar.Notification.Replicated": "replicated {LIME}{0}{WHITE} with value {LIME}{1}{WHITE} to {LIME}{2}{WHITE}"
+    "ReplicateCvar.Notification.Replicated": "replicated {LIME}{0}{WHITE} with value {LIME}{1}{WHITE} to {LIME}{2}{WHITE}",
+
+    "Say.Notification.Usage": "Usage: !say <message>",
+    "Say.Broadcast.Say": "{LIME}{0}{WHITE}: {1}",
+    "Say.Broadcast.CSay": "{0}: {1}",
+    "Say.Broadcast.HSay": "{0}: {1}",
+    "Say.Broadcast.ASay": "{PURPLE}[ADMIN] {LIME}{0}{WHITE}: {1}",
+    "PSay.Notification.Usage": "Usage: !psay <player> <message>",
+    "PSay.Broadcast.PrivateMessage": "{PURPLE}[PM] {LIME}{0}{WHITE} -> {LIME}{1}{WHITE}: {2}"
 }
