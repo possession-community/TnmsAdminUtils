@@ -38,5 +38,9 @@
     "Say.Broadcast.HSay": "{0}: {1}",
     "Say.Broadcast.ASay": "{PURPLE}[ADMIN] {LIME}{0}{WHITE}: {1}",
     "PSay.Notification.Usage": "Usage: !psay <player> <message>",
-    "PSay.Broadcast.PrivateMessage": "{PURPLE}[PM] {LIME}{0}{WHITE} -> {LIME}{1}{WHITE}: {2}"
+    "PSay.Broadcast.PrivateMessage": "{PURPLE}[PM] {LIME}{0}{WHITE} -> {LIME}{1}{WHITE}: {2}",
+
+    "Freeze.Notification.Usage": "Usage: !freeze <player> [time]",
+    "Freeze.Broadcast.Frozen": "Admin {LIME}{0}{WHITE} froze {LIME}{1}{WHITE}",
+    "Freeze.Broadcast.Unfrozen": "Admin {LIME}{0}{WHITE} unfroze {LIME}{1}{WHITE}"
 }
