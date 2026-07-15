@@ -99,6 +99,21 @@
     "YesNoVote.Broadcast.VotePassed": "投票可決: {LIME}{0}{WHITE} (賛成: {LIME}{1}{WHITE} / 反対: {LIME}{2}{WHITE})",
     "YesNoVote.Broadcast.VoteFailed": "投票否決: {LIME}{0}{WHITE} (賛成: {LIME}{1}{WHITE} / 反対: {LIME}{2}{WHITE})",
 
+    "GetModel.Notification.Usage": "使用法: !getmodel <プレイヤー>",
+    "GetModel.Notification.Result": "{LIME}{0}{WHITE} のモデル: {LIME}{1}{WHITE}",
+    "SetModel.Notification.Usage": "使用法: !setmodel <プレイヤー> <model.vmdl>",
+    "SetModel.Broadcast.ModelSet": "管理者 {LIME}{0}{WHITE} が {LIME}{1}{WHITE} のモデルを {LIME}{2}{WHITE} に変更しました",
+    "BuyZone.Notification.Usage": "使用法: !buyzone <プレイヤー> <0|1>",
+    "BuyZone.Broadcast.BuyZoneSet": "管理者 {LIME}{0}{WHITE} が {LIME}{1}{WHITE} のバイゾーンを {LIME}{2}{WHITE} に設定しました",
+    "SetKevlar.Notification.Usage": "使用法: !setkev <プレイヤー> <アーマー> [ヘルメット 0|1]",
+    "SetKevlar.Broadcast.ArmorSet": "管理者 {LIME}{0}{WHITE} が {LIME}{1}{WHITE} のアーマーを {LIME}{2}{WHITE}{3} に設定しました",
+    "TeamName.Notification.Usage": "使用法: !teamname <ct|t> <名前>",
+    "TeamName.Broadcast.TeamNameSet": "管理者 {LIME}{0}{WHITE} が {LIME}{1}{WHITE} チーム名を {LIME}{2}{WHITE} に変更しました",
+    "ClanTag.Notification.Usage": "使用法: !clantag <プレイヤー> <タグ>",
+    "ClanTag.Broadcast.ClanTagSet": "管理者 {LIME}{0}{WHITE} が {LIME}{1}{WHITE} のクランタグを {LIME}{2}{WHITE} に設定しました",
+    "Users.Notification.Header": "--- オンラインプレイヤー ---",
+    "Users.Notification.Entry": "#{LIME}{0}{WHITE} | {LIME}{1}{WHITE} | {LIME}{2}{WHITE}",
+
     "AdminChat.Broadcast.ToAll": "{PURPLE}[管理者]{WHITE} {0}",
     "AdminChat.Broadcast.ToAdmin": "{PURPLE}[管理者 {LIME}{0}{PURPLE}]{WHITE} {1}"
 }

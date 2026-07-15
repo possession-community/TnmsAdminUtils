@@ -27,6 +27,7 @@ In chat, `!slay` / `css_slay` can also be used.
 | !speed \<player\> \<value\> | tnms.adminutil.management.ingame.command.speed | Set a player's speed multiplier (0.0–10.0) |
 | !gravity \<player\> \<scale\> | tnms.adminutil.management.ingame.command.gravity | Set a player's gravity scale (0.0–100.0) |
 | !money \<player\> \<amount\> | tnms.adminutil.management.ingame.command.money | Set a player's money (0–60000) |
+| !setkev \<player\> \<armor\> [helmet 0\|1] | tnms.adminutil.management.ingame.command.setkev | Set a player's armor and optional helmet |
 
 ### Movement / Spawn
 
@@ -63,6 +64,11 @@ Available colors: `red`, `green`, `blue`, `yellow`, `orange`, `purple`, `cyan`, 
 | !strip \<player\> | tnms.adminutil.management.ingame.command.strip | Strip all weapons from a player |
 | !drop \<player\> \<weaponIndex\> | tnms.adminutil.management.ingame.command.drop | Force a player to drop a weapon by index |
 | !rename \<player\> \<newname\> | tnms.adminutil.management.ingame.command.rename | Rename a player |
+| !clantag \<player\> \<tag\> | tnms.adminutil.management.ingame.command.clantag | Set a player's clan tag |
+| !getmodel \<player\> | tnms.adminutil.management.ingame.command.model | Show a player's current model path |
+| !setmodel \<player\> \<model.vmdl\> | tnms.adminutil.management.ingame.command.model | Set a player's model |
+| !buyzone \<player\> \<0\|1\> | tnms.adminutil.management.ingame.command.buyzone | Toggle a player's buy zone access |
+| !teamname \<ct\|t\> \<name\> | tnms.adminutil.management.ingame.command.teamname | Set a team's display name |
 
 ### Teleports
 
@@ -76,6 +82,7 @@ Available colors: `red`, `green`, `blue`, `yellow`, `orange`, `purple`, `cyan`, 
 
 | Command | Permission Node | Description |
 |---|---|---|
+| !users | tnms.adminutil.management.server.command.users | List online players (slot, name, steamid) |
 | !rcon \<command\> | tnms.adminutil.management.server.command.rcon | Execute a server console command |
 | !cvar \<cvar\> [value] | tnms.adminutil.management.server.command.cvar | View or set a ConVar value |
 | !settime \<seconds\> | tnms.adminutil.management.ingame.command.settime | Set the current round timer |

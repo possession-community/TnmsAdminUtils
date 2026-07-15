@@ -27,6 +27,7 @@
 | !speed \<player\> \<value\> | tnms.adminutil.management.ingame.command.speed | 速度倍率を設定 (0.0–10.0) |
 | !gravity \<player\> \<scale\> | tnms.adminutil.management.ingame.command.gravity | 重力スケールを設定 (0.0–100.0) |
 | !money \<player\> \<amount\> | tnms.adminutil.management.ingame.command.money | 所持金を設定 (0–60000) |
+| !setkev \<player\> \<armor\> [helmet 0\|1] | tnms.adminutil.management.ingame.command.setkev | アーマー+ヘルメット設定 |
 
 ### 移動 / スポーン
 
@@ -63,6 +64,11 @@
 | !strip \<player\> | tnms.adminutil.management.ingame.command.strip | 全武器を剥奪 |
 | !drop \<player\> \<weaponIndex\> | tnms.adminutil.management.ingame.command.drop | 指定インデックスの武器を強制ドロップ |
 | !rename \<player\> \<newname\> | tnms.adminutil.management.ingame.command.rename | プレイヤー名を変更 |
+| !clantag \<player\> \<tag\> | tnms.adminutil.management.ingame.command.clantag | クランタグを設定 |
+| !getmodel \<player\> | tnms.adminutil.management.ingame.command.model | モデルパスを表示 |
+| !setmodel \<player\> \<model.vmdl\> | tnms.adminutil.management.ingame.command.model | モデルを変更 |
+| !buyzone \<player\> \<0\|1\> | tnms.adminutil.management.ingame.command.buyzone | バイゾーンアクセス切替 |
+| !teamname \<ct\|t\> \<name\> | tnms.adminutil.management.ingame.command.teamname | チーム表示名を変更 |
 
 ### テレポート
 
@@ -76,6 +82,7 @@
 
 | コマンド | 権限ノード | 説明 |
 |---|---|---|
+| !users | tnms.adminutil.management.server.command.users | オンラインプレイヤー一覧 (スロット, 名前, SteamID) |
 | !rcon \<command\> | tnms.adminutil.management.server.command.rcon | サーバーコンソールコマンドを実行 |
 | !cvar \<cvar\> [value] | tnms.adminutil.management.server.command.cvar | ConVar の表示・設定 |
 | !settime \<seconds\> | tnms.adminutil.management.ingame.command.settime | ラウンドタイマーを設定 |
