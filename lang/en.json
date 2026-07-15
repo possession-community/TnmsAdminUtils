@@ -85,6 +85,8 @@
     "Drop.Notification.Usage": "Usage: !drop <player> <weaponIndex>",
     "Drop.Notification.InvalidIndex": "Weapon index {LIME}{0}{WHITE} is out of range (player has {LIME}{1}{WHITE} weapons).",
     "Drop.Broadcast.Dropped": "Admin {LIME}{0}{WHITE} forced {LIME}{1}{WHITE} to drop weapon #{LIME}{2}{WHITE}",
+    "Money.Notification.Usage": "Usage: !money <player> <amount>",
+    "Money.Broadcast.MoneySet": "Admin {LIME}{0}{WHITE} set {LIME}{1}{WHITE} money to ${LIME}{2}{WHITE}",
     "Rename.Notification.Usage": "Usage: !rename <player> <newname>",
     "Rename.Broadcast.Renamed": "Admin {LIME}{0}{WHITE} renamed {LIME}{1}{WHITE} to {LIME}{2}{WHITE}",
 

@@ -26,6 +26,7 @@ In chat, `!slay` / `css_slay` can also be used.
 | !god \<player\> \<0\|1\> | tnms.adminutil.management.ingame.command.god | Toggle god mode (invincibility) |
 | !speed \<player\> \<value\> | tnms.adminutil.management.ingame.command.speed | Set a player's speed multiplier (0.0–10.0) |
 | !gravity \<player\> \<scale\> | tnms.adminutil.management.ingame.command.gravity | Set a player's gravity scale (0.0–100.0) |
+| !money \<player\> \<amount\> | tnms.adminutil.management.ingame.command.money | Set a player's money (0–60000) |
 
 ### Movement / Spawn
 

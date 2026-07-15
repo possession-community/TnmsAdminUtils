@@ -85,6 +85,8 @@
     "Drop.Notification.Usage": "使用法: !drop <プレイヤー> <武器インデックス>",
     "Drop.Notification.InvalidIndex": "武器インデックス {LIME}{0}{WHITE} は範囲外です (所持武器数: {LIME}{1}{WHITE})。",
     "Drop.Broadcast.Dropped": "管理者 {LIME}{0}{WHITE} が {LIME}{1}{WHITE} の武器 #{LIME}{2}{WHITE} を強制ドロップしました",
+    "Money.Notification.Usage": "使用法: !money <プレイヤー> <金額>",
+    "Money.Broadcast.MoneySet": "管理者 {LIME}{0}{WHITE} が {LIME}{1}{WHITE} の所持金を ${LIME}{2}{WHITE} に設定しました",
     "Rename.Notification.Usage": "使用法: !rename <プレイヤー> <新しい名前>",
     "Rename.Broadcast.Renamed": "管理者 {LIME}{0}{WHITE} が {LIME}{1}{WHITE} を {LIME}{2}{WHITE} に改名しました",
 

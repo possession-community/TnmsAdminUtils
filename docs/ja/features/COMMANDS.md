@@ -26,6 +26,7 @@
 | !god \<player\> \<0\|1\> | tnms.adminutil.management.ingame.command.god | 無敵モード切替 |
 | !speed \<player\> \<value\> | tnms.adminutil.management.ingame.command.speed | 速度倍率を設定 (0.0–10.0) |
 | !gravity \<player\> \<scale\> | tnms.adminutil.management.ingame.command.gravity | 重力スケールを設定 (0.0–100.0) |
+| !money \<player\> \<amount\> | tnms.adminutil.management.ingame.command.money | 所持金を設定 (0–60000) |
 
 ### 移動 / スポーン
 
