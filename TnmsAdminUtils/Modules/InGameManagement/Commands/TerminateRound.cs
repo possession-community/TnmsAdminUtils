@@ -59,7 +59,7 @@ public class TerminateRound(IServiceProvider provider) : TnmsAbstractCommandBase
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} terminated round in {delaySeconds} seconds with reason {reason.ToString()}");
         
 
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

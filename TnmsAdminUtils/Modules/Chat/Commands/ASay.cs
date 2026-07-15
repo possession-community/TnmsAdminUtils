@@ -40,7 +40,7 @@ public class ASay(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
         string executor = PlayerUtil.GetPlayerName(client);
         var adminManager = TnmsPluginFoundation.TnmsPlugin.AdminManager;
 
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

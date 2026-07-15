@@ -64,7 +64,7 @@ public class God(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
         string state = godmode ? "ON" : "OFF";
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} set god mode {state} on {targetName}");
 
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

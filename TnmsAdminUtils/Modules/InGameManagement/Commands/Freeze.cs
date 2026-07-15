@@ -74,7 +74,7 @@ public class Freeze(IServiceProvider provider) : TnmsAbstractCommandBase(provide
         string targetName = targets.GetTargetName();
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} froze {targetName}");
 
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

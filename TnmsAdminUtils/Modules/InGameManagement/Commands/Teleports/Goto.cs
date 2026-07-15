@@ -66,7 +66,7 @@ public class Goto(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         string targetName = targetPawn.GetController()?.PlayerName ?? "N/A";
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} teleported to {targetName}");
     
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

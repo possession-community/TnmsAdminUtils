@@ -64,7 +64,7 @@ public class Rename(IServiceProvider provider) : TnmsAbstractCommandBase(provide
         string executor = PlayerUtil.GetPlayerName(client);
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} renamed {oldName} to {newName}");
 
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

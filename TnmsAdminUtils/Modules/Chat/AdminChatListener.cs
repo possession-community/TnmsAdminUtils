@@ -28,7 +28,7 @@ public class AdminChatListener(TnmsAdminUtils plugin, ISharedSystem sharedSystem
         string adminMsg = plugin.LocalizeWithPluginPrefix(null, "AdminChat.Broadcast.ToAdmin", senderName, body);
         string publicMsg = plugin.LocalizeWithPluginPrefix(null, "AdminChat.Broadcast.ToAll", body);
 
-        foreach (var gameClient in sharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in sharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

@@ -61,7 +61,7 @@ public class AddTime(IServiceProvider provider) : TnmsAbstractCommandBase(provid
             
             Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} shortened current round time by {diffTime} seconds");
         
-            foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+            foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
             {
                 if (gameClient.IsFakeClient || gameClient.IsHltv)
                     continue;
@@ -75,7 +75,7 @@ public class AddTime(IServiceProvider provider) : TnmsAbstractCommandBase(provid
         {
             Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} extended current round time by {extendSeconds} seconds");
         
-            foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+            foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
             {
                 if (gameClient.IsFakeClient || gameClient.IsHltv)
                     continue;

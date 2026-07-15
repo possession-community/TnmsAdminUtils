@@ -86,7 +86,7 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         if (damage > 0)
         {
             Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} has been slapped {targetName} with damage {damage}");
-            foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+            foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
             {
                 if (gameClient.IsFakeClient || gameClient.IsHltv)
                     continue;
@@ -100,7 +100,7 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         else
         {
             Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} has been slapped {targetName}");
-            foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+            foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
             {
                 if (gameClient.IsFakeClient || gameClient.IsHltv)
                     continue;

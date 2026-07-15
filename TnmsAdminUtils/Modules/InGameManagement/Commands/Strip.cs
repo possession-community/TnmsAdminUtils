@@ -53,7 +53,7 @@ public class Strip(IServiceProvider provider) : TnmsAbstractCommandBase(provider
         string targetName = targets.GetTargetName();
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} stripped {targetName}");
 
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

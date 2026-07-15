@@ -43,7 +43,7 @@ public class Rcon(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         string executor = PlayerUtil.GetPlayerName(client);
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} is executed '{commandToExecute}' with RCON");
         
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

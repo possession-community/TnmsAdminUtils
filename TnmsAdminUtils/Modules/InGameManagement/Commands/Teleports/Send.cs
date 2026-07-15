@@ -74,7 +74,7 @@ public class Send(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         string executor = PlayerUtil.GetPlayerName(client);
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} sent {targetName} to {sendTargetName}");
     
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

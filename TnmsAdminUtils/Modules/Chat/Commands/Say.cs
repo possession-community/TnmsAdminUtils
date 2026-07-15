@@ -39,7 +39,7 @@ public class Say(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
         string message = commandInfo.ArgString;
         string executor = PlayerUtil.GetPlayerName(client);
 
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

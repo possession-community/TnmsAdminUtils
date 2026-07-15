@@ -66,7 +66,7 @@ public class NoClip(IServiceProvider provider) : TnmsAbstractCommandBase(provide
         string state = explicitValue.HasValue ? (explicitValue.Value == 1 ? "ON" : "OFF") : "toggled";
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} set noclip {state} on {targetName}");
 
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

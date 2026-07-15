@@ -57,7 +57,7 @@ public class WeaponGive(IServiceProvider provider) : TnmsAbstractCommandBase(pro
         string targetName = targets.GetTargetName();
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} gave {weaponArg} to {targetName}");
 
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

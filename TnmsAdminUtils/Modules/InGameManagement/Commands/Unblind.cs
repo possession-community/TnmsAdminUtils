@@ -61,7 +61,7 @@ public class Unblind(IServiceProvider provider) : TnmsAbstractCommandBase(provid
         string targetName = targets.GetTargetName();
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} unblinded {targetName}");
 
-        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients())
+        foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;

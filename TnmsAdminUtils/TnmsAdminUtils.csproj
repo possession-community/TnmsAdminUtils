@@ -5,6 +5,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <RepositoryUrl>https://github.com/possession-community/TnmsAdminUtils</RepositoryUrl>
     </PropertyGroup>
 
