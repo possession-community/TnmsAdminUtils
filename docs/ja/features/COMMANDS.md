@@ -59,6 +59,8 @@
 | !team \<player\> \<ct\|t\|spec\> | tnms.adminutil.management.ingame.command.team | チーム変更 (プレイヤーは死亡) |
 | !swap \<player\> | tnms.adminutil.management.ingame.command.team | 反対チームにスワップ (死亡せず) |
 | !give \<player\> \<weapon\> | tnms.adminutil.management.ingame.command.give | 武器を付与 (`weapon_` プレフィックス自動補完) |
+| !strip \<player\> | tnms.adminutil.management.ingame.command.give | 全武器を剥奪 |
+| !drop \<player\> \<weaponIndex\> | tnms.adminutil.management.ingame.command.give | 指定インデックスの武器を強制ドロップ |
 | !rename \<player\> \<newname\> | tnms.adminutil.management.ingame.command.rename | プレイヤー名を変更 |
 
 ### テレポート

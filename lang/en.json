@@ -80,6 +80,11 @@
     "Team.Broadcast.TeamSwapped": "Admin {LIME}{0}{WHITE} swapped {LIME}{1}{WHITE} to opposite team",
     "WeaponGive.Notification.Usage": "Usage: !give <player> <weapon>",
     "WeaponGive.Broadcast.WeaponGiven": "Admin {LIME}{0}{WHITE} gave {LIME}{2}{WHITE} to {LIME}{1}{WHITE}",
+    "Strip.Notification.Usage": "Usage: !strip <player>",
+    "Strip.Broadcast.Stripped": "Admin {LIME}{0}{WHITE} stripped {LIME}{1}{WHITE}",
+    "Drop.Notification.Usage": "Usage: !drop <player> <weaponIndex>",
+    "Drop.Notification.InvalidIndex": "Weapon index {LIME}{0}{WHITE} is out of range (player has {LIME}{1}{WHITE} weapons).",
+    "Drop.Broadcast.Dropped": "Admin {LIME}{0}{WHITE} forced {LIME}{1}{WHITE} to drop weapon #{LIME}{2}{WHITE}",
     "Rename.Notification.Usage": "Usage: !rename <player> <newname>",
     "Rename.Broadcast.Renamed": "Admin {LIME}{0}{WHITE} renamed {LIME}{1}{WHITE} to {LIME}{2}{WHITE}",
 

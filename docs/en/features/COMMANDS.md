@@ -59,6 +59,8 @@ Available colors: `red`, `green`, `blue`, `yellow`, `orange`, `purple`, `cyan`, 
 | !team \<player\> \<ct\|t\|spec\> | tnms.adminutil.management.ingame.command.team | Change a player's team (kills the player) |
 | !swap \<player\> | tnms.adminutil.management.ingame.command.team | Swap to opposite team without killing |
 | !give \<player\> \<weapon\> | tnms.adminutil.management.ingame.command.give | Give a weapon (auto-prefixes `weapon_`) |
+| !strip \<player\> | tnms.adminutil.management.ingame.command.give | Strip all weapons from a player |
+| !drop \<player\> \<weaponIndex\> | tnms.adminutil.management.ingame.command.give | Force a player to drop a weapon by index |
 | !rename \<player\> \<newname\> | tnms.adminutil.management.ingame.command.rename | Rename a player |
 
 ### Teleports
