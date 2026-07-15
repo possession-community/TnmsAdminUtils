@@ -17,7 +17,7 @@ public class Strip(IServiceProvider provider) : TnmsAbstractCommandBase(provider
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.give", true))
+        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.strip", true))
         .Add(new ArgumentCountValidator(1, true))
         .Add(new TargetValidator(1, true));
 

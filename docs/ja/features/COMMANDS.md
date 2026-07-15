@@ -21,7 +21,7 @@
 | コマンド | 権限ノード | 説明 |
 |---|---|---|
 | !slay \<player\> | tnms.adminutil.management.ingame.command.slay | プレイヤーをキル |
-| !slap \<player\> [damage] | tnms.adminutil.management.ingame.command.slay | プレイヤーを叩く (ダメージ指定可) |
+| !slap \<player\> [damage] | tnms.adminutil.management.ingame.command.slap | プレイヤーを叩く (ダメージ指定可) |
 | !hp \<player\> \<health\> | tnms.adminutil.management.ingame.command.hp | 体力を設定 (100超はMaxHealthも調整) |
 | !god \<player\> \<0\|1\> | tnms.adminutil.management.ingame.command.god | 無敵モード切替 |
 | !speed \<player\> \<value\> | tnms.adminutil.management.ingame.command.speed | 速度倍率を設定 (0.0–10.0) |
@@ -59,8 +59,8 @@
 | !team \<player\> \<ct\|t\|spec\> | tnms.adminutil.management.ingame.command.team | チーム変更 (プレイヤーは死亡) |
 | !swap \<player\> | tnms.adminutil.management.ingame.command.team | 反対チームにスワップ (死亡せず) |
 | !give \<player\> \<weapon\> | tnms.adminutil.management.ingame.command.give | 武器を付与 (`weapon_` プレフィックス自動補完) |
-| !strip \<player\> | tnms.adminutil.management.ingame.command.give | 全武器を剥奪 |
-| !drop \<player\> \<weaponIndex\> | tnms.adminutil.management.ingame.command.give | 指定インデックスの武器を強制ドロップ |
+| !strip \<player\> | tnms.adminutil.management.ingame.command.strip | 全武器を剥奪 |
+| !drop \<player\> \<weaponIndex\> | tnms.adminutil.management.ingame.command.drop | 指定インデックスの武器を強制ドロップ |
 | !rename \<player\> \<newname\> | tnms.adminutil.management.ingame.command.rename | プレイヤー名を変更 |
 
 ### テレポート

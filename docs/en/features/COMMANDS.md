@@ -21,7 +21,7 @@ In chat, `!slay` / `css_slay` can also be used.
 | Command | Permission Node | Description |
 |---|---|---|
 | !slay \<player\> | tnms.adminutil.management.ingame.command.slay | Kill a player |
-| !slap \<player\> [damage] | tnms.adminutil.management.ingame.command.slay | Slap a player with optional damage |
+| !slap \<player\> [damage] | tnms.adminutil.management.ingame.command.slap | Slap a player with optional damage |
 | !hp \<player\> \<health\> | tnms.adminutil.management.ingame.command.hp | Set a player's health (auto-adjusts MaxHealth above 100) |
 | !god \<player\> \<0\|1\> | tnms.adminutil.management.ingame.command.god | Toggle god mode (invincibility) |
 | !speed \<player\> \<value\> | tnms.adminutil.management.ingame.command.speed | Set a player's speed multiplier (0.0–10.0) |
@@ -59,8 +59,8 @@ Available colors: `red`, `green`, `blue`, `yellow`, `orange`, `purple`, `cyan`, 
 | !team \<player\> \<ct\|t\|spec\> | tnms.adminutil.management.ingame.command.team | Change a player's team (kills the player) |
 | !swap \<player\> | tnms.adminutil.management.ingame.command.team | Swap to opposite team without killing |
 | !give \<player\> \<weapon\> | tnms.adminutil.management.ingame.command.give | Give a weapon (auto-prefixes `weapon_`) |
-| !strip \<player\> | tnms.adminutil.management.ingame.command.give | Strip all weapons from a player |
-| !drop \<player\> \<weaponIndex\> | tnms.adminutil.management.ingame.command.give | Force a player to drop a weapon by index |
+| !strip \<player\> | tnms.adminutil.management.ingame.command.strip | Strip all weapons from a player |
+| !drop \<player\> \<weaponIndex\> | tnms.adminutil.management.ingame.command.drop | Force a player to drop a weapon by index |
 | !rename \<player\> \<newname\> | tnms.adminutil.management.ingame.command.rename | Rename a player |
 
 ### Teleports

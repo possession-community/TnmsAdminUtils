@@ -18,7 +18,7 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.slay", true))
+        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.slap", true))
         .Add(new ArgumentCountValidator(1, true))
         .Add(new TargetValidator(1, true))
         .Add(new RangedArgumentValidator<int>(0, int.MaxValue, 2, 0, true));

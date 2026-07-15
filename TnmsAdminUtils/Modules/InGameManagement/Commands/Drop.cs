@@ -19,7 +19,7 @@ public class Drop(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.give", true))
+        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.drop", true))
         .Add(new ArgumentCountValidator(2, true))
         .Add(new TargetValidator(1, true))
         .Add(new RangedArgumentValidator<int>(0, 64, 2, true));
