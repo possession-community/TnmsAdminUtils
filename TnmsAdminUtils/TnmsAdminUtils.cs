@@ -53,7 +53,7 @@ public class TnmsAdminUtils(
     {
         var prefix = GetPluginPrefix(client);
         var message = LocalizeStringForPlayer(client, localizationKey, (object[])args);
-        return $" {prefix} {message}";
+        return $" {prefix.TrimStart(' ')} {message.TrimStart(' ')}";
     }
 
     /// <summary>
