@@ -15,13 +15,14 @@
 
 ### Admin Chat ブロードキャスト
 
-チャットで `@メッセージ` と入力すると (`say` / `say_team` 両対応)、管理者ブロードキャストとして送信されます。
+チャットで `@メッセージ` と入力すると (`say` / `say_team` 両対応)、管理者ブロードキャストとして全プレイヤーに送信されます。
 
-- 一般プレイヤーには `[ADMIN] メッセージ` と表示
-- 管理者には `[ADMIN プレイヤー名] メッセージ` と表示
+- 全員に `(ADMIN) プレイヤー名: メッセージ` と表示
 - 元のチャットメッセージは抑制されます
 
-権限: `tnms.adminutil.chat.command.say.admins` (送信・受信側の判定に使用)
+権限: `tnms.adminutil.chat.command.say.admins` (送信に必要)
+
+`!say` と `@メッセージ` は同じメッセージフォーマットを使います (`lang/<culture>.json` の `Say.Broadcast.Message`)。`!asay` は専用のフォーマット (`Say.Broadcast.ASay`、`(ADMIN ONLY) プレイヤー名: メッセージ` と表示) を使います。
 
 ## 戦闘 / ステータスコマンド
 

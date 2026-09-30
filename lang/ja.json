@@ -33,10 +33,10 @@
     "ReplicateCvar.Notification.Replicated": "{LIME}{0}{WHITE} を値 {LIME}{1}{WHITE} で {LIME}{2}{WHITE} に複製しました",
 
     "Say.Notification.Usage": "使用法: !say <メッセージ>",
-    "Say.Broadcast.Say": "{LIME}{0}{WHITE}: {1}",
+    "Say.Broadcast.Message": "{PURPLE}(ADMIN) {LIME}{0}{WHITE}: {1}",
+    "Say.Broadcast.ASay": "{PURPLE}(ADMIN ONLY) {LIME}{0}{WHITE}: {1}",
     "Say.Broadcast.CSay": "{0}: {1}",
     "Say.Broadcast.HSay": "{0}: {1}",
-    "Say.Broadcast.ASay": "{PURPLE}[管理者] {LIME}{0}{WHITE}: {1}",
     "PSay.Notification.Usage": "使用法: !psay <プレイヤー> <メッセージ>",
     "PSay.Broadcast.PrivateMessage": "{PURPLE}[PM] {LIME}{0}{WHITE} -> {LIME}{1}{WHITE}: {2}",
 
@@ -112,8 +112,5 @@
     "ClanTag.Notification.Usage": "使用法: !clantag <プレイヤー> <タグ>",
     "ClanTag.Broadcast.ClanTagSet": "管理者 {LIME}{0}{WHITE} が {LIME}{1}{WHITE} のクランタグを {LIME}{2}{WHITE} に設定しました",
     "Users.Notification.Header": "--- オンラインプレイヤー ---",
-    "Users.Notification.Entry": "#{LIME}{0}{WHITE} | {LIME}{1}{WHITE} | {LIME}{2}{WHITE}",
-
-    "AdminChat.Broadcast.ToAll": "{PURPLE}[管理者]{WHITE} {0}",
-    "AdminChat.Broadcast.ToAdmin": "{PURPLE}[管理者 {LIME}{0}{PURPLE}]{WHITE} {1}"
+    "Users.Notification.Entry": "#{LIME}{0}{WHITE} | {LIME}{1}{WHITE} | {LIME}{2}{WHITE}"
 }

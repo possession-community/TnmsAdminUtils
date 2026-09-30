@@ -33,10 +33,10 @@
     "ReplicateCvar.Notification.Replicated": "replicated {LIME}{0}{WHITE} with value {LIME}{1}{WHITE} to {LIME}{2}{WHITE}",
 
     "Say.Notification.Usage": "Usage: !say <message>",
-    "Say.Broadcast.Say": "{LIME}{0}{WHITE}: {1}",
+    "Say.Broadcast.Message": "{PURPLE}(ADMIN) {LIME}{0}{WHITE}: {1}",
+    "Say.Broadcast.ASay": "{PURPLE}(ADMIN ONLY) {LIME}{0}{WHITE}: {1}",
     "Say.Broadcast.CSay": "{0}: {1}",
     "Say.Broadcast.HSay": "{0}: {1}",
-    "Say.Broadcast.ASay": "{PURPLE}[ADMIN] {LIME}{0}{WHITE}: {1}",
     "PSay.Notification.Usage": "Usage: !psay <player> <message>",
     "PSay.Broadcast.PrivateMessage": "{PURPLE}[PM] {LIME}{0}{WHITE} -> {LIME}{1}{WHITE}: {2}",
 
@@ -112,8 +112,5 @@
     "ClanTag.Notification.Usage": "Usage: !clantag <player> <tag>",
     "ClanTag.Broadcast.ClanTagSet": "Admin {LIME}{0}{WHITE} set {LIME}{1}{WHITE} clan tag to {LIME}{2}{WHITE}",
     "Users.Notification.Header": "--- Online Players ---",
-    "Users.Notification.Entry": "#{LIME}{0}{WHITE} | {LIME}{1}{WHITE} | {LIME}{2}{WHITE}",
-
-    "AdminChat.Broadcast.ToAll": "{PURPLE}[ADMIN]{WHITE} {0}",
-    "AdminChat.Broadcast.ToAdmin": "{PURPLE}[ADMIN {LIME}{0}{PURPLE}]{WHITE} {1}"
+    "Users.Notification.Entry": "#{LIME}{0}{WHITE} | {LIME}{1}{WHITE} | {LIME}{2}{WHITE}"
 }

@@ -46,7 +46,7 @@ public class Say(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
 
             gameClient.GetPlayerController()?
                 .PrintToChat(
-                    ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Say.Broadcast.Say", executor, message));
+                    Plugin.LocalizeStringForPlayer(gameClient, "Say.Broadcast.Message", executor, message));
         }
     }
 }

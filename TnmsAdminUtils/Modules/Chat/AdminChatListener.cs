@@ -25,16 +25,13 @@ public class AdminChatListener(TnmsAdminUtils plugin, ISharedSystem sharedSystem
             return ECommandAction.Skipped;
 
         string senderName = client.Name;
-        string adminMsg = plugin.LocalizeWithPluginPrefix(null, "AdminChat.Broadcast.ToAdmin", senderName, body);
-        string publicMsg = plugin.LocalizeWithPluginPrefix(null, "AdminChat.Broadcast.ToAll", body);
 
         foreach (var gameClient in sharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
         {
             if (gameClient.IsFakeClient || gameClient.IsHltv)
                 continue;
 
-            bool isAdmin = TnmsPlugin.AdminManager.PlayerHasPermission(gameClient.SteamId, "tnms.adminutil.chat.command.say.admins");
-            gameClient.GetPlayerController()?.PrintToChat(isAdmin ? adminMsg : publicMsg);
+            gameClient.GetPlayerController()?.PrintToChat(plugin.LocalizeStringForPlayer(gameClient, "Say.Broadcast.Message", senderName, body));
         }
 
         return ECommandAction.Stopped;

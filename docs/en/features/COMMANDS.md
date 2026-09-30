@@ -15,13 +15,14 @@ In chat, `!slay` / `css_slay` can also be used.
 
 ### Admin Chat Broadcast
 
-Typing `@message` in chat (`say` / `say_team` both supported) sends an admin broadcast.
+Typing `@message` in chat (`say` / `say_team` both supported) sends an admin broadcast to all players.
 
-- Non-admins see: `[ADMIN] message`
-- Admins see: `[ADMIN playername] message`
+- Everyone sees: `(ADMIN) playername: message`
 - The original chat message is suppressed
 
-Permission: `tnms.adminutil.chat.command.say.admins` (used for both sending and receiving)
+Permission: `tnms.adminutil.chat.command.say.admins` (required to send)
+
+`!say` and `@message` share the same message format (`Say.Broadcast.Message` in `lang/<culture>.json`). `!asay` uses its own format (`Say.Broadcast.ASay`, shown as `(ADMIN ONLY) playername: message`).
 
 ## Combat / Stats Commands
 

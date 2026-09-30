@@ -50,7 +50,7 @@ public class ASay(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
 
             gameClient.GetPlayerController()?
                 .PrintToChat(
-                    ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(gameClient, "Say.Broadcast.ASay", executor, message));
+                    Plugin.LocalizeStringForPlayer(gameClient, "Say.Broadcast.ASay", executor, message));
         }
     }
 }
