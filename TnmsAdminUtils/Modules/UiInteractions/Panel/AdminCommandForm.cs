@@ -70,7 +70,7 @@ public sealed class AdminCommandForm
             return;
         }
 
-        if (Entry.Arguments[index] is TextArgument or TextListArgument && !Entry.Arguments[index].IsOptional)
+        if (!Entry.Arguments[index].HasChoices && !Entry.Arguments[index].IsOptional)
         {
             OpenField = -1;
 
@@ -105,7 +105,7 @@ public sealed class AdminCommandForm
         foreach (var choice in values)
             choices.Add(new AdminFormChoice(choice.Label, current?.Raw == choice.Value.Raw, () => Set(index, choice.Value)));
 
-        if (argument is PresetArgument or TextArgument)
+        if (argument.AcceptsText)
             choices.Add(new AdminFormChoice(_context.L("AdminMenu.TypeInChat"), false, () => BeginWait(index)));
 
         return choices;
@@ -177,7 +177,7 @@ public sealed class AdminCommandForm
         WaitField = index;
         _waitExpiresAt = Expiry();
 
-        var title = $"{_context.CommandLabel(Entry)}: {_context.L(Entry.Arguments[index].TitleKey)}";
+        var title = $"{_context.CommandLabel(Entry)}: {_context.Title(Entry.Arguments[index])}";
         _context.PrintToChat("AdminMenu.Text.Prompt", title, AdminCommandContext.TextInputTimeoutSeconds);
     }
 

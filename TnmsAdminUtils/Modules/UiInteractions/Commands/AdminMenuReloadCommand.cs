@@ -6,12 +6,12 @@ using TnmsPluginFoundation.Models.Command.Validators;
 namespace TnmsAdminUtils.Modules.UiInteractions.Commands;
 
 /// <summary>
-/// Reads menu.json again and rebuilds the admins' command lists, which are otherwise kept until the next load.
+/// Reads the menu TOMLs (configs/menus) again and rebuilds the admins' command lists, which are otherwise kept until the next load.
 /// </summary>
 public class AdminMenuReloadCommand(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
 {
     public override string CommandName => "adminmenu_reload";
-    public override string CommandDescription => "Reloads menu.json and the admin menu command lists.";
+    public override string CommandDescription => "Reloads the menu TOMLs and the admin menu command lists.";
 
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;

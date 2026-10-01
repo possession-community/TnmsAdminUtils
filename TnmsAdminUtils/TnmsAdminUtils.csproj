@@ -7,6 +7,9 @@
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <RepositoryUrl>https://github.com/possession-community/TnmsAdminUtils</RepositoryUrl>
+        <!-- Needed so NuGet runtime assets (CsToml.dll) land in the output for deploy. -->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
     </PropertyGroup>
 
     <ItemGroup>
@@ -14,6 +17,12 @@
 
         <ProjectReference Include="..\..\TNMSPluginFoundation\TnmsPluginFoundation\TnmsPluginFoundation.csproj" Private="false" ExcludeAssets="runtime" PrivateAssets="runtime" />
         <PackageReference Include="NativeVoteManagerMS.Shared" Version="*" ExcludeAssets="runtime" />
+        <PackageReference Include="CsToml" Version="1.8.2" />
+        <!--
+          Comes in through TnmsPluginFoundation, but loaded from Wuling's shared directory at runtime: referenced here
+          only so it stays out of the output, where the copy step would otherwise pick it up with the other dlls.
+        -->
+        <ProjectReference Include="..\..\Wuling\Wuling.Abstract\Wuling.Abstract.csproj" Private="false" ExcludeAssets="runtime" />
     </ItemGroup>
 
     <ItemGroup>
@@ -25,8 +34,20 @@
     </ItemGroup>
 
     <Target Name="CopyPlugin" AfterTargets="Build" Condition="'$(MOD_SHARP_DIR)' != ''">
+        <ItemGroup>
+            <PluginFiles Include="$(TargetDir)$(ProjectName).deps.json;$(TargetDir)$(ProjectName).pdb" />
+            <!--
+              Every assembly, not a hand-written list, so a dependency (CsToml) is not left behind. The ones the host
+              provides (ModSharp, TnmsPluginFoundation, Wuling) are ExcludeAssets="runtime" and never reach this directory.
+            -->
+            <PluginFiles Include="$(TargetDir)*.dll" />
+            <PluginConfigs Include="$(MSBuildProjectDirectory)\..\configs\**\*.toml" />
+        </ItemGroup>
         <Message Text="Copying the plugin files to ModSharp modules directory" Importance="High" />
-        <Copy SourceFiles="$(TargetDir)$(ProjectName).deps.json;$(TargetDir)$(ProjectName).dll;$(TargetDir)$(ProjectName).pdb" DestinationFolder="$(MOD_SHARP_DIR)\modules\$(ProjectName)\reload" />
+        <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(MOD_SHARP_DIR)\modules\$(ProjectName)\reload" />
+        <!-- The configs on the server are the operator's: copied only when missing, never overwritten. -->
+        <Copy SourceFiles="@(PluginConfigs)" DestinationFiles="$(MOD_SHARP_DIR)\modules\$(ProjectName)\configs\%(RecursiveDir)%(Filename)%(Extension)"
+              Condition="!Exists('$(MOD_SHARP_DIR)\modules\$(ProjectName)\configs\%(RecursiveDir)%(Filename)%(Extension)')" />
         <Message Text="Successfully copied the plugin files" Importance="High" />
     </Target>
 

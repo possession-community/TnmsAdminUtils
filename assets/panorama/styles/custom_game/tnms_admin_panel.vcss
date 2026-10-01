@@ -90,8 +90,56 @@
 	color: #ffeaa8;
 }
 
+/* The same 4px between the lines above and below and the up / down buttons. */
+.tap-cats {
+	flow-children: down;
+	width: 199px;
+	height: fill-parent-flow(1.0);
+	margin-top: 8px;
+	padding: 4px 0px;
+	border-top: 1px solid #ffffff14;
+}
+
+/* The rest between the up / down buttons (~440, measured in game): 11 x 38 fits. Fixed by the parent, so the down
+ * button stays put with fewer categories. */
+.tap-catlist {
+	flow-children: down;
+	width: 199px;
+	height: fill-parent-flow(1.0);
+}
+
+/* Thin page buttons above and below the list. */
+.tap-catbtn {
+	width: 199px;
+	height: 18px;
+	background-color: #ffffff08;
+}
+
+.tap-catbtn:hover {
+	background-color: #41567a99;
+}
+
+.tap-catbtn-t {
+	horizontal-align: center;
+	vertical-align: center;
+	font-size: 10px;
+	color: #9aa4af;
+}
+
+.tap-catbtn:hover .tap-catbtn-t {
+	color: #ffeaa8;
+}
+
+/* No page that way: always shown (an empty strip looks odd), only dimmed. */
+.tap-catbtn.tap-dis, .tap-catbtn.tap-dis:hover {
+	background-color: #ffffff03;
+}
+
+.tap-catbtn.tap-dis .tap-catbtn-t, .tap-catbtn.tap-dis:hover .tap-catbtn-t {
+	color: #9aa4af33;
+}
+
 .tap-nav-close {
-	margin-top: 18px;
 	border-top: 1px solid #ffffff14;
 }
 

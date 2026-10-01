@@ -51,24 +51,94 @@
       ]
     },
     {
-      "id": "tap-nav3",
+      "id": "tap-catprev",
+      "type": "Button",
+      "classes": [
+        "tap-catbtn"
+      ]
+    },
+    {
+      "id": "tap-cat0",
       "type": "Button",
       "classes": [
         "tap-nav"
       ]
     },
     {
-      "id": "tap-nav4",
+      "id": "tap-cat1",
       "type": "Button",
       "classes": [
         "tap-nav"
       ]
     },
     {
-      "id": "tap-nav5",
+      "id": "tap-cat2",
       "type": "Button",
       "classes": [
         "tap-nav"
+      ]
+    },
+    {
+      "id": "tap-cat3",
+      "type": "Button",
+      "classes": [
+        "tap-nav"
+      ]
+    },
+    {
+      "id": "tap-cat4",
+      "type": "Button",
+      "classes": [
+        "tap-nav"
+      ]
+    },
+    {
+      "id": "tap-cat5",
+      "type": "Button",
+      "classes": [
+        "tap-nav"
+      ]
+    },
+    {
+      "id": "tap-cat6",
+      "type": "Button",
+      "classes": [
+        "tap-nav"
+      ]
+    },
+    {
+      "id": "tap-cat7",
+      "type": "Button",
+      "classes": [
+        "tap-nav"
+      ]
+    },
+    {
+      "id": "tap-cat8",
+      "type": "Button",
+      "classes": [
+        "tap-nav"
+      ]
+    },
+    {
+      "id": "tap-cat9",
+      "type": "Button",
+      "classes": [
+        "tap-nav"
+      ]
+    },
+    {
+      "id": "tap-cat10",
+      "type": "Button",
+      "classes": [
+        "tap-nav"
+      ]
+    },
+    {
+      "id": "tap-catnext",
+      "type": "Button",
+      "classes": [
+        "tap-catbtn"
       ]
     },
     {
@@ -1096,5 +1166,5 @@
     "t",
     "v"
   ],
-  "internEstimate": 245
+  "internEstimate": 259
 }

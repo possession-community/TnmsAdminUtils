@@ -10,7 +10,9 @@ namespace TnmsAdminUtils.Modules.UiInteractions;
 public sealed class AdminCommandCache
 {
     private sealed record Lists(
-        IReadOnlyDictionary<AdminMenuTree, IReadOnlyList<AdminMenuEntry>> ByTree,
+        IReadOnlyList<AdminMenuEntry> Players,
+        IReadOnlyDictionary<string, IReadOnlyList<AdminMenuEntry>> ByCategory,
+        IReadOnlyList<AdminMenuCategoryDefinition> Categories,
         IReadOnlyDictionary<string, AdminMenuEntry> ByMenuId);
 
     private readonly AdminMenuRegistry _registry;
@@ -23,9 +25,22 @@ public sealed class AdminCommandCache
     }
 
     /// <summary>
-    /// Players lists every command with a target; the others follow <see cref="AdminMenuEntry.Category"/>.
+    /// Players lists every command with a target; a category lists its own commands.
     /// </summary>
-    public IReadOnlyList<AdminMenuEntry> Get(ulong steamId, AdminMenuTree tree) => For(steamId).ByTree[tree];
+    public IReadOnlyList<AdminMenuEntry> Get(ulong steamId, AdminMenuList list)
+    {
+        var lists = For(steamId);
+
+        if (list.Category is not { } category)
+            return lists.Players;
+
+        return lists.ByCategory.GetValueOrDefault(category) ?? [];
+    }
+
+    /// <summary>
+    /// Categories with at least one command the admin can run, in registry order.
+    /// </summary>
+    public IReadOnlyList<AdminMenuCategoryDefinition> Categories(ulong steamId) => For(steamId).Categories;
 
     public AdminMenuEntry? Find(ulong steamId, string menuId) => For(steamId).ByMenuId.GetValueOrDefault(menuId);
 
@@ -49,18 +64,25 @@ public sealed class AdminCommandCache
     private Lists Create(ulong steamId)
     {
         var authority = TnmsPlugin.AdminManager;
-        var permitted = _registry.Entries.Where(e => authority.PlayerHasPermission(steamId, e.Permission)).ToList();
 
-        var byTree = new Dictionary<AdminMenuTree, IReadOnlyList<AdminMenuEntry>>
-        {
-            [AdminMenuTree.Players] = permitted.Where(e => e.PrimaryTarget is not null).ToList(),
-            [AdminMenuTree.Commands] = permitted.Where(e => e.Category == AdminMenuCategory.Normal).ToList(),
-            [AdminMenuTree.Server] = permitted.Where(e => e.Category == AdminMenuCategory.Server).ToList(),
-            [AdminMenuTree.Notification] = permitted.Where(e => e.Category == AdminMenuCategory.Notification).ToList(),
-        };
+        // A category's permission hides its commands everywhere, the Players tree and favorites included.
+        var categories = _registry.Categories
+            .Where(c => c.Permission is null || authority.PlayerHasPermission(steamId, c.Permission))
+            .ToList();
 
+        var categoryKeys = categories.Select(c => c.Key).ToHashSet();
+
+        var permitted = _registry.Entries
+            .Where(e => categoryKeys.Contains(e.Category) && authority.PlayerHasPermission(steamId, e.Permission))
+            .ToList();
+
+        var byCategory = permitted.GroupBy(e => e.Category).ToDictionary(g => g.Key, g => (IReadOnlyList<AdminMenuEntry>)g.ToList());
         var byMenuId = permitted.GroupBy(e => e.MenuId).ToDictionary(g => g.Key, g => g.First());
 
-        return new Lists(byTree, byMenuId);
+        return new Lists(
+            permitted.Where(e => e.PrimaryTarget is not null).ToList(),
+            byCategory,
+            categories.Where(c => byCategory.ContainsKey(c.Key)).ToList(),
+            byMenuId);
     }
 }

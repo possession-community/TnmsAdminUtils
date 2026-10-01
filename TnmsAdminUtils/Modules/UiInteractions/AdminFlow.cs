@@ -5,12 +5,15 @@ using Wuling.Abstract.Tianshi.Registry;
 
 namespace TnmsAdminUtils.Modules.UiInteractions;
 
-public enum AdminMenuTree
+/// <summary>
+/// A command list: the Players tree (every command with a target, after picking the player) or a category.
+/// </summary>
+/// <param name="Category">Category key, or null for the Players tree</param>
+public readonly record struct AdminMenuList(string? Category)
 {
-    Commands,
-    Players,
-    Server,
-    Notification,
+    public static AdminMenuList Players => new(null);
+
+    public bool IsPlayers => Category is null;
 }
 
 /// <param name="Raw">Text written to the command line</param>
@@ -26,12 +29,12 @@ public sealed record AdminMenuValue(string Raw, string Display, bool IsSelector 
 /// What has been chosen so far. Immutable so that going back restores the previous choices.
 /// </summary>
 public sealed record AdminMenuFlow(
-    AdminMenuTree Tree,
+    AdminMenuList List,
     AdminMenuEntry? Entry,
     AdminMenuValue? ChosenTarget,
     ImmutableDictionary<int, AdminMenuValue> Values)
 {
-    public static AdminMenuFlow Start(AdminMenuTree tree) => new(tree, null, null, ImmutableDictionary<int, AdminMenuValue>.Empty);
+    public static AdminMenuFlow Start(AdminMenuList list) => new(list, null, null, ImmutableDictionary<int, AdminMenuValue>.Empty);
 }
 
 public enum AdminFlowItemStyle
@@ -108,16 +111,16 @@ public sealed class AdminFlow
     public bool IsWaitingText => _pendingText != null;
 
     /// <summary>
-    /// Root page of the menu: <paramref name="topItems"/>, then Players / General / Server / Notification.
+    /// Root page of the menu: <paramref name="topItems"/>, then Players and the categories.
     /// </summary>
     public void StartRoot(IReadOnlyList<AdminFlowItem> topItems) => Navigate(() => RenderRoot(topItems));
 
-    public void StartTree(AdminMenuTree tree)
+    public void StartList(AdminMenuList list)
     {
-        if (tree == AdminMenuTree.Players)
-            Navigate(() => RenderPlayersTarget(AdminMenuFlow.Start(tree)));
+        if (list.IsPlayers)
+            Navigate(() => RenderPlayersTarget(AdminMenuFlow.Start(list)));
         else
-            ShowCommandList(AdminMenuFlow.Start(tree));
+            ShowCommandList(AdminMenuFlow.Start(list));
     }
 
     /// <summary>
@@ -198,20 +201,12 @@ public sealed class AdminFlow
     {
         var items = new List<AdminFlowItem>(topItems);
 
-        if (_context.VisibleEntries(AdminMenuTree.Players).Any())
-            items.Add(new AdminFlowItem(L("AdminMenu.Root.Players"), Deferred(() => StartTree(AdminMenuTree.Players))));
+        if (_context.VisibleEntries(AdminMenuList.Players).Any())
+            items.Add(new AdminFlowItem(L("AdminMenu.Root.Players"), Deferred(() => StartList(AdminMenuList.Players))));
 
         // The command lists stay together after Players.
-        foreach (var (tree, labelKey) in new[]
-                 {
-                     (AdminMenuTree.Commands, "AdminMenu.Root.Commands"),
-                     (AdminMenuTree.Server, "AdminMenu.Root.Server"),
-                     (AdminMenuTree.Notification, "AdminMenu.Root.Notification"),
-                 })
-        {
-            if (_context.VisibleEntries(tree).Any())
-                items.Add(new AdminFlowItem(L(labelKey), Deferred(() => StartTree(tree))));
-        }
+        foreach (var category in _context.VisibleCategories())
+            items.Add(new AdminFlowItem(_context.CategoryName(category), Deferred(() => StartList(new AdminMenuList(category.Key)))));
 
         Show(L("AdminMenu.Title"), items);
     }
@@ -222,16 +217,13 @@ public sealed class AdminFlow
     {
         var title = flow.ChosenTarget is { } target
             ? $"{L("AdminMenu.Root.Players")}: {target.Display}"
-            : L(flow.Tree switch
-            {
-                AdminMenuTree.Server => "AdminMenu.Root.Server",
-                AdminMenuTree.Notification => "AdminMenu.Root.Notification",
-                _ => "AdminMenu.Root.Commands",
-            });
+            : _context.VisibleCategories().FirstOrDefault(c => c.Key == flow.List.Category) is { } category
+                ? _context.CategoryName(category)
+                : flow.List.Category ?? string.Empty;
 
         var items = new List<AdminFlowItem>();
 
-        foreach (var entry in _context.VisibleEntries(flow.Tree, flow.ChosenTarget))
+        foreach (var entry in _context.VisibleEntries(flow.List, flow.ChosenTarget))
         {
             var values = flow.ChosenTarget is { } chosen
                 ? flow.Values.SetItem(entry.PrimaryTargetIndex, chosen)
@@ -249,7 +241,7 @@ public sealed class AdminFlow
         var items = _context.FavoriteEntries(favorites)
             .Select(entry =>
             {
-                var flow = AdminMenuFlow.Start(AdminCommandContext.TreeOf(entry)) with { Entry = entry };
+                var flow = AdminMenuFlow.Start(AdminCommandContext.ListOf(entry)) with { Entry = entry };
                 return CommandItem(entry, Deferred(() => Advance(flow)));
             })
             .ToList();
@@ -275,14 +267,16 @@ public sealed class AdminFlow
     }
 
     /// <summary>
-    /// Commands tree asks the options first and the primary target last; other trees follow the command line order.
+    /// General and the TOML categories ask the options first and the primary target last; Players (target already
+    /// chosen), Server and Notification follow the command line order.
     /// </summary>
     private static IEnumerable<int> AskOrder(AdminMenuFlow flow)
     {
         var entry = flow.Entry!;
         var indices = Enumerable.Range(0, entry.Arguments.Count);
+        var commandLineOrder = flow.List.Category is null or AdminMenuCategory.Server or AdminMenuCategory.Notification;
 
-        if (flow.Tree != AdminMenuTree.Commands || entry.PrimaryTargetIndex < 0)
+        if (commandLineOrder || entry.PrimaryTargetIndex < 0)
             return indices;
 
         return indices.Where(i => i != entry.PrimaryTargetIndex).Append(entry.PrimaryTargetIndex);
@@ -292,7 +286,7 @@ public sealed class AdminFlow
     {
         var entry = flow.Entry!;
         var argument = entry.Arguments[index];
-        var title = $"{_context.CommandLabel(entry)}: {L(argument.TitleKey)}";
+        var title = $"{_context.CommandLabel(entry)}: {_context.Title(argument)}";
         var items = new List<AdminFlowItem>();
 
         AdminMenuFlow With(AdminMenuValue value) => flow with { Values = flow.Values.SetItem(index, value) };
@@ -303,28 +297,27 @@ public sealed class AdminFlow
             items.Add(new AdminFlowItem(L("AdminMenu.Skip"), Deferred(() => Advance(With(skipped)))));
         }
 
-        switch (argument)
+        if (argument is TargetArgument target)
         {
-            case TargetArgument target:
-                items.AddRange(TargetItems(target.AllowSelectors, value => Advance(With(value))));
-                break;
+            items.AddRange(TargetItems(target.AllowSelectors, value => Advance(With(value))));
+        }
+        else if (argument.HasChoices)
+        {
+            foreach (var choice in _context.ValueChoices(argument))
+                items.Add(new AdminFlowItem(choice.Label, Deferred(() => Advance(With(choice.Value)))));
 
-            case PresetArgument or ChoiceArgument:
-                foreach (var choice in _context.ValueChoices(argument))
-                    items.Add(new AdminFlowItem(choice.Label, Deferred(() => Advance(With(choice.Value)))));
-
-                if (argument is PresetArgument)
-                    items.Add(new AdminFlowItem(L("AdminMenu.TypeInChat"), Deferred(() => BeginTextInput(flow, index, title))));
-                break;
-
-            case TextArgument when argument.IsOptional:
+            if (argument.AcceptsText)
                 items.Add(new AdminFlowItem(L("AdminMenu.TypeInChat"), Deferred(() => BeginTextInput(flow, index, title))));
-                break;
-
-            case TextArgument:
-            case TextListArgument:
-                BeginTextInput(flow, index, title);
-                return;
+        }
+        else if (argument.IsOptional)
+        {
+            items.Add(new AdminFlowItem(L("AdminMenu.TypeInChat"), Deferred(() => BeginTextInput(flow, index, title))));
+        }
+        else
+        {
+            // Typed only: go straight to the chat prompt.
+            BeginTextInput(flow, index, title);
+            return;
         }
 
         Show(title, items, _context.Usage(entry));

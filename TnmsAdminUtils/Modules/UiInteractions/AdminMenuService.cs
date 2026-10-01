@@ -30,7 +30,7 @@ public sealed class AdminMenuService : IClientListener
     public AdminMenuRegistry Registry { get; } = new();
 
     /// <summary>
-    /// menu.json, read once at load and again on <see cref="Reload"/>.
+    /// configs/menus/*.toml, read once after every plugin has loaded and again on <see cref="Reload"/>.
     /// </summary>
     public AdminMenuConfig Config { get; private set; } = new();
 
@@ -50,7 +50,6 @@ public sealed class AdminMenuService : IClientListener
 
     public void Load()
     {
-        Config = AdminMenuConfig.Load(_plugin.ModuleDirectory, _plugin.Logger);
         _plugin.SharedSystem.GetClientManager().InstallClientListener(this);
     }
 
@@ -59,6 +58,8 @@ public sealed class AdminMenuService : IClientListener
     /// </summary>
     public void OnAllPluginsLoaded()
     {
+        // After the commands registered themselves, so operations named like one of them can be refused.
+        LoadConfig();
         Panel.Load(this);
 
         // Raised (on the main thread) when a joining player's permissions finish loading and whenever they change.
@@ -72,12 +73,16 @@ public sealed class AdminMenuService : IClientListener
     }
 
     /// <summary>
-    /// !adminmenu_reload: reads menu.json again and rebuilds every admin's command lists.
+    /// !adminmenu_reload: reads the menu TOMLs again and rebuilds every admin's command lists.
     /// </summary>
-    public void Reload()
+    public void Reload() => LoadConfig();
+
+    private void LoadConfig()
     {
-        Config = AdminMenuConfig.Load(_plugin.ModuleDirectory, _plugin.Logger);
-        Commands.Clear();
+        Config = AdminMenuConfig.Load(_plugin.ModuleDirectory, Registry.IsCodeEntry, _plugin.Logger);
+
+        // Clears the command lists through Registry.Changed.
+        Registry.SetConfig(Config.Categories, Config.Operations);
     }
 
     public void Unload()

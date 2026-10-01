@@ -5,11 +5,28 @@
 		<!-- Values are set on the group roots (ids) and inherited by the labels inside ({s:...}). -->
 		<Panel class="tap-side" hittest="false">
 			<Label id="tap-brand" class="tap-brand" hittest="false" text="{s:t}" />
-			<liuli:repeat count="6" var="i">
+			<liuli:repeat count="3" var="i">
 				<Button id="tap-nav{i}" class="tap-nav">
 					<Label class="tap-nav-t" hittest="false" text="{s:t}" />
 				</Button>
 			</liuli:repeat>
+			<!-- Command lists, a page of 11 at a time between thin up / down buttons. Takes the rest of the height, so
+			     Close sits at the bottom-left corner. -->
+			<Panel class="tap-cats" hittest="false">
+				<Button id="tap-catprev" class="tap-catbtn">
+					<Label class="tap-catbtn-t" hittest="false" text="▲" />
+				</Button>
+				<Panel class="tap-catlist" hittest="false">
+					<liuli:repeat count="11" var="i">
+						<Button id="tap-cat{i}" class="tap-nav">
+							<Label class="tap-nav-t" hittest="false" text="{s:t}" />
+						</Button>
+					</liuli:repeat>
+				</Panel>
+				<Button id="tap-catnext" class="tap-catbtn">
+					<Label class="tap-catbtn-t" hittest="false" text="▼" />
+				</Button>
+			</Panel>
 			<Button id="tap-close" class="tap-nav tap-nav-close">
 				<Label class="tap-nav-t" hittest="false" text="{s:t}" />
 			</Button>

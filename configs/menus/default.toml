@@ -1,0 +1,64 @@
+# TnmsAdminUtils admin menu (!admin and the admin panel).
+#
+# Every *.toml under configs/menus/ is read, subfolders included, in path order, and merged into one menu.
+# Another plugin can ship its own file here (e.g. configs/menus/myplugin.toml) to add its commands to the menu.
+# Reload after editing with !adminmenu_reload (permission tnms.adminutil.menu.reload).
+#
+# A mistake skips only the table it is in; the server log names the file, the table and the reason.
+
+# Values offered for the built-in commands' arguments. "Type in chat" is always available too.
+[admin.menu.presets]
+slap = ["0", "1", "5", "10", "50", "100"]
+hp = ["1", "50", "100", "200", "500"]
+money = ["0", "800", "4000", "10000", "16000"]
+setkev = ["0", "50", "100"]
+drop = ["0", "1", "2", "3", "4"]
+gravity = ["0.25", "0.5", "1", "2"]
+speed = ["0.5", "1", "1.5", "2", "3"]
+freeze = ["3", "5", "10", "30"]
+blind = ["3", "5", "10"]
+shake = ["3", "5", "10"]
+give = ["ak47", "m4a1_silencer", "m4a1", "awp", "ssg08", "p90", "deagle", "usp_silencer", "glock", "knife", "hegrenade", "flashbang", "smokegrenade", "molotov", "healthshot"]
+addtime = ["60", "300", "-60", "-300"]
+settime = ["60", "180", "300", "600"]
+terminateround = ["0", "3", "5", "10"]
+toast = ["3s", "5s", "10s", "20s"]
+
+# ---- Adding commands ----------------------------------------------------------------------------------------------
+#
+# A category is a command list of its own, shown after the built-in ones. The table key is its id.
+#
+# [admin.menu.category.fun]
+# Name = { en = "Fun Commands", ja = "おもしろコマンド" }  # or Name = "Fun Commands", or NameKey = "<lang key>"
+# RequiredPermission = "myplugin.menu.fun"                 # optional: hides the whole list without it
+#
+# An operation is one entry of a list. The table key is its id (favorites remember it), and must not be the name of
+# a built-in command. Category is required: a category above, or one of the built-in general / server / notification.
+#
+# [admin.menu.operations.fun_slap]
+# Category = "fun"
+# Command = "slap"                          # run as ms_<Command>, without ms_ or !
+# RequiredPermission = "tnms.adminutil.management.ingame.command.slap"   # required
+# Name = { en = "Big Slap", ja = "強めのスラップ" }
+# Description = { en = "Slap hard.", ja = "強めに叩きます。" }   # optional
+#
+# Arguments in command line order, one [[...args]] table each (at most 6).
+# Type: target, int, float, string, string_list, bool, team, choice.
+# Every type takes Name (heading), Optional (true: can be left at the command's default) and Default (written
+# for a skipped argument when a later one is set; required for an optional argument that is not the last).
+#
+# [[admin.menu.operations.fun_slap.args]]
+# Type = "target"
+# AllowSelectors = true                     # @all / @ct / @t / @spec, default true
+#
+# [[admin.menu.operations.fun_slap.args]]
+# Type = "int"                              # int / float: typed text must be a number in Min ~ Max
+# SuggestValues = [50, 100, 200]
+# AllowCustomInput = true                   # "Type in chat", default true
+# Min = 0
+# Max = 1000
+#
+# string: SuggestValues, AllowCustomInput, Quote (pass the typed text as one quoted argument, default false)
+# string_list: comma separated texts typed at once, each quoted; MinCount (default 1)
+# bool: on / off (1 / 0)    team: ct / t / spec
+# choice: Choices = [{ Value = "red", Name = { en = "Red", ja = "赤" } }, { Value = "blue" }]

@@ -51,7 +51,7 @@ REM Define Shared DLLs to remove from TnmsPluginFoundation.Example (these are pr
 set SHARED_DLLS_TO_REMOVE=TnmsPluginFoundation.dll
 
 REM Define custom directories to copy from main project to build output (these are only copied when %MOD_SHARP_DIR% is set)
-set CUSTOM_DIRS=lang
+set CUSTOM_DIRS=lang configs
 
 echo Building shared projects (Phase 1 - Base projects)...
 for %%P in (%SHARED_PROJECTS_PHASE1%) do (

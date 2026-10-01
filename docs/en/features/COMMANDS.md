@@ -129,7 +129,7 @@ Available colors: `red`, `green`, `blue`, `yellow`, `orange`, `purple`, `cyan`, 
 | Node | Description |
 |---|---|
 | tnms.adminutil.menu | Use !admin |
-| tnms.adminutil.menu.reload | Use !adminmenu_reload (reload menu.json and the command lists) |
+| tnms.adminutil.menu.reload | Use !adminmenu_reload (reload the menu TOMLs and the command lists) |
 | tnms.adminutil.chat.command.say.normal | Use !say |
 | tnms.adminutil.chat.command.say.center | Use !csay |
 | tnms.adminutil.chat.command.say.hint | Use !hsay |

@@ -12,15 +12,13 @@ namespace TnmsAdminUtils.Modules.UiInteractions.Panel;
 /// </summary>
 public sealed class AdminPanelSession : IAdminSession
 {
-    // Same order as the sidebar buttons (tap-nav{i}).
+    // The fixed sidebar buttons (tap-nav{i}) in order; Category is any of the category buttons below them.
     private enum Page
     {
         Overview,
         Favorites,
         Users,
-        Commands,
-        Server,
-        Notification,
+        Category,
     }
 
     private const int ListSlots = 18;
@@ -33,7 +31,9 @@ public sealed class AdminPanelSession : IAdminSession
     private const string Off = "tap-off";
 
     private static readonly string[] Sections = ["tap-ov", "tap-us", "tap-ls"];
-    private static readonly string[] NavKeys = ["AdminPanel.Nav.Overview", "AdminPanel.Nav.Favorites", "AdminPanel.Nav.Users", "AdminPanel.Nav.Commands", "AdminPanel.Nav.Server", "AdminPanel.Nav.Notification"];
+    private static readonly string[] NavKeys = ["AdminPanel.Nav.Overview", "AdminPanel.Nav.Favorites", "AdminPanel.Nav.Users"];
+    // Category buttons (tap-cat{i}) per sidebar page.
+    private const int CategorySlots = 11;
     // "x" collapses an unused slot; the rest follow AdminPanelColumnWidth.
     private static readonly string[] WidthSizes = ["x", "xs", "s", "m", "l", "xl"];
 
@@ -46,6 +46,10 @@ public sealed class AdminPanelSession : IAdminSession
     private readonly AdminFavorites _favorites;
 
     private Page _page;
+    // Key of the category shown on the Category page.
+    private string? _category;
+    private IReadOnlyList<AdminMenuCategoryDefinition> _categories = [];
+    private int _categoryPage;
     // Set on the Users page after a row click: the command list of that player.
     private AdminMenuValue? _playerTarget;
     private IReadOnlyList<AdminMenuEntry> _entries = [];
@@ -198,6 +202,12 @@ public sealed class AdminPanelSession : IAdminSession
                 Render();
                 return;
 
+            case "tap-catprev":
+            case "tap-catnext":
+                _categoryPage += panelId == "tap-catnext" ? 1 : -1;
+                Render();
+                return;
+
             case "tap-pkprev":
             case "tap-pknext":
                 if (_form != null)
@@ -210,6 +220,13 @@ public sealed class AdminPanelSession : IAdminSession
         if (TryIndex(panelId, "tap-nav", out var nav))
         {
             GoTo((Page)nav);
+        }
+        else if (TryIndex(panelId, "tap-cat", out var categorySlot))
+        {
+            var index = _categoryPage * CategorySlots + categorySlot;
+
+            if (index < _categories.Count)
+                GoTo(Page.Category, _categories[index].Key);
         }
         else if (TryIndex(panelId, "tap-sort", out var column))
         {
@@ -251,9 +268,10 @@ public sealed class AdminPanelSession : IAdminSession
         }
     }
 
-    private void GoTo(Page page)
+    private void GoTo(Page page, string? category = null)
     {
         _page = page;
+        _category = category;
         _playerTarget = null;
         _form = null;
         _listPage = 0;
@@ -317,8 +335,7 @@ public sealed class AdminPanelSession : IAdminSession
 
     private void Render()
     {
-        for (var i = 0; i < NavKeys.Length; i++)
-            Class($"tap-nav{i}", "tap-sel", i == (int)_page);
+        RenderSidebar();
 
         switch (_page)
         {
@@ -332,6 +349,49 @@ public sealed class AdminPanelSession : IAdminSession
                 RenderCommands();
                 break;
         }
+    }
+
+    /// <summary>
+    /// The fixed buttons and one page of category buttons. A category that went away (reload, permission change)
+    /// sends the panel back to the overview.
+    /// </summary>
+    private void RenderSidebar()
+    {
+        _categories = _context.VisibleCategories();
+
+        if (_page == Page.Category && _categories.All(c => c.Key != _category))
+        {
+            _page = Page.Overview;
+            _category = null;
+            _form = null;
+        }
+
+        for (var i = 0; i < NavKeys.Length; i++)
+            Class($"tap-nav{i}", "tap-sel", i == (int)_page);
+
+        var pages = Math.Max(1, (_categories.Count + CategorySlots - 1) / CategorySlots);
+        _categoryPage = Math.Clamp(_categoryPage, 0, pages - 1);
+
+        for (var slot = 0; slot < CategorySlots; slot++)
+        {
+            var id = $"tap-cat{slot}";
+            var index = _categoryPage * CategorySlots + slot;
+
+            if (index >= _categories.Count)
+            {
+                Class(id, Off, true);
+                continue;
+            }
+
+            var category = _categories[index];
+            Class(id, Off, false);
+            Class(id, "tap-sel", _page == Page.Category && category.Key == _category);
+            Text(id, "t", _context.CategoryName(category));
+        }
+
+        // Up / down stay visible and dim at the ends (both with a single page); clicks there are clamped away.
+        Class("tap-catprev", "tap-dis", _categoryPage <= 0);
+        Class("tap-catnext", "tap-dis", _categoryPage >= pages - 1);
     }
 
     private void RenderOverview()
@@ -468,15 +528,14 @@ public sealed class AdminPanelSession : IAdminSession
         _entries = _page switch
         {
             Page.Favorites => _context.FavoriteEntries(_favorites),
-            Page.Server => _context.VisibleEntries(AdminMenuTree.Server),
-            Page.Notification => _context.VisibleEntries(AdminMenuTree.Notification),
-            Page.Users => _context.VisibleEntries(AdminMenuTree.Players, _playerTarget),
-            _ => _context.VisibleEntries(AdminMenuTree.Commands),
+            Page.Users => _context.VisibleEntries(AdminMenuList.Players, _playerTarget),
+            _ => _context.VisibleEntries(new AdminMenuList(_category)),
         };
 
         var title = _page switch
         {
             Page.Users => $"{L("AdminMenu.Root.Players")}: {_playerTarget?.Display}",
+            Page.Category => _categories.FirstOrDefault(c => c.Key == _category) is { } category ? _context.CategoryName(category) : string.Empty,
             _ => L(NavKeys[(int)_page]),
         };
 
@@ -598,7 +657,7 @@ public sealed class AdminPanelSession : IAdminSession
         var value = form.Values[index];
         var waiting = form.WaitField == index;
         var open = form.OpenField == index;
-        var isText = argument is TextArgument or TextListArgument;
+        var isText = !argument.HasChoices;
 
         var shown = waiting ? L("AdminPanel.Form.Waiting")
             : value != null ? value.Display

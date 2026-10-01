@@ -1,3 +1,4 @@
+using System.Globalization;
 using Sharp.Shared.Objects;
 using TnmsPluginFoundation;
 using TnmsPluginFoundation.Extensions.Client;
@@ -30,14 +31,19 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
     /// The admin's commands of one list, from <see cref="AdminCommandCache"/>. With a selector chosen as the target,
     /// Players keeps only the commands that accept selectors.
     /// </summary>
-    public IReadOnlyList<AdminMenuEntry> VisibleEntries(AdminMenuTree tree, AdminMenuValue? chosenTarget = null)
+    public IReadOnlyList<AdminMenuEntry> VisibleEntries(AdminMenuList list, AdminMenuValue? chosenTarget = null)
     {
-        var entries = service.Commands.Get(admin.SteamId, tree);
+        var entries = service.Commands.Get(admin.SteamId, list);
 
-        return tree == AdminMenuTree.Players && chosenTarget is { IsSelector: true }
+        return list.IsPlayers && chosenTarget is { IsSelector: true }
             ? entries.Where(e => e.PrimaryTarget!.AllowSelectors).ToList()
             : entries;
     }
+
+    /// <summary>
+    /// Categories the admin has commands in, built-in ones first.
+    /// </summary>
+    public IReadOnlyList<AdminMenuCategoryDefinition> VisibleCategories() => service.Commands.Categories(admin.SteamId);
 
     /// <summary>
     /// Favorites in the order they were added, skipping ids that are not registered or not permitted right now.
@@ -45,12 +51,7 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
     public List<AdminMenuEntry> FavoriteEntries(AdminFavorites favorites)
         => favorites.Ids.Select(id => service.Commands.Find(admin.SteamId, id)).OfType<AdminMenuEntry>().ToList();
 
-    public static AdminMenuTree TreeOf(AdminMenuEntry entry) => entry.Category switch
-    {
-        AdminMenuCategory.Server => AdminMenuTree.Server,
-        AdminMenuCategory.Notification => AdminMenuTree.Notification,
-        _ => AdminMenuTree.Commands,
-    };
+    public static AdminMenuList ListOf(AdminMenuEntry entry) => new(entry.Category);
 
     /// <summary>
     /// Selectors (with their current player count) and the players the admin can target.
@@ -92,7 +93,7 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
         => new(client.IsFakeClient ? $"\"#{client.Name}\"" : ((ulong)client.SteamId).ToString(), client.Name);
 
     /// <summary>
-    /// Fixed values of a preset or choice argument (presets come from menu.json).
+    /// Fixed values of a preset, choice or value argument (presets come from the menu config).
     /// </summary>
     public List<AdminMenuChoiceItem> ValueChoices(AdminMenuArgument argument)
     {
@@ -101,10 +102,13 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
             case PresetArgument preset:
                 return service.Config.GetPreset(preset.PresetKey).Select(v => new AdminMenuChoiceItem(new AdminMenuValue(v, v), v)).ToList();
 
+            case ValueArgument value:
+                return value.Suggestions.Select(v => new AdminMenuChoiceItem(ValueOf(value, v), v)).ToList();
+
             case ChoiceArgument choice:
                 return choice.Choices.Select(option =>
                 {
-                    var label = option.LabelKey is null ? option.Value : L(option.LabelKey);
+                    var label = option.Label is null ? option.Value : Text(option.Label);
                     return new AdminMenuChoiceItem(new AdminMenuValue(option.Value, label), label);
                 }).ToList();
 
@@ -120,11 +124,24 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
 
     /// <summary>
     /// Turns a chat message into the value of a text argument. Returns false (after telling the admin) when the text
-    /// does not fit, e.g. too few vote options.
+    /// does not fit, e.g. too few vote options or a number out of range.
     /// </summary>
     public bool TryParseText(AdminMenuArgument argument, string text, out AdminMenuValue value)
     {
         text = new string(text.Where(c => c is not (';' or '\r' or '\n')).ToArray());
+
+        if (argument is ValueArgument typed)
+        {
+            if (typed.Check(text) is { } reason)
+            {
+                PrintToChat(reason, typed.RangeText);
+                value = null!;
+                return false;
+            }
+
+            value = ValueOf(typed, text);
+            return true;
+        }
 
         if (argument is TextListArgument list)
         {
@@ -186,32 +203,26 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
             admin.ExecuteStringCommand(CommandLine(entry, values));
     }
 
-    public string CommandLabel(AdminMenuEntry entry)
-    {
-        var label = L(entry.LabelKey);
-        return label == entry.LabelKey ? entry.CommandName : label;
-    }
+    public string CommandLabel(AdminMenuEntry entry) => TranslatedLabel(entry) ?? entry.CommandName;
 
     /// <summary>
     /// The translated label, or null when the command has none.
     /// </summary>
-    public string? TranslatedLabel(AdminMenuEntry entry)
-    {
-        var label = L(entry.LabelKey);
-        return label == entry.LabelKey ? null : label;
-    }
+    public string? TranslatedLabel(AdminMenuEntry entry) => TextOrNull(entry.Name);
 
     public string? Usage(AdminMenuEntry entry) => entry.UsageKey is { } key ? L(key) : null;
 
     /// <summary>
-    /// Translated <c>AdminMenu.Description.&lt;command&gt;</c>, or null when there is none.
+    /// The command's description, or null when there is none.
     /// </summary>
-    public string? Description(AdminMenuEntry entry)
-    {
-        var key = $"AdminMenu.Description.{entry.CommandName}";
-        var text = L(key);
-        return text == key ? null : text;
-    }
+    public string? Description(AdminMenuEntry entry) => TextOrNull(entry.Description);
+
+    public string CategoryName(AdminMenuCategoryDefinition category) => Text(category.Name);
+
+    /// <summary>
+    /// Heading of an argument while it is chosen ("Choose a target").
+    /// </summary>
+    public string Title(AdminMenuArgument argument) => Text(argument.Title);
 
     /// <summary>
     /// Short heading of an argument in the form ("Target"): <c>AdminMenu.Field.*</c> next to its
@@ -221,22 +232,41 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
     {
         const string stepPrefix = "AdminMenu.Step.";
 
-        if (argument.TitleKey.StartsWith(stepPrefix, StringComparison.Ordinal))
+        if (argument.Title.Key is { } titleKey && titleKey.StartsWith(stepPrefix, StringComparison.Ordinal))
         {
-            var key = "AdminMenu.Field." + argument.TitleKey[stepPrefix.Length..];
+            var key = "AdminMenu.Field." + titleKey[stepPrefix.Length..];
             var text = L(key);
 
             if (text != key)
                 return text;
         }
 
-        return L(argument.TitleKey);
+        return Title(argument);
+    }
+
+    /// <summary>
+    /// The text in the admin's language. A lang key without a translation comes back as the key itself.
+    /// </summary>
+    public string Text(AdminMenuText text) => text.Key is { } key ? L(key) : text.Inline(Culture()) ?? string.Empty;
+
+    /// <summary>
+    /// Like <see cref="Text"/>, but null for a lang key without a translation.
+    /// </summary>
+    public string? TextOrNull(AdminMenuText text)
+    {
+        var resolved = Text(text);
+        return resolved.Length == 0 || resolved == text.Key ? null : resolved;
     }
 
     public void PrintToChat(string key, params object[] args)
         => admin.GetPlayerController()?.PrintToChat(plugin.LocalizeWithPluginPrefix(admin, key, args));
 
     public string L(string key) => plugin.LocalizeStringForPlayer(admin, key);
+
+    private CultureInfo Culture() => plugin.LocalizationPlatform.GetPlayerCulture(admin.SteamId);
+
+    private static AdminMenuValue ValueOf(ValueArgument argument, string text)
+        => new(argument.Quote ? AdminMenuValue.Quote(text) : text, text);
 
     public string L(string key, params object[] args) => plugin.LocalizeStringForPlayer(admin, key, args);
 
