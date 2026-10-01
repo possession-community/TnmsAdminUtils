@@ -9,17 +9,29 @@ namespace TnmsAdminUtils.Modules.UiInteractions.Panel;
 
 /// <summary>
 /// The admin panel of one player. Panel ids and classes are defined in tnms_admin_panel.lxml / .vcss.
+/// Pages are in the header bar; the sidebar holds the current page's own items.
 /// </summary>
 public sealed class AdminPanelSession : IAdminSession
 {
-    // The fixed sidebar buttons (tap-nav{i}) in order; Category is any of the category buttons below them.
+    // Same order as the header bar buttons (tap-nav{i}).
     private enum Page
     {
-        Overview,
-        Favorites,
+        Match,
         Users,
-        Category,
+        Commands,
     }
+
+    // What the Users page shows: the list, or one player's details / commands.
+    private enum UserView
+    {
+        List,
+        Detail,
+        Commands,
+    }
+
+    /// <param name="Heading">A heading, not clickable</param>
+    /// <param name="Indent">Listed under a heading</param>
+    private sealed record SideItem(string Label, bool Selected, Action? Click, bool Heading = false, bool Indent = false);
 
     private const int ListSlots = 18;
     // Command slots per page while the form takes the second column.
@@ -28,12 +40,32 @@ public sealed class AdminPanelSession : IAdminSession
     private const int PickerSlots = 12;
     private const int PickerColumns = 4;
     private const int UserRows = 16;
+    private const int SideSlots = 14;
     private const string Off = "tap-off";
 
-    private static readonly string[] Sections = ["tap-ov", "tap-us", "tap-ls"];
-    private static readonly string[] NavKeys = ["AdminPanel.Nav.Overview", "AdminPanel.Nav.Favorites", "AdminPanel.Nav.Users"];
-    // Category buttons (tap-cat{i}) per sidebar page.
-    private const int CategorySlots = 11;
+    // Command list selections besides a category key: All is null.
+    private const string FavoritesTab = "\0favorites";
+
+    // Detail groups: id letter in the layout (tap-d{x}g / tap-d{x}h / tap-d{x}r{i}) and heading key.
+    private static readonly (AdminPanelDetailGroup Group, char Id, string HeadingKey)[] DetailGroups =
+    [
+        (AdminPanelDetailGroup.User, 'u', "AdminPanel.Detail.Group.User"),
+        (AdminPanelDetailGroup.InGame, 'i', "AdminPanel.Detail.Group.InGame"),
+        (AdminPanelDetailGroup.Authority, 'a', "AdminPanel.Detail.Group.Authority"),
+        (AdminPanelDetailGroup.Other, 'o', "AdminPanel.Detail.Group.Other"),
+    ];
+
+    // User list filter: the label key and the teams it keeps (null keeps everyone).
+    private static readonly (string LabelKey, CStrikeTeam[]? Teams)[] TeamFilters =
+    [
+        ("AdminPanel.Tab.All", null),
+        ("AdminPanel.Team.Ct", [CStrikeTeam.CT]),
+        ("AdminPanel.Team.T", [CStrikeTeam.TE]),
+        ("AdminPanel.Team.Spec", [CStrikeTeam.Spectator, CStrikeTeam.UnAssigned]),
+    ];
+
+    private static readonly string[] Sections = ["tap-ov", "tap-us", "tap-dt", "tap-ls"];
+    private static readonly string[] NavKeys = ["AdminPanel.Nav.Match", "AdminPanel.Nav.Users", "AdminPanel.Nav.Commands"];
     // "x" collapses an unused slot; the rest follow AdminPanelColumnWidth.
     private static readonly string[] WidthSizes = ["x", "xs", "s", "m", "l", "xl"];
 
@@ -46,12 +78,17 @@ public sealed class AdminPanelSession : IAdminSession
     private readonly AdminFavorites _favorites;
 
     private Page _page;
-    // Key of the category shown on the Category page.
-    private string? _category;
-    private IReadOnlyList<AdminMenuCategoryDefinition> _categories = [];
-    private int _categoryPage;
-    // Set on the Users page after a row click: the command list of that player.
+    private UserView _userView;
+    // The player opened from the user list; UserId tells a reconnect in the same slot apart.
+    private IGameClient? _userTarget;
+    private int _userTargetId;
+    // Pre-filled target of the player's command pages.
     private AdminMenuValue? _playerTarget;
+    // The command list shown: FavoritesTab, a category key, or null for All.
+    private string? _tab;
+    private int _teamFilter;
+    private List<SideItem> _side = [];
+    private int _sidePage;
     private IReadOnlyList<AdminMenuEntry> _entries = [];
     private AdminCommandForm? _form;
     private List<AdminFormChoice> _choices = [];
@@ -91,7 +128,7 @@ public sealed class AdminPanelSession : IAdminSession
 
         _surface.Show(_player);
 
-        GoTo(Page.Overview);
+        GoTo(Page.Match);
     }
 
     /// <summary>
@@ -194,7 +231,7 @@ public sealed class AdminPanelSession : IAdminSession
             case "tap-next":
                 var step = panelId == "tap-next" ? 1 : -1;
 
-                if (_page == Page.Users && _playerTarget is null)
+                if (_page == Page.Users && _userView == UserView.List)
                     _userPage += step;
                 else
                     _listPage += step;
@@ -202,10 +239,19 @@ public sealed class AdminPanelSession : IAdminSession
                 Render();
                 return;
 
-            case "tap-catprev":
-            case "tap-catnext":
-                _categoryPage += panelId == "tap-catnext" ? 1 : -1;
+            case "tap-sprev":
+            case "tap-snext":
+                _sidePage += panelId == "tap-snext" ? 1 : -1;
                 Render();
+                return;
+
+            // Breadcrumb: the page's top, then (Users) the player's details.
+            case "tap-bc0":
+                GoTo(_page);
+                return;
+
+            case "tap-bc1":
+                ShowUser(UserView.Detail);
                 return;
 
             case "tap-pkprev":
@@ -221,12 +267,12 @@ public sealed class AdminPanelSession : IAdminSession
         {
             GoTo((Page)nav);
         }
-        else if (TryIndex(panelId, "tap-cat", out var categorySlot))
+        else if (TryIndex(panelId, "tap-si", out var sideSlot))
         {
-            var index = _categoryPage * CategorySlots + categorySlot;
+            var index = _sidePage * SideSlots + sideSlot;
 
-            if (index < _categories.Count)
-                GoTo(Page.Category, _categories[index].Key);
+            if (index < _side.Count)
+                _side[index].Click?.Invoke();
         }
         else if (TryIndex(panelId, "tap-sort", out var column))
         {
@@ -235,7 +281,7 @@ public sealed class AdminPanelSession : IAdminSession
         else if (TryIndex(panelId, "tap-u", out var row))
         {
             if (_rowTargets[row] is { IsValid: true } target)
-                ShowPlayerCommands(AdminCommandContext.PlayerValue(target));
+                OpenUser(target);
         }
         else if (TryIndex(panelId, "tap-l", out var slot))
         {
@@ -268,23 +314,62 @@ public sealed class AdminPanelSession : IAdminSession
         }
     }
 
-    private void GoTo(Page page, string? category = null)
+    private void GoTo(Page page)
     {
         _page = page;
-        _category = category;
+        _tab = null;
+        _sidePage = 0;
+        _userView = UserView.List;
+        _userTarget = null;
         _playerTarget = null;
         _form = null;
         _listPage = 0;
         Render();
     }
 
-    private void ShowPlayerCommands(AdminMenuValue target)
+    /// <summary>
+    /// Switches the command list (Commands page, or the player's commands).
+    /// </summary>
+    private void ShowTab(string? tab)
     {
-        _playerTarget = target;
+        if (_page == Page.Users)
+        {
+            ShowUser(UserView.Commands, tab);
+            return;
+        }
+
+        _tab = tab;
         _form = null;
         _listPage = 0;
         Render();
     }
+
+    private void OpenUser(IGameClient target)
+    {
+        _userTarget = target;
+        _userTargetId = target.UserId.AsPrimitive();
+        _playerTarget = AdminCommandContext.PlayerValue(target);
+        _sidePage = 0;
+        ShowUser(UserView.Detail);
+    }
+
+    private void ShowUser(UserView view, string? tab = null)
+    {
+        if (_userTarget is null)
+            return;
+
+        _userView = view;
+        _tab = tab;
+        _form = null;
+        _listPage = 0;
+        Render();
+    }
+
+    /// <summary>
+    /// The opened player while they are still connected (a reconnect gets a new UserId).
+    /// </summary>
+    private IGameClient? CurrentUser()
+        => _userTarget is { IsValid: true } target && target.UserId.AsPrimitive() == _userTargetId ? target : null;
 
     /// <summary>
     /// Opens the form of a command, or closes it when it is already open. The list page follows so the clicked
@@ -335,15 +420,30 @@ public sealed class AdminPanelSession : IAdminSession
 
     private void Render()
     {
-        RenderSidebar();
+        // The player left: back to the list.
+        if (_page == Page.Users && _userView != UserView.List && CurrentUser() is null)
+        {
+            _userView = UserView.List;
+            _userTarget = null;
+            _playerTarget = null;
+            _form = null;
+        }
+
+        for (var i = 0; i < NavKeys.Length; i++)
+            Class($"tap-nav{i}", "tap-sel", i == (int)_page);
+
+        RenderSide();
 
         switch (_page)
         {
-            case Page.Overview:
-                RenderOverview();
+            case Page.Match:
+                RenderMatch();
                 break;
-            case Page.Users when _playerTarget is null:
+            case Page.Users when _userView == UserView.List:
                 RenderUsers();
+                break;
+            case Page.Users when _userView == UserView.Detail:
+                RenderDetail();
                 break;
             default:
                 RenderCommands();
@@ -352,49 +452,107 @@ public sealed class AdminPanelSession : IAdminSession
     }
 
     /// <summary>
-    /// The fixed buttons and one page of category buttons. A category that went away (reload, permission change)
-    /// sends the panel back to the overview.
+    /// The current page's sidebar items, a page of <see cref="SideSlots"/> at a time.
     /// </summary>
-    private void RenderSidebar()
+    private void RenderSide()
     {
-        _categories = _context.VisibleCategories();
+        _side = SideItems();
 
-        if (_page == Page.Category && _categories.All(c => c.Key != _category))
+        var pages = Math.Max(1, (_side.Count + SideSlots - 1) / SideSlots);
+        _sidePage = Math.Clamp(_sidePage, 0, pages - 1);
+
+        for (var slot = 0; slot < SideSlots; slot++)
         {
-            _page = Page.Overview;
-            _category = null;
-            _form = null;
-        }
+            var id = $"tap-si{slot}";
+            var index = _sidePage * SideSlots + slot;
 
-        for (var i = 0; i < NavKeys.Length; i++)
-            Class($"tap-nav{i}", "tap-sel", i == (int)_page);
-
-        var pages = Math.Max(1, (_categories.Count + CategorySlots - 1) / CategorySlots);
-        _categoryPage = Math.Clamp(_categoryPage, 0, pages - 1);
-
-        for (var slot = 0; slot < CategorySlots; slot++)
-        {
-            var id = $"tap-cat{slot}";
-            var index = _categoryPage * CategorySlots + slot;
-
-            if (index >= _categories.Count)
+            if (index >= _side.Count)
             {
                 Class(id, Off, true);
                 continue;
             }
 
-            var category = _categories[index];
+            var item = _side[index];
             Class(id, Off, false);
-            Class(id, "tap-sel", _page == Page.Category && category.Key == _category);
-            Text(id, "t", _context.CategoryName(category));
+            Class(id, "tap-sel", item.Selected);
+            Class(id, "tap-sih", item.Heading);
+            Class(id, "tap-ind", item.Indent);
+            Text(id, "t", item.Label);
         }
 
-        // Up / down stay visible and dim at the ends (both with a single page); clicks there are clamped away.
-        Class("tap-catprev", "tap-dis", _categoryPage <= 0);
-        Class("tap-catnext", "tap-dis", _categoryPage >= pages - 1);
+        // Always shown, dim at the ends (both with a single page); clicks there are clamped away.
+        Class("tap-sprev", "tap-dis", _sidePage <= 0);
+        Class("tap-snext", "tap-dis", _sidePage >= pages - 1);
     }
 
-    private void RenderOverview()
+    private List<SideItem> SideItems()
+    {
+        switch (_page)
+        {
+            case Page.Users when _userView == UserView.List:
+            {
+                List<SideItem> items = [new(L("AdminPanel.Side.Team"), false, null, Heading: true)];
+
+                for (var i = 0; i < TeamFilters.Length; i++)
+                {
+                    var filter = i;
+                    items.Add(new SideItem(L(TeamFilters[i].LabelKey), i == _teamFilter, () =>
+                    {
+                        _teamFilter = filter;
+                        _userPage = 0;
+                        Render();
+                    }, Indent: true));
+                }
+
+                return items;
+            }
+
+            case Page.Users:
+            {
+                List<SideItem> items =
+                [
+                    new(L("AdminPanel.Side.Details"), _userView == UserView.Detail, () => ShowUser(UserView.Detail)),
+                    new(L("AdminPanel.Detail.Execute"), false, null, Heading: true),
+                ];
+
+                items.AddRange(CommandTabs(targetOnly: true).Select(t => t with { Selected = t.Selected && _userView == UserView.Commands, Indent = true }));
+                return items;
+            }
+
+            case Page.Commands:
+                return CommandTabs(targetOnly: false);
+
+            default:
+                return [];
+        }
+    }
+
+    /// <summary>
+    /// Favorites, All, then the categories. With <paramref name="targetOnly"/> (a player's commands) only categories
+    /// with commands that take a target. A selected category that went away falls back to All.
+    /// </summary>
+    private List<SideItem> CommandTabs(bool targetOnly)
+    {
+        var categories = _context.VisibleCategories()
+            .Where(c => !targetOnly || _context.VisibleEntries(new AdminMenuList(c.Key)).Any(e => e.PrimaryTarget is not null))
+            .ToList();
+
+        if (_tab is not (null or FavoritesTab) && categories.All(c => c.Key != _tab))
+            _tab = null;
+
+        List<SideItem> items =
+        [
+            new(L("AdminPanel.Tab.Favorites"), _tab == FavoritesTab, () => ShowTab(FavoritesTab)),
+            new(L("AdminPanel.Tab.All"), _tab is null, () => ShowTab(null)),
+        ];
+
+        foreach (var category in categories)
+            items.Add(new SideItem(_context.CategoryName(category), _tab == category.Key, () => ShowTab(category.Key)));
+
+        return items;
+    }
+
+    private void RenderMatch()
     {
         ShowSection("tap-ov");
         Pager(0, 1);
@@ -411,7 +569,7 @@ public sealed class AdminPanelSession : IAdminSession
             return $"{alive} / {members.Count}";
         }
 
-        Header(L("AdminPanel.Overview.Title"), sharp.GetMapName() ?? string.Empty);
+        Header(L("AdminPanel.Match.Title"), sharp.GetMapName() ?? string.Empty);
 
         (string Key, string Value)[] stats =
         [
@@ -436,8 +594,10 @@ public sealed class AdminPanelSession : IAdminSession
     {
         ShowSection("tap-us");
 
+        var teams = TeamFilters[_teamFilter].Teams;
         var columns = _service.Panel.Columns.Columns;
         var clients = SortUsers(Clients()
+            .Where(c => teams is null || teams.Contains(c.GetPlayerController()?.Team ?? CStrikeTeam.UnAssigned))
             .OrderBy(AdminPanelColumns.TeamOrder)
             .ThenBy(c => c.Name, StringComparer.OrdinalIgnoreCase), columns);
 
@@ -487,6 +647,43 @@ public sealed class AdminPanelSession : IAdminSession
     }
 
     /// <summary>
+    /// The opened player's details in headed groups (an empty group is hidden); their commands are in the sidebar.
+    /// </summary>
+    private void RenderDetail()
+    {
+        var target = CurrentUser()!;
+
+        ShowSection("tap-dt");
+        Pager(0, 1);
+        Header(target.Name, string.Empty, target.Name);
+
+        var args = new AdminPanelDetailArgs(target, Admin, L);
+
+        foreach (var (group, id, headingKey) in DetailGroups)
+        {
+            var fields = _service.Panel.Details.Of(group, _service.Panel.Columns);
+
+            Class($"tap-d{id}g", Off, fields.Count == 0);
+            Text($"tap-d{id}h", "t", L(headingKey));
+
+            for (var row = 0; row < AdminPanelDetails.Capacity(group); row++)
+            {
+                var rowId = $"tap-d{id}r{row}";
+
+                if (row >= fields.Count)
+                {
+                    Class(rowId, Off, true);
+                    continue;
+                }
+
+                Class(rowId, Off, false);
+                Text(rowId, "k", L(fields[row].LabelKey));
+                Text(rowId, "v", fields[row].Value(args));
+            }
+        }
+    }
+
+    /// <summary>
     /// Header click: a new column sorts ascending, the same column flips the direction.
     /// </summary>
     private void ToggleSort(int slot)
@@ -519,28 +716,38 @@ public sealed class AdminPanelSession : IAdminSession
     }
 
     /// <summary>
-    /// Command pages: the list (two columns, or one beside the form of the open command).
+    /// Command lists (Commands, or a player's commands with the player pre-filled and only commands that take a
+    /// target): two columns, or one beside the form of the open command.
     /// </summary>
     private void RenderCommands()
     {
         ShowSection("tap-ls");
 
-        _entries = _page switch
+        var player = _page == Page.Users ? CurrentUser()! : null;
+
+        IEnumerable<AdminMenuEntry> entries = _tab switch
         {
-            Page.Favorites => _context.FavoriteEntries(_favorites),
-            Page.Users => _context.VisibleEntries(AdminMenuList.Players, _playerTarget),
-            _ => _context.VisibleEntries(new AdminMenuList(_category)),
+            FavoritesTab => _context.FavoriteEntries(_favorites),
+            null when player != null => _context.VisibleEntries(AdminMenuList.Players, _playerTarget),
+            null => _context.VisibleCategories().SelectMany(c => _context.VisibleEntries(new AdminMenuList(c.Key))),
+            { } category => _context.VisibleEntries(new AdminMenuList(category)),
         };
 
-        var title = _page switch
+        _entries = player != null ? entries.Where(e => e.PrimaryTarget is not null).ToList() : entries.ToList();
+
+        var view = _tab switch
         {
-            Page.Users => $"{L("AdminMenu.Root.Players")}: {_playerTarget?.Display}",
-            Page.Category => _categories.FirstOrDefault(c => c.Key == _category) is { } category ? _context.CategoryName(category) : string.Empty,
-            _ => L(NavKeys[(int)_page]),
+            FavoritesTab => L("AdminPanel.Tab.Favorites"),
+            null => L("AdminPanel.Commands.All"),
+            { } category => _context.VisibleCategories().FirstOrDefault(c => c.Key == category) is { } found ? _context.CategoryName(found) : category,
         };
 
-        var sub = _page == Page.Favorites && _entries.Count == 0 ? L("AdminMenu.Favorites.Empty") : string.Empty;
-        Header(title, sub);
+        var sub = _tab == FavoritesTab && _entries.Count == 0 ? L("AdminMenu.Favorites.Empty") : string.Empty;
+
+        if (player != null)
+            Header(player.Name, sub, player.Name, view);
+        else
+            Header(view, sub, null, view);
 
         var slots = ListSlotsNow();
         var pages = Math.Max(1, (_entries.Count + slots - 1) / slots);
@@ -689,9 +896,23 @@ public sealed class AdminPanelSession : IAdminSession
     private IEnumerable<IGameClient> Clients()
         => _plugin.SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true).Where(c => !c.IsHltv);
 
-    private void Header(string title, string sub)
+    /// <summary>
+    /// Title, and the breadcrumb: the page (a button back to its top), then <paramref name="step"/> (a button, the
+    /// player's details) and <paramref name="current"/> (text), each left out when null. <paramref name="sub"/> follows it.
+    /// </summary>
+    private void Header(string title, string sub, string? step = null, string? current = null)
     {
         Text("tap-title", "t", title);
+        Text("tap-bc0", "t", L(NavKeys[(int)_page]));
+
+        Class("tap-bcs0", Off, step is null);
+        Class("tap-bc1", Off, step is null);
+        Text("tap-bc1", "t", step ?? string.Empty);
+
+        Class("tap-bcs1", Off, current is null);
+        Class("tap-bc2", Off, current is null);
+        Text("tap-bc2", "t", current ?? string.Empty);
+
         Text("tap-sub", "t", sub);
     }
 

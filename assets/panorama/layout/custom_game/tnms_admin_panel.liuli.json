@@ -51,102 +51,129 @@
       ]
     },
     {
-      "id": "tap-catprev",
-      "type": "Button",
+      "id": "tap-hint",
+      "type": "Label",
       "classes": [
-        "tap-catbtn"
-      ]
-    },
-    {
-      "id": "tap-cat0",
-      "type": "Button",
-      "classes": [
-        "tap-nav"
-      ]
-    },
-    {
-      "id": "tap-cat1",
-      "type": "Button",
-      "classes": [
-        "tap-nav"
-      ]
-    },
-    {
-      "id": "tap-cat2",
-      "type": "Button",
-      "classes": [
-        "tap-nav"
-      ]
-    },
-    {
-      "id": "tap-cat3",
-      "type": "Button",
-      "classes": [
-        "tap-nav"
-      ]
-    },
-    {
-      "id": "tap-cat4",
-      "type": "Button",
-      "classes": [
-        "tap-nav"
-      ]
-    },
-    {
-      "id": "tap-cat5",
-      "type": "Button",
-      "classes": [
-        "tap-nav"
-      ]
-    },
-    {
-      "id": "tap-cat6",
-      "type": "Button",
-      "classes": [
-        "tap-nav"
-      ]
-    },
-    {
-      "id": "tap-cat7",
-      "type": "Button",
-      "classes": [
-        "tap-nav"
-      ]
-    },
-    {
-      "id": "tap-cat8",
-      "type": "Button",
-      "classes": [
-        "tap-nav"
-      ]
-    },
-    {
-      "id": "tap-cat9",
-      "type": "Button",
-      "classes": [
-        "tap-nav"
-      ]
-    },
-    {
-      "id": "tap-cat10",
-      "type": "Button",
-      "classes": [
-        "tap-nav"
-      ]
-    },
-    {
-      "id": "tap-catnext",
-      "type": "Button",
-      "classes": [
-        "tap-catbtn"
+        "tap-hint"
       ]
     },
     {
       "id": "tap-close",
       "type": "Button",
       "classes": [
-        "tap-nav",
-        "tap-nav-close"
+        "tap-close"
+      ]
+    },
+    {
+      "id": "tap-sprev",
+      "type": "Button",
+      "classes": [
+        "tap-sbtn"
+      ]
+    },
+    {
+      "id": "tap-si0",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si1",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si2",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si3",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si4",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si5",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si6",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si7",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si8",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si9",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si10",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si11",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si12",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-si13",
+      "type": "Button",
+      "classes": [
+        "tap-si"
+      ]
+    },
+    {
+      "id": "tap-snext",
+      "type": "Button",
+      "classes": [
+        "tap-sbtn"
       ]
     },
     {
@@ -157,10 +184,68 @@
       ]
     },
     {
+      "id": "tap-bc0",
+      "type": "Button",
+      "classes": [
+        "tap-bcl"
+      ]
+    },
+    {
+      "id": "tap-bcs0",
+      "type": "Label",
+      "classes": [
+        "tap-bcs"
+      ]
+    },
+    {
+      "id": "tap-bc1",
+      "type": "Button",
+      "classes": [
+        "tap-bcl"
+      ]
+    },
+    {
+      "id": "tap-bcs1",
+      "type": "Label",
+      "classes": [
+        "tap-bcs"
+      ]
+    },
+    {
+      "id": "tap-bc2",
+      "type": "Label",
+      "classes": [
+        "tap-bcc"
+      ]
+    },
+    {
       "id": "tap-sub",
       "type": "Label",
       "classes": [
         "tap-sub"
+      ]
+    },
+    {
+      "id": "tap-prev",
+      "type": "Button",
+      "classes": [
+        "lu-btn",
+        "tap-fbtn"
+      ]
+    },
+    {
+      "id": "tap-page",
+      "type": "Label",
+      "classes": [
+        "tap-page"
+      ]
+    },
+    {
+      "id": "tap-next",
+      "type": "Button",
+      "classes": [
+        "lu-btn",
+        "tap-fbtn"
       ]
     },
     {
@@ -224,6 +309,293 @@
       "type": "Panel",
       "classes": [
         "tap-stat"
+      ]
+    },
+    {
+      "id": "tap-dt",
+      "type": "Panel",
+      "classes": [
+        "tap-sec"
+      ]
+    },
+    {
+      "id": "tap-dug",
+      "type": "Panel",
+      "classes": [
+        "tap-dgroup"
+      ]
+    },
+    {
+      "id": "tap-duh",
+      "type": "Label",
+      "classes": [
+        "tap-dgroup-h"
+      ]
+    },
+    {
+      "id": "tap-dur0",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dur1",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dur2",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dur3",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dur4",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dur5",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dur6",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dur7",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dur8",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dur9",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dur10",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dur11",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dog",
+      "type": "Panel",
+      "classes": [
+        "tap-dgroup"
+      ]
+    },
+    {
+      "id": "tap-doh",
+      "type": "Label",
+      "classes": [
+        "tap-dgroup-h"
+      ]
+    },
+    {
+      "id": "tap-dor0",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dor1",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dor2",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dor3",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dor4",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dor5",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dig",
+      "type": "Panel",
+      "classes": [
+        "tap-dgroup"
+      ]
+    },
+    {
+      "id": "tap-dih",
+      "type": "Label",
+      "classes": [
+        "tap-dgroup-h"
+      ]
+    },
+    {
+      "id": "tap-dir0",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dir1",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dir2",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dir3",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dir4",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dir5",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dir6",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dir7",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dir8",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dir9",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dag",
+      "type": "Panel",
+      "classes": [
+        "tap-dgroup"
+      ]
+    },
+    {
+      "id": "tap-dah",
+      "type": "Label",
+      "classes": [
+        "tap-dgroup-h"
+      ]
+    },
+    {
+      "id": "tap-dar0",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dar1",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dar2",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
+      ]
+    },
+    {
+      "id": "tap-dar3",
+      "type": "Panel",
+      "classes": [
+        "tap-drow"
       ]
     },
     {
@@ -1116,36 +1488,6 @@
         "lu-btn-primary",
         "tap-fx"
       ]
-    },
-    {
-      "id": "tap-hint",
-      "type": "Label",
-      "classes": [
-        "tap-hint"
-      ]
-    },
-    {
-      "id": "tap-prev",
-      "type": "Button",
-      "classes": [
-        "lu-btn",
-        "tap-fbtn"
-      ]
-    },
-    {
-      "id": "tap-page",
-      "type": "Label",
-      "classes": [
-        "tap-page"
-      ]
-    },
-    {
-      "id": "tap-next",
-      "type": "Button",
-      "classes": [
-        "lu-btn",
-        "tap-fbtn"
-      ]
     }
   ],
   "dialogVariables": [
@@ -1166,5 +1508,5 @@
     "t",
     "v"
   ],
-  "internEstimate": 259
+  "internEstimate": 324
 }

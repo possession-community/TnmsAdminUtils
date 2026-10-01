@@ -18,7 +18,7 @@ Permission: `tnms.adminutil.menu`
 | Categories added by a TOML | Same as General Commands |
 
 - Root order: Open Panel (with permission) / Favorites / Players / General / Server / Notification / TOML categories. Favorites is listed even when empty so the item numbers stay put.
-- The admin panel's sidebar shows the categories 11 at a time; ▲ / ▼ switch the page.
+- In the admin panel, the Commands page's sidebar lists Favorites / All / the categories (14 at a time; ▲ / ▼ switch the page).
 - Command lists show the chat command next to the label, e.g. `!slay | Slay`.
 - Players lists every command that takes a target, whatever its category.
 - Targets list `@all` / `@ct` / `@t` / `@spec` and the players you can target.

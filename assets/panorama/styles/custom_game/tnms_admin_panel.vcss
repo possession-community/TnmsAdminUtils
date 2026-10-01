@@ -20,7 +20,7 @@
 
 /* Sidebar + main. The box itself does not flow, so the !ui name chip overlays instead of taking a slot. */
 .tap-in {
-	flow-children: right;
+	flow-children: down;
 	width: 1140px;
 	height: 700px;
 }
@@ -40,30 +40,30 @@
 	opacity: 0;
 }
 
-/* ---- sidebar ---- */
-.tap-side {
-	flow-children: down;
-	width: 200px;
-	height: 100%;
+/* ---- header bar ---- */
+.tap-top {
+	flow-children: right;
+	width: 1140px;
+	height: 48px;
 	background-color: #1a2330e6;
-	border-right: 1px solid #ffffff14;
+	border-bottom: 1px solid #ffffff14;
 }
 
+/* As wide as the sidebar, so the pages start where the main area does. */
 .tap-brand {
-	margin: 16px 18px 18px 18px;
+	width: 200px;
+	height: 47px;
+	padding: 13px 0px 0px 20px;
 	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
 	font-size: 18px;
 	letter-spacing: 1px;
 	color: #ffde85;
 }
 
-/* Sidebar 200 - its border-right 1. */
 .tap-nav {
-	width: 199px;
-	height: 38px;
+	height: 47px;
 	padding: 0px 18px;
-	border-left: 3px solid #00000000;
-	overflow: noclip noclip;
+	border-bottom: 3px solid #00000000;
 }
 
 .tap-nav:hover {
@@ -72,11 +72,100 @@
 
 .tap-nav.tap-sel {
 	background-color: #2e3c50;
+	border-bottom: 3px solid #ffde85;
+}
+
+.tap-nav-t {
+	vertical-align: center;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 16px;
+	color: #c5ccd3;
+	white-space: nowrap;
+}
+
+.tap-nav:hover .tap-nav-t, .tap-nav.tap-sel .tap-nav-t {
+	color: #ffeaa8;
+}
+
+/* Takes the space between the pages and Close, text at its right end. */
+.tap-hint {
+	width: fill-parent-flow( 1.0 );
+	vertical-align: center;
+	margin-right: 16px;
+	text-align: right;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 12px;
+	color: #6b747d;
+	white-space: nowrap;
+	text-overflow: shrink min( 10px ) ellipsis;
+}
+
+.tap-close {
+	height: 47px;
+	padding: 0px 22px;
+	border-left: 1px solid #ffffff14;
+}
+
+.tap-close:hover {
+	background-color: #8a3a3a99;
+}
+
+.tap-close-t {
+	vertical-align: center;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 16px;
+	color: #c5ccd3;
+}
+
+.tap-close:hover .tap-close-t {
+	color: #ffffff;
+}
+
+/* Sidebar + main under the header bar. */
+.tap-body {
+	flow-children: right;
+	width: 1140px;
+	height: fill-parent-flow( 1.0 );
+}
+
+/* ---- sidebar ---- */
+/* The same 4px between the header bar / the bottom and the up / down buttons. */
+.tap-side {
+	flow-children: down;
+	width: 200px;
+	height: 100%;
+	padding: 4px 0px;
+	background-color: #1a2330e6;
+	border-right: 1px solid #ffffff14;
+}
+
+/* Takes the rest between the up / down buttons; fixed by the parent, so down stays put. */
+.tap-slist {
+	flow-children: down;
+	width: 199px;
+	height: fill-parent-flow( 1.0 );
+}
+
+/* Sidebar 200 - its border-right 1. */
+.tap-si {
+	width: 199px;
+	height: 38px;
+	padding: 0px 18px;
+	border-left: 3px solid #00000000;
+	overflow: noclip noclip;
+}
+
+.tap-si:hover {
+	background-color: #41567a99;
+}
+
+.tap-si.tap-sel {
+	background-color: #2e3c50;
 	border-left: 3px solid #ffde85;
 }
 
-/* 142 = button 199 - padding 2 x 18 - border-left 3; long labels ("Notification Commands") shrink to fit. */
-.tap-nav-t {
+/* 142 = button 199 - padding 2 x 18 - border-left 3; long labels shrink to fit. */
+.tap-si-t {
 	width: 142px;
 	vertical-align: center;
 	font-family: Stratum2, Arial, sans-serif;
@@ -86,61 +175,63 @@
 	text-overflow: shrink min( 12px ) ellipsis;
 }
 
-.tap-nav:hover .tap-nav-t, .tap-nav.tap-sel .tap-nav-t {
+.tap-si:hover .tap-si-t, .tap-si.tap-sel .tap-si-t {
 	color: #ffeaa8;
 }
 
-/* The same 4px between the lines above and below and the up / down buttons. */
-.tap-cats {
-	flow-children: down;
-	width: 199px;
-	height: fill-parent-flow(1.0);
-	margin-top: 8px;
-	padding: 4px 0px;
-	border-top: 1px solid #ffffff14;
+/* Items under a heading. */
+.tap-si.tap-ind {
+	padding-left: 32px;
 }
 
-/* The rest between the up / down buttons (~440, measured in game): 11 x 38 fits. Fixed by the parent, so the down
- * button stays put with fewer categories. */
-.tap-catlist {
-	flow-children: down;
-	width: 199px;
-	height: fill-parent-flow(1.0);
+.tap-si.tap-ind .tap-si-t {
+	width: 128px;
 }
 
-/* Thin page buttons above and below the list. */
-.tap-catbtn {
+/* A heading: not an item, no hover. */
+.tap-si.tap-sih, .tap-si.tap-sih:hover {
+	height: 32px;
+	margin-top: 6px;
+	background-color: #00000000;
+	border-left: 3px solid #00000000;
+}
+
+.tap-si.tap-sih .tap-si-t, .tap-si.tap-sih:hover .tap-si-t {
+	vertical-align: bottom;
+	margin-bottom: 6px;
+	font-size: 12px;
+	letter-spacing: 1px;
+	color: #9aa4af;
+}
+
+/* Thin page buttons above and below the items, always shown; dim when there is no page that way. */
+.tap-sbtn {
 	width: 199px;
 	height: 18px;
 	background-color: #ffffff08;
 }
 
-.tap-catbtn:hover {
+.tap-sbtn:hover {
 	background-color: #41567a99;
 }
 
-.tap-catbtn-t {
+.tap-sbtn-t {
 	horizontal-align: center;
 	vertical-align: center;
 	font-size: 10px;
 	color: #9aa4af;
 }
 
-.tap-catbtn:hover .tap-catbtn-t {
+.tap-sbtn:hover .tap-sbtn-t {
 	color: #ffeaa8;
 }
 
-/* No page that way: always shown (an empty strip looks odd), only dimmed. */
-.tap-catbtn.tap-dis, .tap-catbtn.tap-dis:hover {
+.tap-sbtn.tap-dis, .tap-sbtn.tap-dis:hover {
 	background-color: #ffffff03;
 }
 
-.tap-catbtn.tap-dis .tap-catbtn-t, .tap-catbtn.tap-dis:hover .tap-catbtn-t {
+.tap-sbtn.tap-dis .tap-sbtn-t, .tap-sbtn.tap-dis:hover .tap-sbtn-t {
 	color: #9aa4af33;
-}
-
-.tap-nav-close {
-	border-top: 1px solid #ffffff14;
 }
 
 /* ---- main ---- */
@@ -152,12 +243,49 @@
 }
 
 .tap-head {
-	flow-children: down;
+	flow-children: right;
 	width: 900px;
 	margin-top: 16px;
 	padding-bottom: 10px;
 	margin-bottom: 12px;
 	border-bottom: 1px solid #ffffff14;
+}
+
+.tap-head-l {
+	flow-children: down;
+	width: fill-parent-flow( 1.0 );
+}
+
+/* Breadcrumb under the title, on every page. */
+.tap-bc {
+	flow-children: right;
+	margin-top: 2px;
+	height: 18px;
+}
+
+.tap-bcl-t, .tap-bcs, .tap-bcc {
+	vertical-align: center;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	white-space: nowrap;
+}
+
+.tap-bcl-t {
+	color: #ffde85;
+}
+
+.tap-bcl:hover .tap-bcl-t {
+	color: #ffeaa8;
+	text-decoration: underline;
+}
+
+.tap-bcs {
+	margin: 0px 8px;
+	color: #6b747d;
+}
+
+.tap-bcc {
+	color: #9aa4af;
 }
 
 .tap-title {
@@ -168,11 +296,13 @@
 	white-space: nowrap;
 }
 
+/* The page's note after the breadcrumb. */
 .tap-sub {
-	margin-top: 2px;
+	vertical-align: center;
+	margin-left: 14px;
 	font-family: Stratum2, Arial, sans-serif;
 	font-size: 14px;
-	color: #9aa4af;
+	color: #6b747d;
 	text-overflow: shrink min( 10px ) ellipsis;
 	white-space: nowrap;
 }
@@ -222,6 +352,70 @@
 	color: #f4f6f8;
 	white-space: nowrap;
 	text-overflow: shrink min( 12px ) ellipsis;
+}
+
+/* ---- player details ---- */
+/* Two columns of 444 + 12 = 900. */
+.tap-dt-cols {
+	flow-children: right;
+	width: 900px;
+	height: fill-parent-flow( 1.0 );
+}
+
+.tap-dt-col {
+	flow-children: down;
+	width: 444px;
+	margin-right: 12px;
+}
+
+.tap-dt-col:last-child {
+	margin-right: 0px;
+}
+
+/* A heading, then label / value rows. Content 420 after the padding and the left border. */
+.tap-dgroup {
+	flow-children: down;
+	width: 444px;
+	margin-bottom: 12px;
+	padding: 8px 12px 6px 9px;
+	background-color: #2e3c50cc;
+	border: 1px solid #ffffff14;
+	border-left: 3px solid #ffde85;
+}
+
+.tap-dgroup-h {
+	margin-bottom: 4px;
+	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	letter-spacing: 1px;
+	color: #ffde85;
+}
+
+.tap-drow {
+	flow-children: right;
+	width: 420px;
+	height: 26px;
+	border-top: 1px solid #ffffff0d;
+}
+
+.tap-drow-k {
+	width: 130px;
+	vertical-align: center;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 13px;
+	color: #9aa4af;
+	white-space: nowrap;
+	text-overflow: shrink min( 10px ) ellipsis;
+}
+
+.tap-drow-v {
+	width: 290px;
+	vertical-align: center;
+	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
+	font-size: 15px;
+	color: #f4f6f8;
+	white-space: nowrap;
+	text-overflow: shrink min( 10px ) ellipsis;
 }
 
 /* ---- users table ---- */
@@ -787,27 +981,11 @@ Button.tap-urow:hover .tap-cell {
 	color: #6b747d;
 }
 
-/* ---- footer ---- */
-.tap-foot {
-	width: 900px;
-	height: 36px;
-	margin: 12px 0px 12px 0px;
-	padding-top: 8px;
-	border-top: 1px solid #ffffff14;
-}
-
-.tap-hint {
-	horizontal-align: center;
-	vertical-align: center;
-	font-family: Stratum2, Arial, sans-serif;
-	font-size: 13px;
-	color: #6b747d;
-}
-
+/* ---- pager (right end of the header) ---- */
 .tap-pager {
 	flow-children: right;
 	width: fit-children;
-	horizontal-align: right;
+	vertical-align: bottom;
 }
 
 .tap-fbtn {

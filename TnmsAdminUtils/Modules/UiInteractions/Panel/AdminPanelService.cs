@@ -19,6 +19,7 @@ public sealed class AdminPanelService(TnmsAdminUtils plugin)
     private const string SurfaceKey = "tnms.adminpanel";
 
     public AdminPanelColumns Columns { get; } = new();
+    public AdminPanelDetails Details { get; } = new();
 
     public ILiuliSurface? Surface { get; private set; }
 
@@ -32,6 +33,9 @@ public sealed class AdminPanelService(TnmsAdminUtils plugin)
 
         foreach (var column in AdminPanelColumns.BuiltIn())
             Columns.Register(column);
+
+        foreach (var field in AdminPanelDetails.BuiltIn())
+            Details.Register(field);
 
         try
         {
