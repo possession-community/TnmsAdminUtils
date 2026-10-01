@@ -32,19 +32,20 @@ public sealed class AdminMenuSession : IAdminFlowView, IAdminSession
         _flow = new AdminFlow(plugin, service, admin, player, this);
     }
 
+    /// <summary>
+    /// Root order: Open Panel, Favorites (shown even when empty so the item numbers stay put), then the flow's own items.
+    /// </summary>
     public void Start()
     {
-        List<AdminFlowItem> extra = [];
-
-        var favorites = AdminFavorites.Load(Admin);
-
-        if (favorites.Ids.Count > 0)
-            extra.Add(new AdminFlowItem(_plugin.LocalizeStringForPlayer(Admin, "AdminMenu.Favorites"), () => Defer(() => _flow.StartFavorites(favorites))));
+        List<AdminFlowItem> top = [];
 
         if (TnmsPlugin.AdminManager.PlayerHasPermission(Admin.SteamId, AdminPanelService.Permission))
-            extra.Add(new AdminFlowItem(_plugin.LocalizeStringForPlayer(Admin, "AdminMenu.OpenPanel"), () => Defer(() => _service.OpenPanel(Admin))));
+            top.Add(new AdminFlowItem(_plugin.LocalizeStringForPlayer(Admin, "AdminMenu.OpenPanel"), () => Defer(() => _service.OpenPanel(Admin))));
 
-        _flow.StartRoot(extra);
+        var favorites = AdminFavorites.Load(Admin);
+        top.Add(new AdminFlowItem(_plugin.LocalizeStringForPlayer(Admin, "AdminMenu.Favorites"), () => Defer(() => _flow.StartFavorites(favorites))));
+
+        _flow.StartRoot(top);
     }
 
     public void Close()

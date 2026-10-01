@@ -11,11 +11,12 @@ Permission: `tnms.adminutil.menu`
 
 | Root | Flow |
 |---|---|
-| General Commands | command → options → target → confirm → execute |
 | Players | target → command → options → confirm → execute |
+| General Commands | command → options → target → confirm → execute |
 | Server Commands | command → options → confirm → execute |
 | Notifications (say / asay / csay / hsay / psay / toast) | command → (target) → message → confirm → execute |
 
+- Root order: Open Panel (with permission) / Favorites / Players / General / Server / Notification. Favorites is listed even when empty so the item numbers stay put.
 - Command lists show the chat command next to the label, e.g. `!slay | Slay`.
 - Players lists every command that takes a target, whatever its category.
 - Targets list `@all` / `@ct` / `@t` / `@spec` and the players you can target.

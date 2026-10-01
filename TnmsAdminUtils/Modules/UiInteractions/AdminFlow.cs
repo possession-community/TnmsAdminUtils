@@ -108,9 +108,9 @@ public sealed class AdminFlow
     public bool IsWaitingText => _pendingText != null;
 
     /// <summary>
-    /// Root page of the menu: Commands / Players / Server / Notification, plus <paramref name="extraItems"/>.
+    /// Root page of the menu: <paramref name="topItems"/>, then Players / General / Server / Notification.
     /// </summary>
-    public void StartRoot(IReadOnlyList<AdminFlowItem> extraItems) => Navigate(() => RenderRoot(extraItems));
+    public void StartRoot(IReadOnlyList<AdminFlowItem> topItems) => Navigate(() => RenderRoot(topItems));
 
     public void StartTree(AdminMenuTree tree)
     {
@@ -194,23 +194,25 @@ public sealed class AdminFlow
         _view.Finish();
     }
 
-    private void RenderRoot(IReadOnlyList<AdminFlowItem> extraItems)
+    private void RenderRoot(IReadOnlyList<AdminFlowItem> topItems)
     {
-        var items = new List<AdminFlowItem>();
+        var items = new List<AdminFlowItem>(topItems);
 
-        if (_context.VisibleEntries(AdminMenuTree.Commands).Any())
-        {
-            items.Add(new AdminFlowItem(L("AdminMenu.Root.Commands"), Deferred(() => StartTree(AdminMenuTree.Commands))));
+        if (_context.VisibleEntries(AdminMenuTree.Players).Any())
             items.Add(new AdminFlowItem(L("AdminMenu.Root.Players"), Deferred(() => StartTree(AdminMenuTree.Players))));
+
+        // The command lists stay together after Players.
+        foreach (var (tree, labelKey) in new[]
+                 {
+                     (AdminMenuTree.Commands, "AdminMenu.Root.Commands"),
+                     (AdminMenuTree.Server, "AdminMenu.Root.Server"),
+                     (AdminMenuTree.Notification, "AdminMenu.Root.Notification"),
+                 })
+        {
+            if (_context.VisibleEntries(tree).Any())
+                items.Add(new AdminFlowItem(L(labelKey), Deferred(() => StartTree(tree))));
         }
 
-        if (_context.VisibleEntries(AdminMenuTree.Server).Any())
-            items.Add(new AdminFlowItem(L("AdminMenu.Root.Server"), Deferred(() => StartTree(AdminMenuTree.Server))));
-
-        if (_context.VisibleEntries(AdminMenuTree.Notification).Any())
-            items.Add(new AdminFlowItem(L("AdminMenu.Root.Notification"), Deferred(() => StartTree(AdminMenuTree.Notification))));
-
-        items.AddRange(extraItems);
         Show(L("AdminMenu.Title"), items);
     }
 

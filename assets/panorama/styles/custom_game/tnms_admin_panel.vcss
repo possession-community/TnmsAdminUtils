@@ -70,11 +70,15 @@
 	border-left: 3px solid #ffde85;
 }
 
+/* 142 = button 199 - padding 2 x 18 - border-left 3; long labels ("Notification Commands") shrink to fit. */
 .tap-nav-t {
+	width: 142px;
 	vertical-align: center;
 	font-family: Stratum2, Arial, sans-serif;
 	font-size: 16px;
 	color: #c5ccd3;
+	white-space: nowrap;
+	text-overflow: shrink min( 12px ) ellipsis;
 }
 
 .tap-nav:hover .tap-nav-t, .tap-nav.tap-sel .tap-nav-t {
@@ -315,10 +319,11 @@ Button.tap-urow:hover .tap-cell {
 
 /* One framed row per item: the command and its favorite star share the frame (two buttons, no nesting,
  * since a hit-testable child would take the parent button's click). */
+/* 9 rows x 54 + 8 x 8 gaps = 550; the form beside the list uses the same height. */
 .tap-irow {
 	flow-children: right;
 	width: 440px;
-	height: 48px;
+	height: 54px;
 	margin-bottom: 8px;
 	background-color: #2e3c50;
 	border: 1px solid #ffffff14;
@@ -421,10 +426,11 @@ Button.tap-urow:hover .tap-cell {
 /* ---- command form ---- */
 /* Two layers: the fields from the top, the command line and execute button pinned to the bottom. */
 /* Same 440 as the list column it replaces; content 410 after the padding. */
+/* Ends on the same line as the 9-row list beside it (9 x 54 + 8 x 8 = 550); 550 came out 1-2px short in game. */
 .tap-fm {
 	flow-children: none;
 	width: 440px;
-	height: 100%;
+	height: 552px;
 	padding: 0px 15px;
 	background-color: #1a2330cc;
 	border-top: 3px solid #ffde85;
