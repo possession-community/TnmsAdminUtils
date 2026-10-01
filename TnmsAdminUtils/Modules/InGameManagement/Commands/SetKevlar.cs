@@ -21,7 +21,7 @@ public class SetKevlar(IServiceProvider provider) : TnmsAbstractCommandBase(prov
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Preset("setkev").Toggle("AdminMenu.Step.Helmet").Optional());
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("SetKevlar.Notification.Usage").Target().Preset("setkev").Toggle("AdminMenu.Step.Helmet").Optional());
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

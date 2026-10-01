@@ -21,7 +21,7 @@ public class ReplicateCvar(IServiceProvider provider): TnmsAbstractCommandBase(p
         TnmsCommandRegistrationType.Client;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Text("AdminMenu.Step.CvarName").Text("AdminMenu.Step.CvarValue"));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("ReplicateCvar.Notification.Usage").Target().Text("AdminMenu.Step.CvarName").Text("AdminMenu.Step.CvarValue"));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

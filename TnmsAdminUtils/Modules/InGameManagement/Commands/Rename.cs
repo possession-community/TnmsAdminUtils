@@ -20,7 +20,7 @@ public class Rename(IServiceProvider provider) : TnmsAbstractCommandBase(provide
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Text("AdminMenu.Step.Name"));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("Rename.Notification.Usage").Target().Text("AdminMenu.Step.Name"));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))
@@ -65,9 +65,11 @@ public class Rename(IServiceProvider provider) : TnmsAbstractCommandBase(provide
             return;
         }
 
+        // Read before renaming: the executor may be the target (!rename @me).
+        string executor = PlayerUtil.GetPlayerName(client);
+
         PlayerUtil.SetPlayerName(target, newName);
 
-        string executor = PlayerUtil.GetPlayerName(client);
         Plugin.TnmsLogger.LogAdminAction(client, $"Admin {executor} renamed {oldName} to {newName}");
 
         foreach (var gameClient in SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))

@@ -1,0 +1,525 @@
+/* tnms_admin_panel.vcss — TnmsAdminUtils admin panel (tnms_admin_panel.lxml).
+ * liuli_skin.vcss is included first; rules here override its role defaults.
+ * No flex/gap/scroll in Panorama: fixed-width columns flowing right, margins for spacing. */
+
+/* Between the menu (10500) and toasts (10800). z-index never hot-reloads. */
+.lu-root {
+	z-index: 10600;
+}
+
+/* Liuli places the box's top-left corner at the placement point; pull it back by half its size
+ * so the placement (default 50 / 50) is the panel's center. Keep in sync with the width/height.
+ * X is moved on the band, not the box: anything outside the band's bounds is drawn but not hit-tested
+ * (a box shifted left of its band lost hover/clicks on its left half). The band is full height, so Y can
+ * stay on the box. */
+.lu-band#tapx {
+	margin-left: -570px;
+}
+
+.lu-box.tap-card {
+	flow-children: right;
+	width: 1140px;
+	height: 640px;
+	margin-top: -320px;
+	padding: 0px;
+}
+
+/* Hidden sections / rows / items. visibility (not opacity) so hidden panels do not hit-test. */
+.tap-off {
+	visibility: collapse;
+}
+
+/* ---- sidebar ---- */
+.tap-side {
+	flow-children: down;
+	width: 200px;
+	height: 100%;
+	padding: 16px 0px;
+	background-color: #1a2330e6;
+	border-right: 1px solid #ffffff14;
+}
+
+.tap-brand {
+	margin: 0px 18px 18px 18px;
+	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
+	font-size: 18px;
+	letter-spacing: 1px;
+	color: #ffde85;
+}
+
+.tap-nav {
+	width: 100%;
+	height: 38px;
+	padding: 0px 18px;
+	border-left: 3px solid #00000000;
+	overflow: noclip noclip;
+}
+
+.tap-nav:hover {
+	background-color: #41567a99;
+}
+
+.tap-nav.tap-sel {
+	background-color: #2e3c50;
+	border-left: 3px solid #ffde85;
+}
+
+.tap-nav-t {
+	vertical-align: center;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 16px;
+	color: #c5ccd3;
+}
+
+.tap-nav:hover .tap-nav-t, .tap-nav.tap-sel .tap-nav-t {
+	color: #ffeaa8;
+}
+
+.tap-nav-close {
+	margin-top: 18px;
+	border-top: 1px solid #ffffff14;
+}
+
+/* ---- main ---- */
+.tap-main {
+	flow-children: down;
+	width: 940px;
+	height: 100%;
+	padding: 16px 20px;
+}
+
+.tap-head {
+	flow-children: down;
+	width: 100%;
+	padding-bottom: 10px;
+	margin-bottom: 12px;
+	border-bottom: 1px solid #ffffff14;
+}
+
+.tap-title {
+	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
+	font-size: 22px;
+	color: #f4f6f8;
+	text-overflow: shrink min( 12px ) ellipsis;
+	white-space: nowrap;
+}
+
+.tap-sub {
+	margin-top: 2px;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	color: #9aa4af;
+	text-overflow: shrink min( 10px ) ellipsis;
+	white-space: nowrap;
+}
+
+/* Usage line of the command being set up, e.g. "> Usage: !slap <player> [damage]". */
+.tap-usage {
+	width: 100%;
+	margin-top: 6px;
+	padding: 4px 10px;
+	background-color: #00000059;
+	border-left: 3px solid #3ec9ff;
+	font-family: Stratum2 Regular Monodigit, Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	color: #c5ccd3;
+	white-space: nowrap;
+	text-overflow: shrink min( 10px ) ellipsis;
+}
+
+.tap-sec {
+	flow-children: down;
+	width: 100%;
+	height: 450px;
+}
+
+/* ---- overview ---- */
+.tap-ov-row {
+	flow-children: right;
+	width: 100%;
+	margin-bottom: 12px;
+}
+
+.tap-stat {
+	flow-children: down;
+	width: 214px;
+	height: 96px;
+	margin-right: 12px;
+	padding: 12px 14px;
+	background-color: #2e3c50cc;
+	border: 1px solid #ffffff14;
+	border-left: 3px solid #ffde85;
+}
+
+.tap-stat:last-child {
+	margin-right: 0px;
+}
+
+.tap-stat-k {
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	color: #9aa4af;
+	white-space: nowrap;
+	text-overflow: shrink min( 10px ) ellipsis;
+}
+
+.tap-stat-v {
+	margin-top: 8px;
+	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
+	font-size: 26px;
+	color: #f4f6f8;
+	white-space: nowrap;
+	text-overflow: shrink min( 12px ) ellipsis;
+}
+
+/* ---- users table ---- */
+.tap-urow {
+	flow-children: right;
+	width: 100%;
+	height: 26px;
+	padding: 0px 6px;
+	overflow: noclip noclip;
+}
+
+Button.tap-urow:hover {
+	background-color: #41567a99;
+}
+
+.tap-urow:nth-child(odd) {
+	background-color: #ffffff08;
+}
+
+.tap-urow.tap-uhead {
+	height: 30px;
+	border-bottom: 1px solid #ffffff1f;
+	background-color: #00000000;
+}
+
+.tap-cell {
+	width: 120px;
+	vertical-align: center;
+	padding-right: 8px;
+	font-family: Stratum2 Regular Monodigit, Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	color: #e6e9ed;
+	white-space: nowrap;
+	text-overflow: shrink min( 10px ) ellipsis;
+}
+
+/* Header cells: same pitch as the data cells, but the hover box is inset 4px on both sides of the text
+ * (shifted left by 4px and padded back) instead of hanging the cell's 8px right gap off the text. */
+.tap-hcell {
+	height: 24px;
+	vertical-align: center;
+	margin: 0px 4px 0px -4px;
+	padding: 0px 4px;
+}
+
+.tap-hcell-t {
+	width: 100%;
+	vertical-align: center;
+	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	color: #9aa4af;
+	white-space: nowrap;
+	text-overflow: shrink min( 10px ) ellipsis;
+}
+
+.tap-hcell.tap-sortable:hover {
+	background-color: #41567a66;
+}
+
+.tap-hcell.tap-sortable:hover .tap-hcell-t {
+	color: #ffeaa8;
+}
+
+.tap-hcell.tap-sorted .tap-hcell-t {
+	color: #ffde85;
+}
+
+Button.tap-urow:hover .tap-cell {
+	color: #ffeaa8;
+}
+
+/* Column width ladder: set on #tap-us as w{slot}-{x|xs|s|m|l|xl}. id + class beats .tap-cell. */
+#tap-us.w0-x .tap-c0 { visibility: collapse; }
+#tap-us.w0-xs .tap-c0 { width: 50px; }
+#tap-us.w0-s .tap-c0 { width: 70px; }
+#tap-us.w0-m .tap-c0 { width: 120px; }
+#tap-us.w0-l .tap-c0 { width: 170px; }
+#tap-us.w0-xl .tap-c0 { width: 230px; }
+#tap-us.w1-x .tap-c1 { visibility: collapse; }
+#tap-us.w1-xs .tap-c1 { width: 50px; }
+#tap-us.w1-s .tap-c1 { width: 70px; }
+#tap-us.w1-m .tap-c1 { width: 120px; }
+#tap-us.w1-l .tap-c1 { width: 170px; }
+#tap-us.w1-xl .tap-c1 { width: 230px; }
+#tap-us.w2-x .tap-c2 { visibility: collapse; }
+#tap-us.w2-xs .tap-c2 { width: 50px; }
+#tap-us.w2-s .tap-c2 { width: 70px; }
+#tap-us.w2-m .tap-c2 { width: 120px; }
+#tap-us.w2-l .tap-c2 { width: 170px; }
+#tap-us.w2-xl .tap-c2 { width: 230px; }
+#tap-us.w3-x .tap-c3 { visibility: collapse; }
+#tap-us.w3-xs .tap-c3 { width: 50px; }
+#tap-us.w3-s .tap-c3 { width: 70px; }
+#tap-us.w3-m .tap-c3 { width: 120px; }
+#tap-us.w3-l .tap-c3 { width: 170px; }
+#tap-us.w3-xl .tap-c3 { width: 230px; }
+#tap-us.w4-x .tap-c4 { visibility: collapse; }
+#tap-us.w4-xs .tap-c4 { width: 50px; }
+#tap-us.w4-s .tap-c4 { width: 70px; }
+#tap-us.w4-m .tap-c4 { width: 120px; }
+#tap-us.w4-l .tap-c4 { width: 170px; }
+#tap-us.w4-xl .tap-c4 { width: 230px; }
+#tap-us.w5-x .tap-c5 { visibility: collapse; }
+#tap-us.w5-xs .tap-c5 { width: 50px; }
+#tap-us.w5-s .tap-c5 { width: 70px; }
+#tap-us.w5-m .tap-c5 { width: 120px; }
+#tap-us.w5-l .tap-c5 { width: 170px; }
+#tap-us.w5-xl .tap-c5 { width: 230px; }
+#tap-us.w6-x .tap-c6 { visibility: collapse; }
+#tap-us.w6-xs .tap-c6 { width: 50px; }
+#tap-us.w6-s .tap-c6 { width: 70px; }
+#tap-us.w6-m .tap-c6 { width: 120px; }
+#tap-us.w6-l .tap-c6 { width: 170px; }
+#tap-us.w6-xl .tap-c6 { width: 230px; }
+#tap-us.w7-x .tap-c7 { visibility: collapse; }
+#tap-us.w7-xs .tap-c7 { width: 50px; }
+#tap-us.w7-s .tap-c7 { width: 70px; }
+#tap-us.w7-m .tap-c7 { width: 120px; }
+#tap-us.w7-l .tap-c7 { width: 170px; }
+#tap-us.w7-xl .tap-c7 { width: 230px; }
+#tap-us.w8-x .tap-c8 { visibility: collapse; }
+#tap-us.w8-xs .tap-c8 { width: 50px; }
+#tap-us.w8-s .tap-c8 { width: 70px; }
+#tap-us.w8-m .tap-c8 { width: 120px; }
+#tap-us.w8-l .tap-c8 { width: 170px; }
+#tap-us.w8-xl .tap-c8 { width: 230px; }
+#tap-us.w9-x .tap-c9 { visibility: collapse; }
+#tap-us.w9-xs .tap-c9 { width: 50px; }
+#tap-us.w9-s .tap-c9 { width: 70px; }
+#tap-us.w9-m .tap-c9 { width: 120px; }
+#tap-us.w9-l .tap-c9 { width: 170px; }
+#tap-us.w9-xl .tap-c9 { width: 230px; }
+
+/* ---- list ---- */
+#tap-ls {
+	flow-children: right;
+}
+
+.tap-ls-col {
+	flow-children: down;
+	width: 440px;
+	margin-right: 20px;
+}
+
+.tap-ls-col:last-child {
+	margin-right: 0px;
+}
+
+/* One framed row per item: the command and its favorite star share the frame (two buttons, no nesting,
+ * since a hit-testable child would take the parent button's click). */
+.tap-irow {
+	flow-children: right;
+	width: 100%;
+	height: 48px;
+	margin-bottom: 8px;
+	background-color: #2e3c50;
+	border: 1px solid #ffffff14;
+	overflow: noclip noclip;
+}
+
+.tap-item {
+	width: fill-parent-flow( 1.0 );
+	height: 100%;
+	padding: 0px 16px;
+	overflow: noclip noclip;
+}
+
+/* Label block, centered as a whole: one line, or the chat command above the label on command items. */
+.tap-item-in {
+	width: 100%;
+	flow-children: down;
+	vertical-align: center;
+}
+
+.tap-item-c {
+	visibility: collapse;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 12px;
+	color: #7d8791;
+	white-space: nowrap;
+}
+
+.tap-item.tap-cmd .tap-item-c {
+	visibility: visible;
+}
+
+.tap-item:hover .tap-item-c {
+	color: #ffeaa8;
+}
+
+.tap-item:hover {
+	background-color: #41567a;
+}
+
+.tap-item-t {
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 17px;
+	color: #e6e9ed;
+	white-space: nowrap;
+	text-overflow: shrink min( 11px ) ellipsis;
+}
+
+.tap-item:hover .tap-item-t {
+	color: #ffeaa8;
+}
+
+/* Favorite toggle at the right end of the row. */
+.tap-star {
+	width: 48px;
+	height: 100%;
+}
+
+.tap-star:hover {
+	background-color: #41567a99;
+}
+
+.tap-star-t {
+	horizontal-align: center;
+	vertical-align: center;
+	font-size: 22px;
+	color: #5c6670;
+}
+
+.tap-star:hover .tap-star-t {
+	color: #ffeaa8;
+}
+
+.tap-star.tap-fav .tap-star-t {
+	color: #ffde85;
+}
+
+/* Primary item (execute) and disabled items. */
+.tap-item.tap-pri {
+	background-color: #ffde851f;
+	border: 1px solid #ffde8559;
+}
+
+.tap-item.tap-pri .tap-item-t {
+	color: #ffde85;
+}
+
+.tap-item.tap-pri:hover {
+	background-color: #ffde85;
+}
+
+.tap-item.tap-pri:hover .tap-item-t {
+	color: #1a2330;
+}
+
+.tap-item.tap-dis {
+	background-color: #2e3c5066;
+}
+
+.tap-item.tap-dis .tap-item-t {
+	color: #6b747d;
+}
+
+/* ---- confirm ---- */
+.tap-cf-cmd {
+	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
+	font-size: 30px;
+	color: #ffde85;
+	white-space: nowrap;
+	text-overflow: shrink min( 14px ) ellipsis;
+}
+
+.tap-cf-line {
+	width: 100%;
+	margin-top: 8px;
+	padding: 8px 12px;
+	background-color: #00000059;
+	border-left: 3px solid #3ec9ff;
+	font-family: Stratum2 Regular Monodigit, Stratum2, Arial, sans-serif;
+	font-size: 16px;
+	color: #e6e9ed;
+	white-space: nowrap;
+	text-overflow: shrink min( 11px ) ellipsis;
+}
+
+.tap-cf-rows {
+	flow-children: down;
+	width: 100%;
+	margin-top: 16px;
+}
+
+.tap-cf-row {
+	flow-children: right;
+	width: 100%;
+	min-height: 36px;
+	padding: 6px 0px;
+	border-bottom: 1px solid #ffffff0f;
+}
+
+.tap-cf-k {
+	width: 220px;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 15px;
+	color: #9aa4af;
+	white-space: nowrap;
+	text-overflow: shrink min( 10px ) ellipsis;
+}
+
+/* Values (target names) may be long: wrap instead of shrinking. */
+.tap-cf-v {
+	width: 680px;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 16px;
+	color: #f4f6f8;
+}
+
+.tap-cf-exec {
+	margin-top: 20px;
+	padding: 10px 48px;
+}
+
+.tap-cf-exec .lu-btn-t {
+	font-size: 20px;
+}
+
+/* ---- footer ---- */
+.tap-foot {
+	width: 100%;
+	height: 44px;
+	margin-top: 12px;
+	padding-top: 8px;
+	border-top: 1px solid #ffffff14;
+}
+
+.tap-hint {
+	horizontal-align: center;
+	vertical-align: center;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 13px;
+	color: #6b747d;
+}
+
+.tap-pager {
+	flow-children: right;
+	width: fit-children;
+	horizontal-align: right;
+}
+
+.tap-fbtn {
+	padding: 4px 16px;
+}
+
+.tap-page {
+	vertical-align: center;
+	margin: 0px 12px;
+	font-family: Stratum2 Regular Monodigit, Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	color: #9aa4af;
+}

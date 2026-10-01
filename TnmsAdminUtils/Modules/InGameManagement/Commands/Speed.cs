@@ -21,7 +21,7 @@ public class Speed(IServiceProvider provider) : TnmsAbstractCommandBase(provider
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Preset("speed"));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("Speed.Notification.Usage").Target().Preset("speed"));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

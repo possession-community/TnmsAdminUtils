@@ -20,7 +20,7 @@ public class Slay(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target());
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("Slay.Notification.Usage").Target());
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))
@@ -32,7 +32,7 @@ public class Slay(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         switch (context.Validator)
         {
             case ArgumentCountValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Slap.Notification.Usage"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Slay.Notification.Usage"));
                 break;
             case PermissionValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));

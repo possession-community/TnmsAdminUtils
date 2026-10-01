@@ -11,10 +11,13 @@ Permission: `tnms.adminutil.menu`
 
 | Root | Flow |
 |---|---|
-| Commands | command → options → target → confirm → execute |
+| General Commands | command → options → target → confirm → execute |
 | Players | target → command → options → confirm → execute |
-| Server | command → options → confirm → execute |
+| Server Commands | command → options → confirm → execute |
+| Notifications (say / asay / csay / hsay / psay / toast) | command → (target) → message → confirm → execute |
 
+- Command lists show the chat command next to the label, e.g. `!slay | Slay`.
+- Players lists every command that takes a target, whatever its category.
 - Targets list `@all` / `@ct` / `@t` / `@spec` and the players you can target.
 - Commands you have no permission for are hidden. A root is hidden when it has no command.
 - Every page has a Back item. The menu closes after execution.
@@ -89,5 +92,7 @@ protected override void OnRegistered()
 | `Text(titleKey, quote)` | Text typed in chat |
 | `TextList(titleKey, minCount)` | Comma separated texts, each quoted |
 | `Optional(defaultRaw)` | Makes the last argument optional |
+| `InCategory(category)` | Which list the command goes in (`Normal` / `Server` / `Notification`). Defaults to `Normal` with a `Target`, `Server` without |
+| `Id(menuId)` | Identity stored in favorites (defaults to the command name). Pass the old name when renaming a command so favorites keep working |
 
-Commands without a `Target` are listed under Server.
+Without `InCategory`, commands without a `Target` are listed under Server Commands.

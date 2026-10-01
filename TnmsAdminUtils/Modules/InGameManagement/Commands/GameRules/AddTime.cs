@@ -20,7 +20,7 @@ public class AddTime(IServiceProvider provider) : TnmsAbstractCommandBase(provid
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Preset("addtime", "AdminMenu.Step.Seconds"));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("AddTime.Notification.Usage").Preset("addtime", "AdminMenu.Step.Seconds"));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

@@ -22,7 +22,7 @@ public class QueryCvar(IServiceProvider provider): TnmsAbstractCommandBase(provi
         TnmsCommandRegistrationType.Client;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Text("AdminMenu.Step.CvarName"));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("QueryCvar.Notification.Usage").Target().Text("AdminMenu.Step.CvarName"));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

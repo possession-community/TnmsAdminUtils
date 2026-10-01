@@ -35,6 +35,19 @@ public sealed record TextArgument(string TitleKey, bool Quote) : AdminMenuArgume
 /// </summary>
 public sealed record TextListArgument(string TitleKey, int MinCount) : AdminMenuArgument(TitleKey);
 
+/// <summary>
+/// Which command list of the menu / panel an entry belongs to.
+/// </summary>
+public enum AdminMenuCategory
+{
+    Normal,
+    Server,
+    /// <summary>
+    /// Chat / screen messages (say, csay, toast, ...).
+    /// </summary>
+    Notification,
+}
+
 /// <param name="Value">Value passed to the command</param>
 /// <param name="LabelKey">Translation key of the label, or null to show <see cref="Value"/></param>
 public sealed record AdminMenuChoice(string Value, string? LabelKey = null);
@@ -48,15 +61,54 @@ public sealed class AdminMenuEntry
     public string Permission { get; }
     public IReadOnlyList<AdminMenuArgument> Arguments => _arguments;
 
+    /// <summary>
+    /// Stable identity of the entry, stored in favorites. Defaults to <see cref="CommandName"/>.
+    /// </summary>
+    public string MenuId { get; private set; }
+
     private readonly List<AdminMenuArgument> _arguments = [];
 
     private AdminMenuEntry(string commandName, string permission)
     {
         CommandName = commandName;
         Permission = permission;
+        MenuId = commandName;
     }
 
     public static AdminMenuEntry Create(string commandName, string permission) => new(commandName, permission);
+
+    /// <summary>
+    /// Translation key of the command's usage line, shown while its arguments are being chosen.
+    /// </summary>
+    public string? UsageKey { get; private set; }
+
+    private AdminMenuCategory? _category;
+
+    /// <summary>
+    /// Defaults to <see cref="AdminMenuCategory.Server"/> without a target argument, otherwise <see cref="AdminMenuCategory.Normal"/>.
+    /// </summary>
+    public AdminMenuCategory Category => _category ?? (PrimaryTarget is null ? AdminMenuCategory.Server : AdminMenuCategory.Normal);
+
+    public AdminMenuEntry InCategory(AdminMenuCategory category)
+    {
+        _category = category;
+        return this;
+    }
+
+    public AdminMenuEntry Usage(string usageKey)
+    {
+        UsageKey = usageKey;
+        return this;
+    }
+
+    /// <summary>
+    /// Keeps the entry's identity when the command is renamed: pass the old command name so saved favorites still match.
+    /// </summary>
+    public AdminMenuEntry Id(string menuId)
+    {
+        MenuId = menuId;
+        return this;
+    }
 
     public int PrimaryTargetIndex => _arguments.FindIndex(a => a is TargetArgument);
 

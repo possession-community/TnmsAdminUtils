@@ -1,0 +1,160 @@
+<liuli:root xmlns:liuli="liuli" key="tnms_admin_panel" band-id="tapx" box-id="tap" box-class="lu-card tap-card" styles="custom_game/liuli_skin.vcss_c custom_game/tnms_admin_panel.vcss_c">
+	<!-- Values are set on the group roots (ids) and inherited by the labels inside ({s:...}). -->
+	<Panel class="tap-side" hittest="false">
+		<Label id="tap-brand" class="tap-brand" hittest="false" text="{s:t}" />
+		<liuli:repeat count="6" var="i">
+			<Button id="tap-nav{i}" class="tap-nav">
+				<Label class="tap-nav-t" hittest="false" text="{s:t}" />
+			</Button>
+		</liuli:repeat>
+		<Button id="tap-close" class="tap-nav tap-nav-close">
+			<Label class="tap-nav-t" hittest="false" text="{s:t}" />
+		</Button>
+	</Panel>
+
+	<Panel class="tap-main" hittest="false">
+		<Panel class="tap-head" hittest="false">
+			<Label id="tap-title" class="tap-title" hittest="false" text="{s:t}" />
+			<Label id="tap-sub" class="tap-sub" hittest="false" text="{s:t}" />
+			<Label id="tap-usage" class="tap-usage" hittest="false" text="{s:t}" />
+		</Panel>
+
+		<!-- Overview: 8 stat cards in two rows. -->
+		<Panel id="tap-ov" class="tap-sec" hittest="false">
+			<Panel class="tap-ov-row" hittest="false">
+				<liuli:repeat count="4" var="i">
+					<Panel id="tap-ov{i}" class="tap-stat" hittest="false">
+						<Label class="tap-stat-k" hittest="false" text="{s:k}" />
+						<Label class="tap-stat-v" hittest="false" text="{s:v}" />
+					</Panel>
+				</liuli:repeat>
+			</Panel>
+			<Panel class="tap-ov-row" hittest="false">
+				<liuli:repeat count="4" var="i" start="4">
+					<Panel id="tap-ov{i}" class="tap-stat" hittest="false">
+						<Label class="tap-stat-k" hittest="false" text="{s:k}" />
+						<Label class="tap-stat-v" hittest="false" text="{s:v}" />
+					</Panel>
+				</liuli:repeat>
+			</Panel>
+		</Panel>
+
+		<!-- Users: header + 16 rows x 10 column slots. Column widths are classes on tap-us (w{slot}-{size}). -->
+		<Panel id="tap-us" class="tap-sec" hittest="false">
+			<!-- Header cells are buttons (tap-sort{slot}) that sort by their column; labels still read c{slot} from tap-uh. -->
+			<Panel id="tap-uh" class="tap-urow tap-uhead" hittest="false">
+				<Button id="tap-sort0" class="tap-cell tap-c0 tap-hcell">
+					<Label class="tap-hcell-t" hittest="false" text="{s:c0}" />
+				</Button>
+				<Button id="tap-sort1" class="tap-cell tap-c1 tap-hcell">
+					<Label class="tap-hcell-t" hittest="false" text="{s:c1}" />
+				</Button>
+				<Button id="tap-sort2" class="tap-cell tap-c2 tap-hcell">
+					<Label class="tap-hcell-t" hittest="false" text="{s:c2}" />
+				</Button>
+				<Button id="tap-sort3" class="tap-cell tap-c3 tap-hcell">
+					<Label class="tap-hcell-t" hittest="false" text="{s:c3}" />
+				</Button>
+				<Button id="tap-sort4" class="tap-cell tap-c4 tap-hcell">
+					<Label class="tap-hcell-t" hittest="false" text="{s:c4}" />
+				</Button>
+				<Button id="tap-sort5" class="tap-cell tap-c5 tap-hcell">
+					<Label class="tap-hcell-t" hittest="false" text="{s:c5}" />
+				</Button>
+				<Button id="tap-sort6" class="tap-cell tap-c6 tap-hcell">
+					<Label class="tap-hcell-t" hittest="false" text="{s:c6}" />
+				</Button>
+				<Button id="tap-sort7" class="tap-cell tap-c7 tap-hcell">
+					<Label class="tap-hcell-t" hittest="false" text="{s:c7}" />
+				</Button>
+				<Button id="tap-sort8" class="tap-cell tap-c8 tap-hcell">
+					<Label class="tap-hcell-t" hittest="false" text="{s:c8}" />
+				</Button>
+				<Button id="tap-sort9" class="tap-cell tap-c9 tap-hcell">
+					<Label class="tap-hcell-t" hittest="false" text="{s:c9}" />
+				</Button>
+			</Panel>
+			<liuli:repeat count="16" var="i">
+				<Button id="tap-u{i}" class="tap-urow">
+					<Label class="tap-cell tap-c0" hittest="false" text="{s:c0}" />
+					<Label class="tap-cell tap-c1" hittest="false" text="{s:c1}" />
+					<Label class="tap-cell tap-c2" hittest="false" text="{s:c2}" />
+					<Label class="tap-cell tap-c3" hittest="false" text="{s:c3}" />
+					<Label class="tap-cell tap-c4" hittest="false" text="{s:c4}" />
+					<Label class="tap-cell tap-c5" hittest="false" text="{s:c5}" />
+					<Label class="tap-cell tap-c6" hittest="false" text="{s:c6}" />
+					<Label class="tap-cell tap-c7" hittest="false" text="{s:c7}" />
+					<Label class="tap-cell tap-c8" hittest="false" text="{s:c8}" />
+					<Label class="tap-cell tap-c9" hittest="false" text="{s:c9}" />
+				</Button>
+			</liuli:repeat>
+		</Panel>
+
+		<!-- List: 16 selectable items in two columns (commands, options, targets, confirm). Command items (tap-cmd) show the chat command (c) small above the label (t). -->
+		<Panel id="tap-ls" class="tap-sec" hittest="false">
+			<Panel class="tap-ls-col" hittest="false">
+				<liuli:repeat count="8" var="i">
+					<Panel id="tap-r{i}" class="tap-irow" hittest="false">
+						<Button id="tap-l{i}" class="tap-item">
+							<Panel class="tap-item-in" hittest="false">
+								<Label class="tap-item-c" hittest="false" text="{s:c}" />
+								<Label class="tap-item-t" hittest="false" text="{s:t}" />
+							</Panel>
+						</Button>
+						<Button id="tap-s{i}" class="tap-star">
+							<Label class="tap-star-t" hittest="false" text="★" />
+						</Button>
+					</Panel>
+				</liuli:repeat>
+			</Panel>
+			<Panel class="tap-ls-col" hittest="false">
+				<liuli:repeat count="8" var="i" start="8">
+					<Panel id="tap-r{i}" class="tap-irow" hittest="false">
+						<Button id="tap-l{i}" class="tap-item">
+							<Panel class="tap-item-in" hittest="false">
+								<Label class="tap-item-c" hittest="false" text="{s:c}" />
+								<Label class="tap-item-t" hittest="false" text="{s:t}" />
+							</Panel>
+						</Button>
+						<Button id="tap-s{i}" class="tap-star">
+							<Label class="tap-star-t" hittest="false" text="★" />
+						</Button>
+					</Panel>
+				</liuli:repeat>
+			</Panel>
+		</Panel>
+
+		<!-- Confirm: command, chat-style preview, argument rows, resolved targets, execute. -->
+		<Panel id="tap-cf" class="tap-sec" hittest="false">
+			<Label id="tap-cf-cmd" class="tap-cf-cmd" hittest="false" text="{s:t}" />
+			<Label id="tap-cf-line" class="tap-cf-line" hittest="false" text="{s:t}" />
+			<Panel class="tap-cf-rows" hittest="false">
+				<liuli:repeat count="6" var="i">
+					<Panel id="tap-cf{i}" class="tap-cf-row" hittest="false">
+						<Label class="tap-cf-k" hittest="false" text="{s:k}" />
+						<Label class="tap-cf-v" hittest="false" text="{s:v}" />
+					</Panel>
+				</liuli:repeat>
+			</Panel>
+			<Button id="tap-cf-exec" class="lu-btn lu-btn-primary tap-cf-exec">
+				<Label class="lu-btn-t" hittest="false" text="{s:t}" />
+			</Button>
+		</Panel>
+
+		<Panel class="tap-foot" hittest="false">
+			<Button id="tap-back" class="lu-btn tap-fbtn">
+				<Label class="lu-btn-t" hittest="false" text="{s:t}" />
+			</Button>
+			<Label id="tap-hint" class="tap-hint" hittest="false" text="{s:t}" />
+			<Panel class="tap-pager" hittest="false">
+				<Button id="tap-prev" class="lu-btn tap-fbtn">
+					<Label class="lu-btn-t" hittest="false" text="{s:t}" />
+				</Button>
+				<Label id="tap-page" class="tap-page" hittest="false" text="{s:t}" />
+				<Button id="tap-next" class="lu-btn tap-fbtn">
+					<Label class="lu-btn-t" hittest="false" text="{s:t}" />
+				</Button>
+			</Panel>
+		</Panel>
+	</Panel>
+</liuli:root>

@@ -19,7 +19,7 @@ public class ASay(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Text("AdminMenu.Step.Message"));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).InCategory(AdminMenuCategory.Notification).Usage("ASay.Notification.Usage").Text("AdminMenu.Step.Message"));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))
@@ -30,7 +30,7 @@ public class ASay(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
         switch (context.Validator)
         {
             case ArgumentCountValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Say.Notification.Usage"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "ASay.Notification.Usage"));
                 break;
             case PermissionValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));

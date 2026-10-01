@@ -14,6 +14,7 @@ In chat, `!slay` / `css_slay` can also be used.
 | !hsay \<message\> | - | tnms.adminutil.chat.command.say.hint | Send a message to all players via hint display |
 | !asay \<message\> | - | tnms.adminutil.chat.command.say.admins | Send a message to admins only |
 | !psay \<player\> \<message\> | - | tnms.adminutil.chat.command.say.private | Send a private message to a specific player |
+| !toast \<player\> \<type\> \<message\> [time] | - | tnms.adminutil.chat.command.say.toast | Show a toast (info / success / warning / error). Time is the last word with an `s` suffix, e.g. `10s` (max 60s) |
 
 ### Admin Chat Broadcast
 
@@ -133,6 +134,7 @@ Available colors: `red`, `green`, `blue`, `yellow`, `orange`, `purple`, `cyan`, 
 | tnms.adminutil.chat.command.say.hint | Use !hsay |
 | tnms.adminutil.chat.command.say.admins | Send/receive !asay and @broadcast |
 | tnms.adminutil.chat.command.say.private | Use !psay |
+| tnms.adminutil.chat.command.say.toast | Use !toast |
 | tnms.adminutil.management.ingame.command.slay | Use !slay |
 | tnms.adminutil.management.ingame.command.slap | Use !slap |
 | tnms.adminutil.management.ingame.command.hp | Use !hp |

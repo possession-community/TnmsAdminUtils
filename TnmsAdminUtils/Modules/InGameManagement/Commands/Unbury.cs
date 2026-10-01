@@ -20,7 +20,7 @@ public class Unbury(IServiceProvider provider) : TnmsAbstractCommandBase(provide
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target());
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("Unbury.Notification.Usage").Target());
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))
@@ -32,7 +32,7 @@ public class Unbury(IServiceProvider provider) : TnmsAbstractCommandBase(provide
         switch (context.Validator)
         {
             case ArgumentCountValidator:
-                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Bury.Notification.Usage"));
+                PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Unbury.Notification.Usage"));
                 break;
             case PermissionValidator:
                 PrintMessageToServerOrPlayerChat(context.Client, ((TnmsAdminUtils)Plugin).LocalizeWithPluginPrefix(context.Client, "Common.ValidationFailure.NotEnoughPermissions"));

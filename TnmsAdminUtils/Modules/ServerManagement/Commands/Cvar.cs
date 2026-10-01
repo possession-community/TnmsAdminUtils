@@ -21,7 +21,7 @@ public class Cvar(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Text("AdminMenu.Step.CvarName").Text("AdminMenu.Step.CvarValue").Optional());
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("Cvar.Notification.Usage").Text("AdminMenu.Step.CvarName").Text("AdminMenu.Step.CvarValue").Optional());
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

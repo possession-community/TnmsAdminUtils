@@ -47,6 +47,11 @@ public class TnmsAdminUtils(
         Logger.LogInformation("TnmsAdminUtils is initialized");
     }
 
+    protected override void TnmsAllPluginsLoaded(bool hotReload)
+    {
+        AdminMenu.OnAllPluginsLoaded();
+    }
+
     protected override void TnmsOnPluginUnload(bool hotReload)
     {
         if (_adminChatListener != null)

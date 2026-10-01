@@ -20,7 +20,7 @@ public class ClanTag(IServiceProvider provider) : TnmsAbstractCommandBase(provid
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Text("AdminMenu.Step.ClanTag"));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("ClanTag.Notification.Usage").Target().Text("AdminMenu.Step.ClanTag"));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

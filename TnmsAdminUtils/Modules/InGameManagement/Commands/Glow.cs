@@ -21,7 +21,7 @@ public class Glow(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Toggle()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("Glow.Notification.Usage").Target().Toggle()
             .Choice("AdminMenu.Step.Color", "red", "green", "blue", "yellow", "orange", "purple", "cyan", "pink", "white").Optional());
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()

@@ -26,7 +26,7 @@ public class TerminateRound(IServiceProvider provider) : TnmsAbstractCommandBase
     {
         static AdminMenuChoice Reason(RoundEndReason reason) => new(((uint)reason).ToString(), $"AdminMenu.Choice.Reason.{reason}");
 
-        ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission)
+        ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("TerminateRound.Notification.Usage")
             .Preset("terminateround", "AdminMenu.Step.Delay").Optional("0")
             .Choice("AdminMenu.Step.Reason",
                 Reason(RoundEndReason.RoundDraw),

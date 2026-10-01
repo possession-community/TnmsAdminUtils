@@ -20,7 +20,7 @@ public class SetModel(IServiceProvider provider) : TnmsAbstractCommandBase(provi
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Text("AdminMenu.Step.ModelPath"));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("SetModel.Notification.Usage").Target().Text("AdminMenu.Step.ModelPath"));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

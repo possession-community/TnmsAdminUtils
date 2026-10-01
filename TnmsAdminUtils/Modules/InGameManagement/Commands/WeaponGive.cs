@@ -20,7 +20,7 @@ public class WeaponGive(IServiceProvider provider) : TnmsAbstractCommandBase(pro
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Preset("give", "AdminMenu.Step.Weapon"));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("WeaponGive.Notification.Usage").Target().Preset("give", "AdminMenu.Step.Weapon"));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

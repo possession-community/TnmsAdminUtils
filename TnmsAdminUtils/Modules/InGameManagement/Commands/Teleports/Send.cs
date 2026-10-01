@@ -20,7 +20,7 @@ public class Send(IServiceProvider provider): TnmsAbstractCommandBase(provider)
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Target(allowSelectors: false, titleKey: "AdminMenu.Step.Destination"));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("Teleport.Notification.Send.Usage").Target().Target(allowSelectors: false, titleKey: "AdminMenu.Step.Destination"));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

@@ -21,7 +21,7 @@ public class Color(IServiceProvider provider) : TnmsAbstractCommandBase(provider
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Choice("AdminMenu.Step.Color", "red", "green", "blue", "yellow", "orange", "purple", "cyan", "pink", "white", "black").Optional());
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("Color.Notification.Usage").Target().Choice("AdminMenu.Step.Color", "red", "green", "blue", "yellow", "orange", "purple", "cyan", "pink", "white", "black").Optional());
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

@@ -26,6 +26,7 @@ public sealed class AdminMenuConfig
         ["addtime"] = ["60", "300", "-60", "-300"],
         ["settime"] = ["60", "180", "300", "600"],
         ["terminateround"] = ["0", "3", "5", "10"],
+        ["toast"] = ["3s", "5s", "10s", "20s"],
     };
 
     public Dictionary<string, List<string>> Presets { get; set; } = new();

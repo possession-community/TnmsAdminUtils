@@ -20,7 +20,7 @@ public class TeamName(IServiceProvider provider) : TnmsAbstractCommandBase(provi
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Choice("AdminMenu.Step.Team", new AdminMenuChoice("ct", "AdminMenu.Choice.Team.Ct"), new AdminMenuChoice("t", "AdminMenu.Choice.Team.T")).Text("AdminMenu.Step.Name"));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("TeamName.Notification.Usage").Choice("AdminMenu.Step.Team", new AdminMenuChoice("ct", "AdminMenu.Choice.Team.Ct"), new AdminMenuChoice("t", "AdminMenu.Choice.Team.T")).Text("AdminMenu.Step.Name"));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

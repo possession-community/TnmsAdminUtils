@@ -21,7 +21,7 @@ public class Vote(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Text("AdminMenu.Step.Question", quote: true).TextList("AdminMenu.Step.VoteOption", 2));
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("Vote.Notification.Usage").Text("AdminMenu.Step.Question", quote: true).TextList("AdminMenu.Step.VoteOption", 2));
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

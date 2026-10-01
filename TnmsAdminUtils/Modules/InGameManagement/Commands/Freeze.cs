@@ -25,7 +25,7 @@ public class Freeze(IServiceProvider provider) : TnmsAbstractCommandBase(provide
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
     protected override void OnRegistered()
-        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Preset("freeze", "AdminMenu.Step.Seconds").Optional());
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Usage("Freeze.Notification.Usage").Target().Preset("freeze", "AdminMenu.Step.Seconds").Optional());
 
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
         .Add(new PermissionValidator(Permission, true))

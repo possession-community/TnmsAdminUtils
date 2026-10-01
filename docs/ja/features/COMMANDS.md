@@ -14,6 +14,7 @@
 | !hsay \<message\> | - | tnms.adminutil.chat.command.say.hint | 全プレイヤーにヒント表示でメッセージ送信 |
 | !asay \<message\> | - | tnms.adminutil.chat.command.say.admins | 管理者のみにメッセージ送信 |
 | !psay \<player\> \<message\> | - | tnms.adminutil.chat.command.say.private | 特定プレイヤーにプライベートメッセージ送信 |
+| !toast \<player\> \<type\> \<message\> [time] | - | tnms.adminutil.chat.command.say.toast | トースト通知を表示 (info / success / warning / error)。表示時間は最後の語に `s` を付けて指定 (例: `10s`、最大60秒) |
 
 ### Admin Chat ブロードキャスト
 
@@ -133,6 +134,7 @@
 | tnms.adminutil.chat.command.say.hint | !hsay の使用 |
 | tnms.adminutil.chat.command.say.admins | !asay / @ブロードキャストの送信・受信 |
 | tnms.adminutil.chat.command.say.private | !psay の使用 |
+| tnms.adminutil.chat.command.say.toast | !toast の使用 |
 | tnms.adminutil.management.ingame.command.slay | !slay の使用 |
 | tnms.adminutil.management.ingame.command.slap | !slap の使用 |
 | tnms.adminutil.management.ingame.command.hp | !hp の使用 |
