@@ -55,8 +55,6 @@ public sealed class AdminMenuSession : IAdminFlowView, IAdminSession
 
     public bool TryAcceptText(string message) => _flow.TryAcceptText(message);
 
-    bool IAdminFlowView.KeepHistoryAfterText => false;
-
     void IAdminFlowView.Show(string title, IReadOnlyList<AdminFlowItem> items, Action? back, string? usage, string? emptyText)
     {
         var menu = EnsureMenu();

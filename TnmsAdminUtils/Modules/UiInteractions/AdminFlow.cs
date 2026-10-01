@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using Sharp.Shared.Objects;
 using TnmsPluginFoundation;
-using TnmsPluginFoundation.Extensions.Client;
 using Wuling.Abstract.Tianshi.Registry;
 
 namespace TnmsAdminUtils.Modules.UiInteractions;
@@ -43,7 +42,7 @@ public enum AdminFlowItemStyle
 
 /// <param name="OnSelect">Null for an item that cannot be selected</param>
 /// <param name="FavoriteId">Set on command items, which can be added to favorites</param>
-/// <param name="Command">Chat command of a command item ("!slay"), drawn as an aligned column before <see cref="Label"/>
+/// <param name="Command">Chat command of a command item ("!slay"), shown before <see cref="Label"/>
 /// (empty when the command has no translated label)</param>
 public sealed record AdminFlowItem(
     string Label,
@@ -52,30 +51,14 @@ public sealed record AdminFlowItem(
     string? FavoriteId = null,
     string? Command = null);
 
-/// <param name="Title">One-line summary, used where only a title fits (the chat menu)</param>
-/// <param name="Command">Command label</param>
-/// <param name="Preview">The command as it would be typed in chat</param>
-/// <param name="Rows">Argument names and chosen values, then the resolved targets</param>
-/// <param name="Usage">The command's usage line, if it has one</param>
-public sealed record AdminFlowConfirm(
-    string Title,
-    string Command,
-    string Preview,
-    IReadOnlyList<(string Key, string Value)> Rows,
-    string ExecuteLabel,
-    Action Execute,
-    string? Usage);
+/// <param name="Title">The command and its chosen values, shown above the execute item</param>
+public sealed record AdminFlowConfirm(string Title, string ExecuteLabel, Action Execute);
 
 /// <summary>
-/// Where an <see cref="AdminFlow"/> is drawn: the chat menu or the panel.
+/// Where an <see cref="AdminFlow"/> is drawn (the chat menu).
 /// </summary>
 public interface IAdminFlowView
 {
-    /// <summary>
-    /// False to forget the pages before a text input (the menu reopens as a new menu after it).
-    /// </summary>
-    bool KeepHistoryAfterText { get; }
-
     /// <param name="back">Null on the first page of the flow</param>
     /// <param name="usage">Usage line of the command whose arguments are being chosen</param>
     /// <param name="emptyText">Message for an empty page, shown as plain text rather than an item where the view can</param>
@@ -84,7 +67,8 @@ public interface IAdminFlowView
     void ShowConfirm(AdminFlowConfirm confirm, Action? back);
 
     /// <summary>
-    /// The flow waits for the admin's next chat message.
+    /// The flow waits for the admin's next chat message. The pages before it are forgotten (the menu reopens as a
+    /// new menu after it).
     /// </summary>
     void WaitText(string title, Action back, string? usage);
 
@@ -96,27 +80,17 @@ public interface IAdminFlowView
 
 /// <summary>
 /// Steps through choosing a command, its arguments and the confirm page, then runs the command as the admin.
-/// Shared by the admin menu and the admin panel.
+/// Used by the chat menu; the panel fills a form instead (both through <see cref="AdminCommandContext"/>).
 /// </summary>
 public sealed class AdminFlow
 {
-    private const int TextInputTimeoutSeconds = 60;
-
-    private static readonly (string Target, string LabelKey)[] Selectors =
-    [
-        ("@all", "AdminMenu.Selector.All"),
-        ("@ct", "AdminMenu.Selector.Ct"),
-        ("@t", "AdminMenu.Selector.T"),
-        ("@spec", "AdminMenu.Selector.Spec"),
-    ];
-
     private sealed record PendingText(AdminMenuFlow Flow, int Index, long ExpiresAt);
 
     private readonly TnmsAdminUtils _plugin;
-    private readonly AdminMenuService _service;
     private readonly IGameClient _admin;
     private readonly IPlayerEntry _player;
     private readonly IAdminFlowView _view;
+    private readonly AdminCommandContext _context;
     private readonly Stack<Action> _history = new();
     private Action? _current;
     private PendingText? _pendingText;
@@ -125,16 +99,16 @@ public sealed class AdminFlow
     public AdminFlow(TnmsAdminUtils plugin, AdminMenuService service, IGameClient admin, IPlayerEntry player, IAdminFlowView view)
     {
         _plugin = plugin;
-        _service = service;
         _admin = admin;
         _player = player;
         _view = view;
+        _context = new AdminCommandContext(plugin, service, admin);
     }
 
     public bool IsWaitingText => _pendingText != null;
 
     /// <summary>
-    /// Root page of the menu: Commands / Players / Server, plus <paramref name="extraItems"/>.
+    /// Root page of the menu: Commands / Players / Server / Notification, plus <paramref name="extraItems"/>.
     /// </summary>
     public void StartRoot(IReadOnlyList<AdminFlowItem> extraItems) => Navigate(() => RenderRoot(extraItems));
 
@@ -147,24 +121,9 @@ public sealed class AdminFlow
     }
 
     /// <summary>
-    /// Favorite commands in the order they were added. Read on every render so un-favoriting updates the list.
+    /// Favorite commands in the order they were added.
     /// </summary>
     public void StartFavorites(AdminFavorites favorites) => Navigate(() => RenderFavorites(favorites));
-
-    /// <summary>
-    /// Starts from the command list of an already chosen target (the panel's user list).
-    /// </summary>
-    public void StartWithTarget(AdminMenuValue target)
-        => ShowCommandList(AdminMenuFlow.Start(AdminMenuTree.Players) with { ChosenTarget = target });
-
-    /// <summary>
-    /// Draws the current page again, e.g. to update player counts.
-    /// </summary>
-    public void Refresh()
-    {
-        if (!_ended && _pendingText is null)
-            _current?.Invoke();
-    }
 
     /// <summary>
     /// Ends the flow without notifying the view (the view itself went away).
@@ -202,46 +161,23 @@ public sealed class AdminFlow
 
         if (text.Equals("cancel", StringComparison.OrdinalIgnoreCase))
         {
-            PrintToChat("AdminMenu.Text.Cancelled");
+            _context.PrintToChat("AdminMenu.Text.Cancelled");
             End();
             return true;
         }
 
-        text = new string(text.Where(c => c is not (';' or '\r' or '\n')).ToArray());
-
-        var argument = pending.Flow.Entry!.Arguments[pending.Index];
-        AdminMenuValue value;
-
-        if (argument is TextListArgument list)
+        if (!_context.TryParseText(pending.Flow.Entry!.Arguments[pending.Index], text, out var value))
         {
-            var items = text.Split([',', '、'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-            if (items.Length < list.MinCount)
-            {
-                PrintToChat("AdminMenu.List.NeedMore", list.MinCount);
-                _pendingText = pending with { ExpiresAt = Environment.TickCount64 + TextInputTimeoutSeconds * 1000L };
-                return true;
-            }
-
-            value = new AdminMenuValue(string.Join(' ', items.Select(AdminMenuValue.Quote)), string.Join(" / ", items));
-        }
-        else
-        {
-            value = argument is TextArgument { Quote: true }
-                ? new AdminMenuValue(AdminMenuValue.Quote(text), text)
-                : new AdminMenuValue(text, text);
+            _pendingText = pending with { ExpiresAt = TextInputExpiry() };
+            return true;
         }
 
         var flow = pending.Flow with { Values = pending.Flow.Values.SetItem(pending.Index, value) };
 
         Defer(() =>
         {
-            if (!_view.KeepHistoryAfterText)
-            {
-                _history.Clear();
-                _current = null;
-            }
-
+            _history.Clear();
+            _current = null;
             Advance(flow);
         });
 
@@ -262,16 +198,16 @@ public sealed class AdminFlow
     {
         var items = new List<AdminFlowItem>();
 
-        if (VisibleEntries(AdminMenuFlow.Start(AdminMenuTree.Commands)).Any())
+        if (_context.VisibleEntries(AdminMenuTree.Commands).Any())
         {
             items.Add(new AdminFlowItem(L("AdminMenu.Root.Commands"), Deferred(() => StartTree(AdminMenuTree.Commands))));
             items.Add(new AdminFlowItem(L("AdminMenu.Root.Players"), Deferred(() => StartTree(AdminMenuTree.Players))));
         }
 
-        if (VisibleEntries(AdminMenuFlow.Start(AdminMenuTree.Server)).Any())
+        if (_context.VisibleEntries(AdminMenuTree.Server).Any())
             items.Add(new AdminFlowItem(L("AdminMenu.Root.Server"), Deferred(() => StartTree(AdminMenuTree.Server))));
 
-        if (VisibleEntries(AdminMenuFlow.Start(AdminMenuTree.Notification)).Any())
+        if (_context.VisibleEntries(AdminMenuTree.Notification).Any())
             items.Add(new AdminFlowItem(L("AdminMenu.Root.Notification"), Deferred(() => StartTree(AdminMenuTree.Notification))));
 
         items.AddRange(extraItems);
@@ -293,7 +229,7 @@ public sealed class AdminFlow
 
         var items = new List<AdminFlowItem>();
 
-        foreach (var entry in VisibleEntries(flow))
+        foreach (var entry in _context.VisibleEntries(flow.Tree, flow.ChosenTarget))
         {
             var values = flow.ChosenTarget is { } chosen
                 ? flow.Values.SetItem(entry.PrimaryTargetIndex, chosen)
@@ -308,29 +244,13 @@ public sealed class AdminFlow
 
     private void RenderFavorites(AdminFavorites favorites)
     {
-        var authority = TnmsPlugin.AdminManager;
-        var entries = _service.Registry.Entries
-            .Where(e => authority.PlayerHasPermission(_admin.SteamId, e.Permission))
-            .GroupBy(e => e.MenuId)
-            .ToDictionary(g => g.Key, g => g.First());
-
-        var items = new List<AdminFlowItem>();
-
-        foreach (var id in favorites.Ids)
-        {
-            if (!entries.TryGetValue(id, out var entry))
-                continue;
-
-            var tree = entry.Category switch
+        var items = _context.FavoriteEntries(favorites)
+            .Select(entry =>
             {
-                AdminMenuCategory.Server => AdminMenuTree.Server,
-                AdminMenuCategory.Notification => AdminMenuTree.Notification,
-                _ => AdminMenuTree.Commands,
-            };
-
-            var flow = AdminMenuFlow.Start(tree) with { Entry = entry };
-            items.Add(CommandItem(entry, Deferred(() => Advance(flow))));
-        }
+                var flow = AdminMenuFlow.Start(AdminCommandContext.TreeOf(entry)) with { Entry = entry };
+                return CommandItem(entry, Deferred(() => Advance(flow)));
+            })
+            .ToList();
 
         Show(L("AdminMenu.Favorites"), items, emptyText: L("AdminMenu.Favorites.Empty"));
     }
@@ -370,14 +290,14 @@ public sealed class AdminFlow
     {
         var entry = flow.Entry!;
         var argument = entry.Arguments[index];
-        var title = $"{CommandLabel(entry)}: {L(argument.TitleKey)}";
+        var title = $"{_context.CommandLabel(entry)}: {L(argument.TitleKey)}";
         var items = new List<AdminFlowItem>();
 
         AdminMenuFlow With(AdminMenuValue value) => flow with { Values = flow.Values.SetItem(index, value) };
 
         if (argument.IsOptional && argument is not TargetArgument)
         {
-            var skipped = new AdminMenuValue(argument.DefaultRaw ?? string.Empty, L("AdminMenu.Default"), IsSkipped: true);
+            var skipped = _context.Skipped(argument);
             items.Add(new AdminFlowItem(L("AdminMenu.Skip"), Deferred(() => Advance(With(skipped)))));
         }
 
@@ -387,19 +307,12 @@ public sealed class AdminFlow
                 items.AddRange(TargetItems(target.AllowSelectors, value => Advance(With(value))));
                 break;
 
-            case PresetArgument preset:
-                foreach (var value in _service.Config.GetPreset(preset.PresetKey))
-                    items.Add(new AdminFlowItem(value, Deferred(() => Advance(With(new AdminMenuValue(value, value))))));
+            case PresetArgument or ChoiceArgument:
+                foreach (var choice in _context.ValueChoices(argument))
+                    items.Add(new AdminFlowItem(choice.Label, Deferred(() => Advance(With(choice.Value)))));
 
-                items.Add(new AdminFlowItem(L("AdminMenu.TypeInChat"), Deferred(() => BeginTextInput(flow, index, title))));
-                break;
-
-            case ChoiceArgument choice:
-                foreach (var option in choice.Choices)
-                {
-                    var label = option.LabelKey is null ? option.Value : L(option.LabelKey);
-                    items.Add(new AdminFlowItem(label, Deferred(() => Advance(With(new AdminMenuValue(option.Value, label))))));
-                }
+                if (argument is PresetArgument)
+                    items.Add(new AdminFlowItem(L("AdminMenu.TypeInChat"), Deferred(() => BeginTextInput(flow, index, title))));
                 break;
 
             case TextArgument when argument.IsOptional:
@@ -412,146 +325,45 @@ public sealed class AdminFlow
                 return;
         }
 
-        Show(title, items, Usage(entry));
+        Show(title, items, _context.Usage(entry));
     }
 
     private void BeginTextInput(AdminMenuFlow flow, int index, string title)
     {
-        _pendingText = new PendingText(flow, index, Environment.TickCount64 + TextInputTimeoutSeconds * 1000L);
-        _view.WaitText(title, Deferred(Back), Usage(flow.Entry!));
+        _pendingText = new PendingText(flow, index, TextInputExpiry());
+        _view.WaitText(title, Deferred(Back), _context.Usage(flow.Entry!));
 
-        PrintToChat("AdminMenu.Text.Prompt", title, TextInputTimeoutSeconds);
+        _context.PrintToChat("AdminMenu.Text.Prompt", title, AdminCommandContext.TextInputTimeoutSeconds);
     }
 
     private void RenderConfirm(AdminMenuFlow flow)
     {
         var entry = flow.Entry!;
         var values = Enumerable.Range(0, entry.Arguments.Count).Select(i => flow.Values[i]).ToList();
-        var label = CommandLabel(entry);
+        var label = _context.CommandLabel(entry);
 
         var summary = string.Join(" / ", values.Select(v => v.Display));
         var title = L("AdminMenu.Confirm.Title", summary.Length > 0 ? $"{label} - {summary}" : label);
 
-        // How the admin would type it: selectors as is, players by name, skipped trailing arguments left out.
-        var count = values.FindLastIndex(v => !v.IsSkipped) + 1;
-        var preview = string.Join(' ', values.Take(count)
-            .Select((v, i) => entry.Arguments[i] is TargetArgument && !v.IsSelector ? AdminMenuValue.Quote(v.Display) : v.IsSkipped ? v.Raw : v.Display)
-            .Prepend("!" + entry.CommandName));
-
-        var rows = new List<(string, string)>();
-
-        for (var i = 0; i < values.Count; i++)
-            rows.Add((L(entry.Arguments[i].TitleKey), values[i].Display));
-
-        if (entry.PrimaryTargetIndex >= 0)
-            rows.Add((L("AdminMenu.Confirm.Targets"), DescribeTargets(values[entry.PrimaryTargetIndex])));
-
         _pendingText = null;
         _view.ShowConfirm(
-            new AdminFlowConfirm(title, label, preview, rows, L("AdminMenu.Confirm.Execute"), Deferred(() => Execute(flow)), Usage(entry)),
+            new AdminFlowConfirm(title, L("AdminMenu.Confirm.Execute"), Deferred(() =>
+            {
+                End();
+                _context.Execute(entry, values);
+            })),
             _history.Count > 0 ? Deferred(Back) : null);
-    }
-
-    /// <summary>
-    /// Players the target resolves to right now, e.g. "3: alice, bob, carol".
-    /// </summary>
-    private string DescribeTargets(AdminMenuValue target)
-    {
-        const int maxNames = 8;
-
-        var raw = target.Raw.Trim('"');
-        var names = TnmsPlugin.TargetingManager.GetByTarget(_admin, raw).Select(c => c.Name).ToList();
-
-        if (names.Count == 0)
-            return L("AdminMenu.Confirm.NoTargets");
-
-        var shown = string.Join(", ", names.Take(maxNames));
-
-        return names.Count > maxNames
-            ? $"{names.Count}: {shown} {L("AdminMenu.Confirm.More", names.Count - maxNames)}"
-            : $"{names.Count}: {shown}";
-    }
-
-    private void Execute(AdminMenuFlow flow)
-    {
-        var entry = flow.Entry!;
-        var values = Enumerable.Range(0, entry.Arguments.Count).Select(i => flow.Values[i]).ToList();
-
-        // Skipped arguments at the end are left out so the command uses its own defaults.
-        var count = values.FindLastIndex(v => !v.IsSkipped) + 1;
-        var commandLine = string.Join(' ', values.Take(count).Select(v => v.Raw).Prepend("ms_" + entry.CommandName));
-
-        End();
-
-        if (_admin.IsValid)
-            _admin.ExecuteStringCommand(commandLine);
     }
 
     private List<AdminFlowItem> TargetItems(bool allowSelectors, Action<AdminMenuValue> onChosen)
     {
-        var items = new List<AdminFlowItem>();
-        var authority = TnmsPlugin.AdminManager;
+        var choices = _context.TargetChoices(allowSelectors);
+        var items = choices.Select(c => new AdminFlowItem(c.Label, Deferred(() => onChosen(c.Value)))).ToList();
 
-        if (allowSelectors)
-        {
-            foreach (var (target, labelKey) in Selectors)
-            {
-                var count = TnmsPlugin.TargetingManager.GetByTarget(_admin, target).Count();
-                var value = new AdminMenuValue(target, L(labelKey), IsSelector: true);
-                items.Add(new AdminFlowItem($"{value.Display} ({count})", Deferred(() => onChosen(value))));
-            }
-        }
-
-        var any = false;
-
-        foreach (var client in _plugin.SharedSystem.GetModSharp().GetIServer().GetGameClients(true, true))
-        {
-            if (client.IsHltv)
-                continue;
-
-            if (!client.IsFakeClient && !authority.PlayerCanTarget(_admin.SteamId, client.SteamId))
-                continue;
-
-            var value = PlayerValue(client);
-            items.Add(new AdminFlowItem(client.Name, Deferred(() => onChosen(value))));
-            any = true;
-        }
-
-        if (!any)
+        if (!choices.Any(c => !c.Value.IsSelector))
             items.Add(new AdminFlowItem(L("AdminMenu.NoPlayers"), null));
 
         return items;
-    }
-
-    /// <summary>
-    /// Humans by SteamID64, bots by their literal name.
-    /// </summary>
-    public static AdminMenuValue PlayerValue(IGameClient client)
-        => new(client.IsFakeClient ? $"\"#{client.Name}\"" : ((ulong)client.SteamId).ToString(), client.Name);
-
-    private IEnumerable<AdminMenuEntry> VisibleEntries(AdminMenuFlow flow)
-    {
-        var authority = TnmsPlugin.AdminManager;
-
-        foreach (var entry in _service.Registry.Entries)
-        {
-            if (!authority.PlayerHasPermission(_admin.SteamId, entry.Permission))
-                continue;
-
-            var primary = entry.PrimaryTarget;
-
-            // Players lists every command with a target, whatever its category.
-            var visible = flow.Tree switch
-            {
-                AdminMenuTree.Players => primary is not null && (flow.ChosenTarget is not { IsSelector: true } || primary.AllowSelectors),
-                AdminMenuTree.Server => entry.Category == AdminMenuCategory.Server,
-                AdminMenuTree.Notification => entry.Category == AdminMenuCategory.Notification,
-                _ => entry.Category == AdminMenuCategory.Normal,
-            };
-
-            if (visible)
-                yield return entry;
-        }
     }
 
     private void Show(string title, IReadOnlyList<AdminFlowItem> items, string? usage = null, string? emptyText = null)
@@ -597,27 +409,15 @@ public sealed class AdminFlow
         });
     }
 
-    private void PrintToChat(string key, params object[] args)
-        => _admin.GetPlayerController()?.PrintToChat(_plugin.LocalizeWithPluginPrefix(_admin, key, args));
-
-    private string? Usage(AdminMenuEntry entry) => entry.UsageKey is { } key ? L(key) : null;
-
-    private string CommandLabel(AdminMenuEntry entry)
-    {
-        var label = L(entry.LabelKey);
-        return label == entry.LabelKey ? entry.CommandName : label;
-    }
+    private static long TextInputExpiry() => Environment.TickCount64 + AdminCommandContext.TextInputTimeoutSeconds * 1000L;
 
     /// <summary>
     /// Command lists show the chat command too, for admins who know it by name: "!slay | Slay".
     /// </summary>
     private AdminFlowItem CommandItem(AdminMenuEntry entry, Action onSelect)
-    {
-        var label = L(entry.LabelKey);
-        return new AdminFlowItem(label == entry.LabelKey ? string.Empty : label, onSelect, FavoriteId: entry.MenuId, Command: $"!{entry.CommandName}");
-    }
+        => new(_context.TranslatedLabel(entry) ?? string.Empty, onSelect, FavoriteId: entry.MenuId, Command: $"!{entry.CommandName}");
 
-    private string L(string key) => _plugin.LocalizeStringForPlayer(_admin, key);
+    private string L(string key) => _context.L(key);
 
-    private string L(string key, params object[] args) => _plugin.LocalizeStringForPlayer(_admin, key, args);
+    private string L(string key, params object[] args) => _context.L(key, args);
 }

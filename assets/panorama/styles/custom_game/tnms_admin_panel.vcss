@@ -1,6 +1,8 @@
 /* tnms_admin_panel.vcss — TnmsAdminUtils admin panel (tnms_admin_panel.lxml).
  * liuli_skin.vcss is included first; rules here override its role defaults.
- * No flex/gap/scroll in Panorama: fixed-width columns flowing right, margins for spacing. */
+ * No flex/gap/scroll in Panorama: fixed-width columns flowing right, margins for spacing.
+ * width / height include padding and border (measured in game). Inside the form everything is in px: % widths there
+ * came out wider than the parent's inside. Card 1140 = sidebar 200 + main 940 (content 900). */
 
 /* Between the menu (10500) and toasts (10800). z-index never hot-reloads. */
 .lu-root {
@@ -19,8 +21,8 @@
 .lu-box.tap-card {
 	flow-children: right;
 	width: 1140px;
-	height: 640px;
-	margin-top: -320px;
+	height: 700px;
+	margin-top: -350px;
 	padding: 0px;
 }
 
@@ -34,21 +36,21 @@
 	flow-children: down;
 	width: 200px;
 	height: 100%;
-	padding: 16px 0px;
 	background-color: #1a2330e6;
 	border-right: 1px solid #ffffff14;
 }
 
 .tap-brand {
-	margin: 0px 18px 18px 18px;
+	margin: 16px 18px 18px 18px;
 	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
 	font-size: 18px;
 	letter-spacing: 1px;
 	color: #ffde85;
 }
 
+/* Sidebar 200 - its border-right 1. */
 .tap-nav {
-	width: 100%;
+	width: 199px;
 	height: 38px;
 	padding: 0px 18px;
 	border-left: 3px solid #00000000;
@@ -85,12 +87,13 @@
 	flow-children: down;
 	width: 940px;
 	height: 100%;
-	padding: 16px 20px;
+	padding: 0px 20px;
 }
 
 .tap-head {
 	flow-children: down;
-	width: 100%;
+	width: 900px;
+	margin-top: 16px;
 	padding-bottom: 10px;
 	margin-bottom: 12px;
 	border-bottom: 1px solid #ffffff14;
@@ -113,36 +116,24 @@
 	white-space: nowrap;
 }
 
-/* Usage line of the command being set up, e.g. "> Usage: !slap <player> [damage]". */
-.tap-usage {
-	width: 100%;
-	margin-top: 6px;
-	padding: 4px 10px;
-	background-color: #00000059;
-	border-left: 3px solid #3ec9ff;
-	font-family: Stratum2 Regular Monodigit, Stratum2, Arial, sans-serif;
-	font-size: 14px;
-	color: #c5ccd3;
-	white-space: nowrap;
-	text-overflow: shrink min( 10px ) ellipsis;
-}
-
+/* Takes whatever height the header and footer leave, so the card has no empty band at the bottom. */
 .tap-sec {
 	flow-children: down;
-	width: 100%;
-	height: 450px;
+	width: 900px;
+	height: fill-parent-flow( 1.0 );
 }
 
 /* ---- overview ---- */
 .tap-ov-row {
 	flow-children: right;
-	width: 100%;
+	width: 900px;
 	margin-bottom: 12px;
 }
 
+/* 4 x 216 + 3 x 12 = 900. */
 .tap-stat {
 	flow-children: down;
-	width: 214px;
+	width: 216px;
 	height: 96px;
 	margin-right: 12px;
 	padding: 12px 14px;
@@ -175,7 +166,7 @@
 /* ---- users table ---- */
 .tap-urow {
 	flow-children: right;
-	width: 100%;
+	width: 900px;
 	height: 26px;
 	padding: 0px 6px;
 	overflow: noclip noclip;
@@ -246,61 +237,61 @@ Button.tap-urow:hover .tap-cell {
 #tap-us.w0-xs .tap-c0 { width: 50px; }
 #tap-us.w0-s .tap-c0 { width: 70px; }
 #tap-us.w0-m .tap-c0 { width: 120px; }
-#tap-us.w0-l .tap-c0 { width: 170px; }
+#tap-us.w0-l .tap-c0 { width: 164px; }
 #tap-us.w0-xl .tap-c0 { width: 230px; }
 #tap-us.w1-x .tap-c1 { visibility: collapse; }
 #tap-us.w1-xs .tap-c1 { width: 50px; }
 #tap-us.w1-s .tap-c1 { width: 70px; }
 #tap-us.w1-m .tap-c1 { width: 120px; }
-#tap-us.w1-l .tap-c1 { width: 170px; }
+#tap-us.w1-l .tap-c1 { width: 164px; }
 #tap-us.w1-xl .tap-c1 { width: 230px; }
 #tap-us.w2-x .tap-c2 { visibility: collapse; }
 #tap-us.w2-xs .tap-c2 { width: 50px; }
 #tap-us.w2-s .tap-c2 { width: 70px; }
 #tap-us.w2-m .tap-c2 { width: 120px; }
-#tap-us.w2-l .tap-c2 { width: 170px; }
+#tap-us.w2-l .tap-c2 { width: 164px; }
 #tap-us.w2-xl .tap-c2 { width: 230px; }
 #tap-us.w3-x .tap-c3 { visibility: collapse; }
 #tap-us.w3-xs .tap-c3 { width: 50px; }
 #tap-us.w3-s .tap-c3 { width: 70px; }
 #tap-us.w3-m .tap-c3 { width: 120px; }
-#tap-us.w3-l .tap-c3 { width: 170px; }
+#tap-us.w3-l .tap-c3 { width: 164px; }
 #tap-us.w3-xl .tap-c3 { width: 230px; }
 #tap-us.w4-x .tap-c4 { visibility: collapse; }
 #tap-us.w4-xs .tap-c4 { width: 50px; }
 #tap-us.w4-s .tap-c4 { width: 70px; }
 #tap-us.w4-m .tap-c4 { width: 120px; }
-#tap-us.w4-l .tap-c4 { width: 170px; }
+#tap-us.w4-l .tap-c4 { width: 164px; }
 #tap-us.w4-xl .tap-c4 { width: 230px; }
 #tap-us.w5-x .tap-c5 { visibility: collapse; }
 #tap-us.w5-xs .tap-c5 { width: 50px; }
 #tap-us.w5-s .tap-c5 { width: 70px; }
 #tap-us.w5-m .tap-c5 { width: 120px; }
-#tap-us.w5-l .tap-c5 { width: 170px; }
+#tap-us.w5-l .tap-c5 { width: 164px; }
 #tap-us.w5-xl .tap-c5 { width: 230px; }
 #tap-us.w6-x .tap-c6 { visibility: collapse; }
 #tap-us.w6-xs .tap-c6 { width: 50px; }
 #tap-us.w6-s .tap-c6 { width: 70px; }
 #tap-us.w6-m .tap-c6 { width: 120px; }
-#tap-us.w6-l .tap-c6 { width: 170px; }
+#tap-us.w6-l .tap-c6 { width: 164px; }
 #tap-us.w6-xl .tap-c6 { width: 230px; }
 #tap-us.w7-x .tap-c7 { visibility: collapse; }
 #tap-us.w7-xs .tap-c7 { width: 50px; }
 #tap-us.w7-s .tap-c7 { width: 70px; }
 #tap-us.w7-m .tap-c7 { width: 120px; }
-#tap-us.w7-l .tap-c7 { width: 170px; }
+#tap-us.w7-l .tap-c7 { width: 164px; }
 #tap-us.w7-xl .tap-c7 { width: 230px; }
 #tap-us.w8-x .tap-c8 { visibility: collapse; }
 #tap-us.w8-xs .tap-c8 { width: 50px; }
 #tap-us.w8-s .tap-c8 { width: 70px; }
 #tap-us.w8-m .tap-c8 { width: 120px; }
-#tap-us.w8-l .tap-c8 { width: 170px; }
+#tap-us.w8-l .tap-c8 { width: 164px; }
 #tap-us.w8-xl .tap-c8 { width: 230px; }
 #tap-us.w9-x .tap-c9 { visibility: collapse; }
 #tap-us.w9-xs .tap-c9 { width: 50px; }
 #tap-us.w9-s .tap-c9 { width: 70px; }
 #tap-us.w9-m .tap-c9 { width: 120px; }
-#tap-us.w9-l .tap-c9 { width: 170px; }
+#tap-us.w9-l .tap-c9 { width: 164px; }
 #tap-us.w9-xl .tap-c9 { width: 230px; }
 
 /* ---- list ---- */
@@ -322,7 +313,7 @@ Button.tap-urow:hover .tap-cell {
  * since a hit-testable child would take the parent button's click). */
 .tap-irow {
 	flow-children: right;
-	width: 100%;
+	width: 440px;
 	height: 48px;
 	margin-bottom: 8px;
 	background-color: #2e3c50;
@@ -333,7 +324,6 @@ Button.tap-urow:hover .tap-cell {
 .tap-item {
 	width: fill-parent-flow( 1.0 );
 	height: 100%;
-	padding: 0px 16px;
 	overflow: noclip noclip;
 }
 
@@ -346,6 +336,7 @@ Button.tap-urow:hover .tap-cell {
 
 .tap-item-c {
 	visibility: collapse;
+	margin-left: 16px;
 	font-family: Stratum2, Arial, sans-serif;
 	font-size: 12px;
 	color: #7d8791;
@@ -365,6 +356,7 @@ Button.tap-urow:hover .tap-cell {
 }
 
 .tap-item-t {
+	margin-left: 16px;
 	font-family: Stratum2, Arial, sans-serif;
 	font-size: 17px;
 	color: #e6e9ed;
@@ -401,99 +393,342 @@ Button.tap-urow:hover .tap-cell {
 	color: #ffde85;
 }
 
-/* Primary item (execute) and disabled items. */
-.tap-item.tap-pri {
-	background-color: #ffde851f;
-	border: 1px solid #ffde8559;
+/* Open command: the second list column gives way to the form. */
+#tap-fm {
+	visibility: collapse;
 }
 
-.tap-item.tap-pri .tap-item-t {
-	color: #ffde85;
+#tap-ls.tap-form #tap-fm {
+	visibility: visible;
 }
 
-.tap-item.tap-pri:hover {
-	background-color: #ffde85;
+#tap-ls.tap-form #tap-ls2 {
+	visibility: collapse;
 }
 
-.tap-item.tap-pri:hover .tap-item-t {
-	color: #1a2330;
+.tap-item.tap-on {
+	background-color: #41567a;
 }
 
-.tap-item.tap-dis {
-	background-color: #2e3c5066;
+.tap-item.tap-on .tap-item-t {
+	color: #ffeaa8;
 }
 
-.tap-item.tap-dis .tap-item-t {
-	color: #6b747d;
+/* ---- command form ---- */
+/* Two layers: the fields from the top, the command line and execute button pinned to the bottom. */
+/* Same 440 as the list column it replaces; content 410 after the padding. */
+.tap-fm {
+	flow-children: none;
+	width: 440px;
+	height: 100%;
+	padding: 0px 15px;
+	background-color: #1a2330cc;
+	border-top: 3px solid #ffde85;
+	overflow: noclip noclip;
 }
 
-/* ---- confirm ---- */
-.tap-cf-cmd {
-	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
-	font-size: 30px;
-	color: #ffde85;
+.tap-fm-top {
+	flow-children: down;
+	width: 410px;
+	margin-top: 10px;
+}
+
+.tap-fm-foot {
+	flow-children: down;
+	width: 410px;
+	margin-bottom: 12px;
+	vertical-align: bottom;
+}
+
+.tap-fm-head {
+	flow-children: right;
+	width: 410px;
+	margin-bottom: 6px;
+}
+
+.tap-fm-name {
+	flow-children: down;
+	width: fill-parent-flow( 1.0 );
+}
+
+.tap-fm-c {
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 12px;
+	color: #7d8791;
 	white-space: nowrap;
-	text-overflow: shrink min( 14px ) ellipsis;
 }
 
-.tap-cf-line {
-	width: 100%;
-	margin-top: 8px;
-	padding: 8px 12px;
+.tap-fm-t {
+	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
+	font-size: 20px;
+	color: #f4f6f8;
+	white-space: nowrap;
+	text-overflow: shrink min( 12px ) ellipsis;
+}
+
+.tap-fm-d {
+	width: 410px;
+	margin-bottom: 4px;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 13px;
+	color: #9aa4af;
+}
+
+/* Usage line of the open command, e.g. "Usage: !slap <player> [damage]". */
+.tap-fm-u {
+	width: 410px;
+	margin-bottom: 4px;
+	padding: 3px 8px;
 	background-color: #00000059;
 	border-left: 3px solid #3ec9ff;
 	font-family: Stratum2 Regular Monodigit, Stratum2, Arial, sans-serif;
-	font-size: 16px;
-	color: #e6e9ed;
+	font-size: 12px;
+	color: #c5ccd3;
 	white-space: nowrap;
-	text-overflow: shrink min( 11px ) ellipsis;
+	text-overflow: shrink min( 9px ) ellipsis;
 }
 
-.tap-cf-rows {
+.tap-fm-close {
+	width: 30px;
+	height: 30px;
+}
+
+.tap-fm-close:hover {
+	background-color: #41567a99;
+}
+
+.tap-fm-close-t {
+	horizontal-align: center;
+	vertical-align: center;
+	font-size: 16px;
+	color: #9aa4af;
+}
+
+.tap-fm-close:hover .tap-fm-close-t {
+	color: #ffeaa8;
+}
+
+/* One argument: heading, then a box with the current value and the open / closed mark. */
+.tap-field {
 	flow-children: down;
-	width: 100%;
-	margin-top: 16px;
+	width: 410px;
+	margin-top: 6px;
+	overflow: noclip noclip;
 }
 
-.tap-cf-row {
-	flow-children: right;
-	width: 100%;
-	min-height: 36px;
-	padding: 6px 0px;
-	border-bottom: 1px solid #ffffff0f;
+.tap-field-k {
+	margin-bottom: 2px;
+	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
+	font-size: 12px;
+	color: #9aa4af;
+	white-space: nowrap;
+	text-overflow: shrink min( 9px ) ellipsis;
 }
 
-.tap-cf-k {
-	width: 220px;
+/* The value label leaves 30px on the right for the mark, which overlays it. */
+.tap-field-box {
+	flow-children: none;
+	width: 410px;
+	height: 28px;
+	background-color: #2e3c50;
+	border: 1px solid #ffffff14;
+}
+
+.tap-field:hover .tap-field-box {
+	background-color: #41567a;
+}
+
+.tap-field-v {
+	width: 370px;
+	margin-left: 10px;
+	vertical-align: center;
 	font-family: Stratum2, Arial, sans-serif;
 	font-size: 15px;
-	color: #9aa4af;
+	color: #f4f6f8;
 	white-space: nowrap;
 	text-overflow: shrink min( 10px ) ellipsis;
 }
 
-/* Values (target names) may be long: wrap instead of shrinking. */
-.tap-cf-v {
-	width: 680px;
+.tap-field-a {
+	horizontal-align: right;
+	vertical-align: center;
+	margin-right: 10px;
+	font-size: 12px;
+	color: #7d8791;
+}
+
+/* Value not chosen yet (required) / left at the default (optional). */
+.tap-field.tap-empty .tap-field-v {
+	color: #6b747d;
+}
+
+.tap-field.tap-open .tap-field-box {
+	background-color: #41567a;
+	border: 1px solid #ffde8559;
+}
+
+.tap-field.tap-open .tap-field-k {
+	color: #ffde85;
+}
+
+.tap-field.tap-wait .tap-field-box {
+	border: 1px solid #3ec9ff;
+}
+
+.tap-field.tap-wait .tap-field-v {
+	color: #3ec9ff;
+}
+
+/* Choice grid under the open field: 3 rows x 4, paged. */
+.tap-pk {
+	flow-children: down;
+	width: 410px;
+	padding: 4px 0px 2px 0px;
+	visibility: collapse;
+}
+
+.tap-pk.tap-show {
+	visibility: visible;
+}
+
+.tap-pk-row {
+	flow-children: right;
+	width: 410px;
+}
+
+/* Cells share the row width (fill-parent-flow) instead of a fixed width. */
+.tap-pc {
+	width: fill-parent-flow( 1.0 );
+	height: 26px;
+	margin: 3px 3px 0px 0px;
+	background-color: #222d3c;
+}
+
+.tap-pc:last-child {
+	margin-right: 0px;
+}
+
+/* Spacer past the last choice: keeps its share of the row but is not drawn. */
+.tap-pc.tap-void {
+	opacity: 0;
+}
+
+.tap-pc:hover {
+	background-color: #41567a;
+}
+
+.tap-pc-t {
+	horizontal-align: center;
+	vertical-align: center;
+	margin: 0px 4px;
 	font-family: Stratum2, Arial, sans-serif;
+	font-size: 13px;
+	color: #e6e9ed;
+	white-space: nowrap;
+	text-overflow: shrink min( 9px ) ellipsis;
+}
+
+.tap-pc:hover .tap-pc-t {
+	color: #ffeaa8;
+}
+
+/* The value the field has now. */
+.tap-pc.tap-sel {
+	background-color: #ffde852e;
+}
+
+.tap-pc.tap-sel .tap-pc-t {
+	color: #ffde85;
+}
+
+.tap-pk-pager {
+	flow-children: right;
+	width: fit-children;
+	height: 24px;
+	margin-top: 3px;
+	horizontal-align: right;
+}
+
+.tap-pk-btn {
+	width: 28px;
+	height: 24px;
+	background-color: #222d3c;
+}
+
+.tap-pk-btn:hover {
+	background-color: #41567a;
+}
+
+.tap-pk-btn-t {
+	horizontal-align: center;
+	vertical-align: center;
 	font-size: 16px;
-	color: #f4f6f8;
+	color: #c5ccd3;
 }
 
-.tap-cf-exec {
-	margin-top: 20px;
-	padding: 10px 48px;
+.tap-pk-page {
+	vertical-align: center;
+	margin: 0px 8px;
+	font-family: Stratum2 Regular Monodigit, Stratum2, Arial, sans-serif;
+	font-size: 12px;
+	color: #9aa4af;
 }
 
-.tap-cf-exec .lu-btn-t {
-	font-size: 20px;
+/* How the command will be typed, with the players it hits right now. */
+.tap-fm-line {
+	width: 410px;
+	padding: 6px 10px;
+	background-color: #00000059;
+	border-left: 3px solid #3ec9ff;
+	font-family: Stratum2 Regular Monodigit, Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	color: #e6e9ed;
+	white-space: nowrap;
+	text-overflow: shrink min( 10px ) ellipsis;
+}
+
+.tap-fm-tg {
+	width: 410px;
+	margin-bottom: 4px;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 13px;
+	color: #9aa4af;
+}
+
+.tap-fx {
+	margin-top: 8px;
+	padding: 6px 36px;
+	horizontal-align: right;
+}
+
+.tap-fx .lu-btn-t {
+	font-size: 17px;
+}
+
+/* Required fields missing. */
+.tap-fx.tap-dis {
+	background-color: #2e3c5066;
+	border: 1px solid #ffffff14;
+}
+
+.tap-fx.tap-dis .lu-btn-t {
+	color: #6b747d;
+}
+
+.tap-fx.tap-dis:hover {
+	background-color: #2e3c5066;
+	border: 1px solid #ffffff14;
+}
+
+.tap-fx.tap-dis:hover .lu-btn-t {
+	color: #6b747d;
 }
 
 /* ---- footer ---- */
 .tap-foot {
-	width: 100%;
-	height: 44px;
-	margin-top: 12px;
+	width: 900px;
+	height: 36px;
+	margin: 12px 0px 12px 0px;
 	padding-top: 8px;
 	border-top: 1px solid #ffffff14;
 }

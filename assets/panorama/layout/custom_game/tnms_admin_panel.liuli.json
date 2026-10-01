@@ -94,13 +94,6 @@
       ]
     },
     {
-      "id": "tap-usage",
-      "type": "Label",
-      "classes": [
-        "tap-usage"
-      ]
-    },
-    {
       "id": "tap-ov",
       "type": "Panel",
       "classes": [
@@ -577,6 +570,13 @@
       ]
     },
     {
+      "id": "tap-ls2",
+      "type": "Panel",
+      "classes": [
+        "tap-ls-col"
+      ]
+    },
+    {
       "id": "tap-r9",
       "type": "Panel",
       "classes": [
@@ -724,83 +724,327 @@
       ]
     },
     {
-      "id": "tap-cf",
+      "id": "tap-r16",
       "type": "Panel",
       "classes": [
-        "tap-sec"
+        "tap-irow"
       ]
     },
     {
-      "id": "tap-cf-cmd",
+      "id": "tap-l16",
+      "type": "Button",
+      "classes": [
+        "tap-item"
+      ]
+    },
+    {
+      "id": "tap-s16",
+      "type": "Button",
+      "classes": [
+        "tap-star"
+      ]
+    },
+    {
+      "id": "tap-r17",
+      "type": "Panel",
+      "classes": [
+        "tap-irow"
+      ]
+    },
+    {
+      "id": "tap-l17",
+      "type": "Button",
+      "classes": [
+        "tap-item"
+      ]
+    },
+    {
+      "id": "tap-s17",
+      "type": "Button",
+      "classes": [
+        "tap-star"
+      ]
+    },
+    {
+      "id": "tap-fm",
+      "type": "Panel",
+      "classes": [
+        "tap-fm"
+      ]
+    },
+    {
+      "id": "tap-fm-name",
+      "type": "Panel",
+      "classes": [
+        "tap-fm-name"
+      ]
+    },
+    {
+      "id": "tap-fm-close",
+      "type": "Button",
+      "classes": [
+        "tap-fm-close"
+      ]
+    },
+    {
+      "id": "tap-fm-d",
       "type": "Label",
       "classes": [
-        "tap-cf-cmd"
+        "tap-fm-d"
       ]
     },
     {
-      "id": "tap-cf-line",
+      "id": "tap-fm-u",
       "type": "Label",
       "classes": [
-        "tap-cf-line"
+        "tap-fm-u"
       ]
     },
     {
-      "id": "tap-cf0",
+      "id": "tap-fa0",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-fa1",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-fa2",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-fa3",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-fa4",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-fa5",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-pk",
       "type": "Panel",
       "classes": [
-        "tap-cf-row"
+        "tap-pk"
       ]
     },
     {
-      "id": "tap-cf1",
+      "id": "tap-pkr0",
       "type": "Panel",
       "classes": [
-        "tap-cf-row"
+        "tap-pk-row"
       ]
     },
     {
-      "id": "tap-cf2",
+      "id": "tap-pc0",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pc1",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pc2",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pc3",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pkr1",
       "type": "Panel",
       "classes": [
-        "tap-cf-row"
+        "tap-pk-row"
       ]
     },
     {
-      "id": "tap-cf3",
+      "id": "tap-pc4",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pc5",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pc6",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pc7",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pkr2",
       "type": "Panel",
       "classes": [
-        "tap-cf-row"
+        "tap-pk-row"
       ]
     },
     {
-      "id": "tap-cf4",
+      "id": "tap-pc8",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pc9",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pc10",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pc11",
+      "type": "Button",
+      "classes": [
+        "tap-pc"
+      ]
+    },
+    {
+      "id": "tap-pk-pager",
       "type": "Panel",
       "classes": [
-        "tap-cf-row"
+        "tap-pk-pager"
       ]
     },
     {
-      "id": "tap-cf5",
-      "type": "Panel",
+      "id": "tap-pkprev",
+      "type": "Button",
       "classes": [
-        "tap-cf-row"
+        "tap-pk-btn"
       ]
     },
     {
-      "id": "tap-cf-exec",
+      "id": "tap-pkpage",
+      "type": "Label",
+      "classes": [
+        "tap-pk-page"
+      ]
+    },
+    {
+      "id": "tap-pknext",
+      "type": "Button",
+      "classes": [
+        "tap-pk-btn"
+      ]
+    },
+    {
+      "id": "tap-fb0",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-fb1",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-fb2",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-fb3",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-fb4",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-fb5",
+      "type": "Button",
+      "classes": [
+        "tap-field"
+      ]
+    },
+    {
+      "id": "tap-fm-tg",
+      "type": "Label",
+      "classes": [
+        "tap-fm-tg"
+      ]
+    },
+    {
+      "id": "tap-fm-line",
+      "type": "Label",
+      "classes": [
+        "tap-fm-line"
+      ]
+    },
+    {
+      "id": "tap-fx",
       "type": "Button",
       "classes": [
         "lu-btn",
         "lu-btn-primary",
-        "tap-cf-exec"
-      ]
-    },
-    {
-      "id": "tap-back",
-      "type": "Button",
-      "classes": [
-        "lu-btn",
-        "tap-fbtn"
+        "tap-fx"
       ]
     },
     {
@@ -835,6 +1079,7 @@
     }
   ],
   "dialogVariables": [
+    "a",
     "c",
     "c0",
     "c1",
@@ -851,5 +1096,5 @@
     "t",
     "v"
   ],
-  "internEstimate": 189
+  "internEstimate": 244
 }

@@ -10,7 +10,7 @@ namespace TnmsAdminUtils.Modules.UiInteractions.Panel;
 /// <summary>
 /// The admin panel of one player. Panel ids and classes are defined in tnms_admin_panel.lxml / .vcss.
 /// </summary>
-public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
+public sealed class AdminPanelSession : IAdminSession
 {
     // Same order as the sidebar buttons (tap-nav{i}).
     private enum Page
@@ -23,13 +23,16 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
         Notification,
     }
 
-    private const int ListSlots = 16;
+    private const int ListSlots = 18;
+    // Command slots per page while the form takes the second column.
+    private const int FormListSlots = 9;
+    private const int FieldSlots = 6;
+    private const int PickerSlots = 12;
+    private const int PickerColumns = 4;
     private const int UserRows = 16;
     private const string Off = "tap-off";
 
-    private const int ConfirmRows = 6;
-
-    private static readonly string[] Sections = ["tap-ov", "tap-us", "tap-ls", "tap-cf"];
+    private static readonly string[] Sections = ["tap-ov", "tap-us", "tap-ls"];
     private static readonly string[] NavKeys = ["AdminPanel.Nav.Overview", "AdminPanel.Nav.Favorites", "AdminPanel.Nav.Users", "AdminPanel.Nav.Commands", "AdminPanel.Nav.Server", "AdminPanel.Nav.Notification"];
     // "x" collapses an unused slot; the rest follow AdminPanelColumnWidth.
     private static readonly string[] WidthSizes = ["x", "xs", "s", "m", "l", "xl"];
@@ -38,20 +41,18 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
     private readonly AdminMenuService _service;
     private readonly IPlayerEntry _player;
     private readonly ILiuliSurface _surface;
+    private readonly AdminCommandContext _context;
     private readonly IGameClient?[] _rowTargets = new IGameClient?[UserRows];
     private readonly AdminFavorites _favorites;
 
     private Page _page;
-    private AdminFlow? _flow;
-    private string _listTitle = string.Empty;
-    private IReadOnlyList<AdminFlowItem> _items = [];
-    private AdminFlowConfirm? _confirm;
-    private Action? _back;
+    // Set on the Users page after a row click: the command list of that player.
+    private AdminMenuValue? _playerTarget;
+    private List<AdminMenuEntry> _entries = [];
+    private AdminCommandForm? _form;
+    private List<AdminFormChoice> _choices = [];
     private bool _cursor;
     private bool _suspended;
-    private string? _waitPrompt;
-    private string? _emptyText;
-    private string? _usage;
     private int _listPage;
     private int _userPage;
     // User list sort by column key; null keeps the default order (team, then name).
@@ -67,6 +68,7 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
         _service = service;
         _player = player;
         _surface = service.Panel.Surface!;
+        _context = new AdminCommandContext(plugin, service, admin);
         Admin = admin;
         _favorites = AdminFavorites.Load(admin);
     }
@@ -78,10 +80,10 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
 
         Text("tap-brand", "t", L("AdminPanel.Brand"));
         Text("tap-close", "t", L("AdminPanel.Nav.Close"));
-        Text("tap-back", "t", L("AdminMenu.Back"));
         Text("tap-prev", "t", L("AdminPanel.Prev"));
         Text("tap-next", "t", L("AdminPanel.Next"));
         Text("tap-hint", "t", L("AdminPanel.CursorHint"));
+        Text("tap-fx", "t", L("AdminMenu.Confirm.Execute"));
 
         _surface.Show(_player);
 
@@ -133,25 +135,35 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
             return;
 
         _closed = true;
-        _flow?.Abandon();
-        _flow = null;
+        _form = null;
 
         _surface.SetInputCapture(_player, false);
         _surface.Hide(_player);
         _service.OnSessionClosed(this);
     }
 
-    public bool TryAcceptText(string message) => _flow?.TryAcceptText(message) ?? false;
+    public bool TryAcceptText(string message)
+    {
+        if (_closed || _form is null || !_form.TryAcceptText(message))
+            return false;
+
+        // Called from the say listener; draw on the next frame like the other input paths.
+        _plugin.SharedSystem.GetModSharp().InvokeFrameAction(() =>
+        {
+            if (!_closed && Admin.IsValid)
+                Render();
+        });
+
+        return true;
+    }
 
     public void Refresh()
     {
         if (_closed || !Admin.IsValid)
             return;
 
-        if (_flow != null)
-            _flow.Refresh();
-        else
-            Render();
+        _form?.ExpireWait();
+        Render();
     }
 
     public void OnClicked(string panelId)
@@ -165,22 +177,31 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
                 Close();
                 return;
 
-            case "tap-back":
-                _back?.Invoke();
+            case "tap-fm-close":
+                CloseForm();
+                Render();
                 return;
 
-            case "tap-cf-exec":
-                _confirm?.Execute();
+            case "tap-fx":
+                Execute();
                 return;
 
             case "tap-prev":
             case "tap-next":
                 var step = panelId == "tap-next" ? 1 : -1;
 
-                if (_flow != null)
-                    _listPage += step;
-                else
+                if (_page == Page.Users && _playerTarget is null)
                     _userPage += step;
+                else
+                    _listPage += step;
+
+                Render();
+                return;
+
+            case "tap-pkprev":
+            case "tap-pknext":
+                if (_form != null)
+                    _form.PickerPage += panelId == "tap-pknext" ? 1 : -1;
 
                 Render();
                 return;
@@ -197,113 +218,101 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
         else if (TryIndex(panelId, "tap-u", out var row))
         {
             if (_rowTargets[row] is { IsValid: true } target)
-                StartFlow(flow => flow.StartWithTarget(AdminFlow.PlayerValue(target)));
+                ShowPlayerCommands(AdminCommandContext.PlayerValue(target));
         }
         else if (TryIndex(panelId, "tap-l", out var slot))
         {
-            var index = _listPage * ListSlots + slot;
-
-            if (index < _items.Count)
-                _items[index].OnSelect?.Invoke();
+            if (EntryAt(slot) is { } entry)
+                ToggleForm(entry, _listPage * ListSlotsNow() + slot);
         }
         else if (TryIndex(panelId, "tap-s", out var star))
         {
-            var index = _listPage * ListSlots + star;
-
-            if (index < _items.Count && _items[index].FavoriteId is { } favoriteId)
+            if (EntryAt(star) is { } entry)
             {
-                _favorites.Toggle(favoriteId);
-                Refresh();
+                _favorites.Toggle(entry.MenuId);
+                Render();
+            }
+        }
+        else if (TryIndex(panelId, "tap-fa", out var fieldA) || TryIndex(panelId, "tap-fb", out fieldA))
+        {
+            _form?.Click(fieldA);
+            Render();
+        }
+        else if (TryIndex(panelId, "tap-pc", out var choice))
+        {
+            // Spacer cells past the last choice are still hit-testable; the bound check ignores them.
+            var index = (_form?.PickerPage ?? 0) * PickerSlots + choice;
+
+            if (index < _choices.Count)
+            {
+                _choices[index].Pick();
+                Render();
             }
         }
     }
 
-    bool IAdminFlowView.KeepHistoryAfterText => true;
-
-    void IAdminFlowView.Show(string title, IReadOnlyList<AdminFlowItem> items, Action? back, string? usage, string? emptyText)
+    private void GoTo(Page page)
     {
-        _emptyText = items.Count == 0 ? emptyText : null;
-        _usage = usage;
-        if (title != _listTitle)
-            _listPage = 0;
-
-        _listTitle = title;
-        _items = items;
-        _confirm = null;
-        _back = back;
-        _waitPrompt = null;
+        _page = page;
+        _playerTarget = null;
+        _form = null;
+        _listPage = 0;
         Render();
     }
 
-    void IAdminFlowView.ShowConfirm(AdminFlowConfirm confirm, Action? back)
+    private void ShowPlayerCommands(AdminMenuValue target)
     {
-        _usage = confirm.Usage;
-        _confirm = confirm;
-        _back = back;
-        Render();
-    }
-
-    void IAdminFlowView.WaitText(string title, Action back, string? usage)
-    {
-        _usage = usage;
-        _listTitle = title;
-        _items = [];
-        _confirm = null;
-        _back = back;
-        _waitPrompt = L("AdminPanel.WaitText");
-        _emptyText = null;
+        _playerTarget = target;
+        _form = null;
         _listPage = 0;
         Render();
     }
 
     /// <summary>
-    /// Returns to the page the flow was started from; Commands / Server show their command list again.
+    /// Opens the form of a command, or closes it when it is already open. The list page follows so the clicked
+    /// command stays in view when the list switches between 18 and 9 per page.
     /// </summary>
-    void IAdminFlowView.Finish()
+    private void ToggleForm(AdminMenuEntry entry, int index)
     {
-        if (_closed)
+        if (_form?.Entry == entry)
+        {
+            CloseForm();
+        }
+        else
+        {
+            _form = new AdminCommandForm(_context, _player, entry, _playerTarget);
+            _listPage = index / FormListSlots;
+        }
+
+        Render();
+    }
+
+    private void CloseForm()
+    {
+        if (_form is null)
             return;
 
-        _flow = null;
-        GoTo(_page);
+        _listPage = _listPage * FormListSlots / ListSlots;
+        _form = null;
     }
 
-    private void GoTo(Page page)
+    /// <summary>
+    /// Runs the command and keeps the form as it is, so the same command can be sent again.
+    /// </summary>
+    private void Execute()
     {
-        _flow?.Abandon();
-        _flow = null;
-        _page = page;
-        _confirm = null;
-        _usage = null;
-        _back = null;
+        if (_form is not { IsReady: true } form)
+            return;
 
-        switch (page)
+        var entry = form.Entry;
+        var values = form.FinalValues();
+
+        // Clicks arrive inside the panel's input handling; run the command on the next frame.
+        _plugin.SharedSystem.GetModSharp().InvokeFrameAction(() =>
         {
-            case Page.Favorites:
-                StartFlow(flow => flow.StartFavorites(_favorites));
-                break;
-            case Page.Commands:
-                StartFlow(flow => flow.StartTree(AdminMenuTree.Commands));
-                break;
-            case Page.Server:
-                StartFlow(flow => flow.StartTree(AdminMenuTree.Server));
-                break;
-            case Page.Notification:
-                StartFlow(flow => flow.StartTree(AdminMenuTree.Notification));
-                break;
-            default:
-                Render();
-                break;
-        }
-    }
-
-    private void StartFlow(Action<AdminFlow> start)
-    {
-        _flow?.Abandon();
-        _flow = new AdminFlow(_plugin, _service, Admin, _player, this);
-        _listTitle = string.Empty;
-        _confirm = null;
-        start(_flow);
+            if (!_closed && Admin.IsValid)
+                _context.Execute(entry, values);
+        });
     }
 
     private void Render()
@@ -311,46 +320,24 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
         for (var i = 0; i < NavKeys.Length; i++)
             Class($"tap-nav{i}", "tap-sel", i == (int)_page);
 
-        if (_flow != null && _confirm != null)
-            RenderConfirm(_confirm);
-        else if (_flow != null)
-            RenderList();
-        else if (_page == Page.Users)
-            RenderUsers();
-        else
-            RenderOverview();
-    }
-
-    private void RenderConfirm(AdminFlowConfirm confirm)
-    {
-        ShowSection("tap-cf");
-        Header(L("AdminPanel.Confirm.Title"), string.Empty);
-        Pager(0, 1, hasBack: _back != null);
-
-        Text("tap-cf-cmd", "t", confirm.Command);
-        Text("tap-cf-line", "t", confirm.Preview);
-        Text("tap-cf-exec", "t", confirm.ExecuteLabel);
-
-        for (var i = 0; i < ConfirmRows; i++)
+        switch (_page)
         {
-            var rowId = $"tap-cf{i}";
-
-            if (i >= confirm.Rows.Count)
-            {
-                Class(rowId, Off, true);
-                continue;
-            }
-
-            Class(rowId, Off, false);
-            Text(rowId, "k", confirm.Rows[i].Key);
-            Text(rowId, "v", confirm.Rows[i].Value);
+            case Page.Overview:
+                RenderOverview();
+                break;
+            case Page.Users when _playerTarget is null:
+                RenderUsers();
+                break;
+            default:
+                RenderCommands();
+                break;
         }
     }
 
     private void RenderOverview()
     {
         ShowSection("tap-ov");
-        Pager(0, 1, hasBack: false);
+        Pager(0, 1);
 
         var sharp = _plugin.SharedSystem.GetModSharp();
         var rules = sharp.GetGameRules();
@@ -398,7 +385,7 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
         _userPage = Math.Clamp(_userPage, 0, pages - 1);
 
         Header(L("AdminPanel.Users.Title"), L("AdminPanel.Users.Sub", clients.Count));
-        Pager(_userPage, pages, hasBack: false);
+        Pager(_userPage, pages);
 
         for (var slot = 0; slot < AdminPanelColumns.MaxColumns; slot++)
         {
@@ -471,41 +458,172 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
         return ordered.Select(k => k.Client).ToList();
     }
 
-    private void RenderList()
+    /// <summary>
+    /// Command pages: the list (two columns, or one beside the form of the open command).
+    /// </summary>
+    private void RenderCommands()
     {
         ShowSection("tap-ls");
-        Header(_listTitle, _waitPrompt ?? _emptyText ?? string.Empty);
 
-        var pages = Math.Max(1, (_items.Count + ListSlots - 1) / ListSlots);
+        _entries = _page switch
+        {
+            Page.Favorites => _context.FavoriteEntries(_favorites),
+            Page.Server => _context.VisibleEntries(AdminMenuTree.Server).ToList(),
+            Page.Notification => _context.VisibleEntries(AdminMenuTree.Notification).ToList(),
+            Page.Users => _context.VisibleEntries(AdminMenuTree.Players, _playerTarget).ToList(),
+            _ => _context.VisibleEntries(AdminMenuTree.Commands).ToList(),
+        };
+
+        var title = _page switch
+        {
+            Page.Users => $"{L("AdminMenu.Root.Players")}: {_playerTarget?.Display}",
+            _ => L(NavKeys[(int)_page]),
+        };
+
+        var sub = _page == Page.Favorites && _entries.Count == 0 ? L("AdminMenu.Favorites.Empty") : string.Empty;
+        Header(title, sub);
+
+        var slots = ListSlotsNow();
+        var pages = Math.Max(1, (_entries.Count + slots - 1) / slots);
         _listPage = Math.Clamp(_listPage, 0, pages - 1);
-        Pager(_listPage, pages, hasBack: _back != null);
+        Pager(_listPage, pages);
+
+        Class("tap-ls", "tap-form", _form != null);
 
         for (var slot = 0; slot < ListSlots; slot++)
         {
-            var index = _listPage * ListSlots + slot;
             var rowId = $"tap-r{slot}";
-            var itemId = $"tap-l{slot}";
-            var starId = $"tap-s{slot}";
 
-            if (index >= _items.Count)
+            if (EntryAt(slot) is not { } entry)
             {
                 Class(rowId, Off, true);
                 continue;
             }
 
-            var item = _items[index];
-            Class(rowId, Off, false);
-            Class(itemId, "tap-dis", item.OnSelect is null);
-            Class(itemId, "tap-pri", item.Style == AdminFlowItemStyle.Primary);
-            // Command items: the chat command small above the label. Without a label the command is the label.
-            var twoLine = item.Command is not null && item.Label.Length > 0;
-            Class(itemId, "tap-cmd", twoLine);
-            Text(itemId, "c", twoLine ? item.Command! : string.Empty);
-            Text(itemId, "t", item.Label.Length > 0 ? item.Label : item.Command ?? string.Empty);
+            var itemId = $"tap-l{slot}";
+            var label = _context.TranslatedLabel(entry);
 
-            Class(starId, Off, item.FavoriteId is null);
-            Class(starId, "tap-fav", item.FavoriteId is { } id && _favorites.Contains(id));
+            // The chat command small above the label; without a label the command is the label.
+            Class(rowId, Off, false);
+            Class(itemId, "tap-cmd", label != null);
+            Class(itemId, "tap-on", _form?.Entry == entry);
+            Text(itemId, "c", label != null ? $"!{entry.CommandName}" : string.Empty);
+            Text(itemId, "t", label ?? $"!{entry.CommandName}");
+
+            Class($"tap-s{slot}", "tap-fav", _favorites.Contains(entry.MenuId));
         }
+
+        if (_form != null)
+            RenderForm(_form);
+    }
+
+    private void RenderForm(AdminCommandForm form)
+    {
+        var entry = form.Entry;
+        var label = _context.TranslatedLabel(entry);
+
+        Text("tap-fm-name", "c", label != null ? $"!{entry.CommandName}" : string.Empty);
+        Text("tap-fm-name", "t", label ?? $"!{entry.CommandName}");
+
+        var description = _context.Description(entry);
+        Class("tap-fm-d", Off, description is null);
+        Text("tap-fm-d", "t", description ?? string.Empty);
+
+        var usage = _context.Usage(entry);
+        Class("tap-fm-u", Off, usage is null);
+        Text("tap-fm-u", "t", usage ?? string.Empty);
+
+        // Fields up to the open one go above the choice grid (a slots), the rest below it (b slots).
+        for (var i = 0; i < FieldSlots; i++)
+        {
+            var exists = i < entry.Arguments.Count;
+            var above = exists && (form.OpenField < 0 || i <= form.OpenField);
+
+            RenderField($"tap-fa{i}", form, i, above);
+            RenderField($"tap-fb{i}", form, i, exists && !above);
+        }
+
+        _choices = form.Choices();
+        Class("tap-pk", "tap-show", form.OpenField >= 0);
+
+        if (form.OpenField >= 0)
+        {
+            var pages = Math.Max(1, (_choices.Count + PickerSlots - 1) / PickerSlots);
+            form.PickerPage = Math.Clamp(form.PickerPage, 0, pages - 1);
+
+            var first = form.PickerPage * PickerSlots;
+
+            // Empty rows collapse; empty cells in a used row stay as invisible spacers so the columns keep their width.
+            for (var row = 0; row < PickerSlots / PickerColumns; row++)
+                Class($"tap-pkr{row}", Off, first + row * PickerColumns >= _choices.Count);
+
+            for (var slot = 0; slot < PickerSlots; slot++)
+            {
+                var index = first + slot;
+                var id = $"tap-pc{slot}";
+
+                if (index >= _choices.Count)
+                {
+                    Class(id, "tap-void", true);
+                    continue;
+                }
+
+                Class(id, "tap-void", false);
+                Class(id, "tap-sel", _choices[index].Selected);
+                Text(id, "t", _choices[index].Label);
+            }
+
+            Class("tap-pk-pager", Off, pages <= 1);
+            Text("tap-pkpage", "t", $"{form.PickerPage + 1} / {pages}");
+        }
+
+        Text("tap-fm-line", "t", _context.CommandLine(entry, form.PreviewValues));
+
+        var target = entry.PrimaryTargetIndex >= 0 ? form.Values[entry.PrimaryTargetIndex] : null;
+        Class("tap-fm-tg", Off, target is null);
+        Text("tap-fm-tg", "t", target is null ? string.Empty : $"{L("AdminMenu.Confirm.Targets")}: {_context.DescribeTargets(target)}");
+
+        Class("tap-fx", "tap-dis", !form.IsReady);
+    }
+
+    private void RenderField(string id, AdminCommandForm form, int index, bool show)
+    {
+        Class(id, Off, !show);
+
+        if (!show)
+            return;
+
+        var argument = form.Entry.Arguments[index];
+        var value = form.Values[index];
+        var waiting = form.WaitField == index;
+        var open = form.OpenField == index;
+        var isText = argument is TextArgument or TextListArgument;
+
+        var shown = waiting ? L("AdminPanel.Form.Waiting")
+            : value != null ? value.Display
+            : argument.IsOptional ? L("AdminMenu.Default")
+            : L("AdminPanel.Form.NotSet");
+
+        Text(id, "k", _context.FieldLabel(argument));
+        Text(id, "v", shown);
+        Text(id, "a", isText && !argument.IsOptional ? string.Empty : open ? "▲" : "▼");
+
+        Class(id, "tap-open", open);
+        Class(id, "tap-wait", waiting);
+        Class(id, "tap-empty", !waiting && value is null);
+    }
+
+    private int ListSlotsNow() => _form != null ? FormListSlots : ListSlots;
+
+    private AdminMenuEntry? EntryAt(int slot)
+    {
+        var slots = ListSlotsNow();
+
+        if (slot >= slots)
+            return null;
+
+        var index = _listPage * slots + slot;
+        return index < _entries.Count ? _entries[index] : null;
     }
 
     private IEnumerable<IGameClient> Clients()
@@ -515,17 +633,10 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
     {
         Text("tap-title", "t", title);
         Text("tap-sub", "t", sub);
-
-        // Only flow pages of a chosen command carry a usage line.
-        var usage = _flow != null ? _usage : null;
-        Class("tap-usage", Off, usage is null);
-        Text("tap-usage", "t", usage is null ? string.Empty : $"> {usage}");
     }
 
-    private void Pager(int page, int pages, bool hasBack)
+    private void Pager(int page, int pages)
     {
-        Class("tap-back", Off, !hasBack);
-
         var paged = pages > 1;
         Class("tap-prev", Off, !paged);
         Class("tap-next", Off, !paged);
@@ -550,7 +661,7 @@ public sealed class AdminPanelSession : IAdminFlowView, IAdminSession
         return panelId.StartsWith(prefix, StringComparison.Ordinal) && int.TryParse(panelId.AsSpan(prefix.Length), out index);
     }
 
-    private string L(string key) => _plugin.LocalizeStringForPlayer(Admin, key);
+    private string L(string key) => _context.L(key);
 
-    private string L(string key, params object[] args) => _plugin.LocalizeStringForPlayer(Admin, key, args);
+    private string L(string key, params object[] args) => _context.L(key, args);
 }
