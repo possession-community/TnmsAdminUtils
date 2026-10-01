@@ -5,6 +5,7 @@ using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.Chat.Commands;
 
@@ -13,11 +14,16 @@ public class PSay(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
     public override string CommandName => "psay";
     public override string CommandDescription => "Sends a private message to a player.";
 
+    private const string Permission = "tnms.adminutil.chat.command.say.private";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Text("AdminMenu.Step.Message"));
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.chat.command.say.private", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(2, true))
         .Add(new TargetValidator(1, true));
 

@@ -5,6 +5,7 @@ using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.InGameManagement.Commands;
 
@@ -13,11 +14,16 @@ public class TeamName(IServiceProvider provider) : TnmsAbstractCommandBase(provi
     public override string CommandName => "teamname";
     public override string CommandDescription => "Sets a team's display name.";
 
+    private const string Permission = "tnms.adminutil.management.ingame.command.teamname";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Choice("AdminMenu.Step.Team", new AdminMenuChoice("ct", "AdminMenu.Choice.Team.Ct"), new AdminMenuChoice("t", "AdminMenu.Choice.Team.T")).Text("AdminMenu.Step.Name"));
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.teamname", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(2, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)

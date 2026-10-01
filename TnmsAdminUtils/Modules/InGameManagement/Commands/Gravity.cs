@@ -6,6 +6,7 @@ using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Models.Command.Validators.RangedValidators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.InGameManagement.Commands;
 
@@ -14,11 +15,16 @@ public class Gravity(IServiceProvider provider) : TnmsAbstractCommandBase(provid
     public override string CommandName => "gravity";
     public override string CommandDescription => "Sets a player's gravity scale.";
 
+    private const string Permission = "tnms.adminutil.management.ingame.command.gravity";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Preset("gravity"));
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.gravity", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(2, true))
         .Add(new TargetValidator(1, true))
         .Add(new RangedArgumentValidator<float>(0.0f, 100.0f, 2, true));

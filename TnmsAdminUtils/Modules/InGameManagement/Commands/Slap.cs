@@ -6,6 +6,7 @@ using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Models.Command.Validators.RangedValidators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.InGameManagement.Commands;
 
@@ -14,11 +15,16 @@ public class Slap(IServiceProvider provider): TnmsAbstractCommandBase(provider)
     public override string CommandName => "slap";
     public override string CommandDescription => "Slaps a specified player.";
 
+    private const string Permission = "tnms.adminutil.management.ingame.command.slap";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Preset("slap").Optional());
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.slap", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(1, true))
         .Add(new TargetValidator(1, true))
         .Add(new RangedArgumentValidator<int>(0, int.MaxValue, 2, 0, true));

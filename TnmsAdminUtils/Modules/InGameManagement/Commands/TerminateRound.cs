@@ -7,6 +7,7 @@ using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Models.Command.Validators.RangedValidators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.InGameManagement.Commands;
 
@@ -16,11 +17,32 @@ public class TerminateRound(IServiceProvider provider) : TnmsAbstractCommandBase
     public override List<string> CommandAliases => ["endround"];
     public override string CommandDescription => "Terminates the current round immediately or specified seconds.";
 
+    private const string Permission = "tnms.adminutil.management.ingame.command.terminateround";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+    {
+        static AdminMenuChoice Reason(RoundEndReason reason) => new(((uint)reason).ToString(), $"AdminMenu.Choice.Reason.{reason}");
+
+        ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission)
+            .Preset("terminateround", "AdminMenu.Step.Delay").Optional("0")
+            .Choice("AdminMenu.Step.Reason",
+                Reason(RoundEndReason.RoundDraw),
+                Reason(RoundEndReason.CTsWin),
+                Reason(RoundEndReason.TerroristsWin),
+                Reason(RoundEndReason.BombDefused),
+                Reason(RoundEndReason.TargetBombed),
+                Reason(RoundEndReason.TargetSaved),
+                Reason(RoundEndReason.CTsSurrender),
+                Reason(RoundEndReason.TerroristsSurrender),
+                Reason(RoundEndReason.GameCommencing))
+            .Optional());
+    }
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.terminateround", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new RangedArgumentValidator<float>(0.0f, 30.0f, 1, 0.0f, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)

@@ -5,6 +5,7 @@ using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.InGameManagement.Commands;
 
@@ -13,11 +14,16 @@ public class SetModel(IServiceProvider provider) : TnmsAbstractCommandBase(provi
     public override string CommandName => "setmodel";
     public override string CommandDescription => "Sets a player's model.";
 
+    private const string Permission = "tnms.adminutil.management.ingame.command.model";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Text("AdminMenu.Step.ModelPath"));
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.model", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(2, true))
         .Add(new TargetValidator(1, true));
 

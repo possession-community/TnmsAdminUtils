@@ -6,6 +6,7 @@ using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Models.Command.Validators.RangedValidators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.InGameManagement.Commands;
 
@@ -14,11 +15,16 @@ public class Speed(IServiceProvider provider) : TnmsAbstractCommandBase(provider
     public override string CommandName => "speed";
     public override string CommandDescription => "Sets a player's speed multiplier.";
 
+    private const string Permission = "tnms.adminutil.management.ingame.command.speed";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Preset("speed"));
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.speed", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(2, true))
         .Add(new TargetValidator(1, true))
         .Add(new RangedArgumentValidator<float>(0.0f, 10.0f, 2, true));

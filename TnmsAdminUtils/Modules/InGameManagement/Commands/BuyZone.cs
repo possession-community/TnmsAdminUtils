@@ -6,6 +6,7 @@ using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Models.Command.Validators.RangedValidators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.InGameManagement.Commands;
 
@@ -14,11 +15,16 @@ public class BuyZone(IServiceProvider provider) : TnmsAbstractCommandBase(provid
     public override string CommandName => "buyzone";
     public override string CommandDescription => "Toggles a player's buy zone access.";
 
+    private const string Permission = "tnms.adminutil.management.ingame.command.buyzone";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Toggle());
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.buyzone", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(2, true))
         .Add(new TargetValidator(1, true))
         .Add(new RangedArgumentValidator<int>(0, 1, 2, true));

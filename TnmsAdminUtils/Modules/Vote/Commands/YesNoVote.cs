@@ -7,6 +7,7 @@ using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.Vote.Commands;
 
@@ -15,11 +16,16 @@ public class YesNoVote(IServiceProvider provider) : TnmsAbstractCommandBase(prov
     public override string CommandName => "ynvote";
     public override string CommandDescription => "Starts a Yes/No vote.";
 
+    private const string Permission = "tnms.adminutil.vote.command.vote";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Text("AdminMenu.Step.Question"));
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.vote.command.vote", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(1, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)

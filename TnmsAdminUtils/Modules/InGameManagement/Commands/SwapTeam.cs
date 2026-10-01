@@ -6,6 +6,7 @@ using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.InGameManagement.Commands;
 
@@ -14,11 +15,16 @@ public class SwapTeam(IServiceProvider provider) : TnmsAbstractCommandBase(provi
     public override string CommandName => "swap";
     public override string CommandDescription => "Swaps a player to the opposite team without killing them.";
 
+    private const string Permission = "tnms.adminutil.management.ingame.command.team";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target());
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.team", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(1, true))
         .Add(new TargetValidator(1, true));
 

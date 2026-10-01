@@ -4,6 +4,7 @@ using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.ServerManagement.Commands;
 
@@ -12,11 +13,16 @@ public class Rcon(IServiceProvider provider): TnmsAbstractCommandBase(provider)
     public override string CommandName => "rcon";
     public override string CommandDescription => "Executes a specified command in server console.";
 
+    private const string Permission = "tnms.adminutil.management.server.command.rcon";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Text("AdminMenu.Step.RconCommand"));
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.server.command.rcon", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(1, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)

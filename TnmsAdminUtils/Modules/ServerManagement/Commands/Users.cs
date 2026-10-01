@@ -4,6 +4,7 @@ using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.ServerManagement.Commands;
 
@@ -12,11 +13,16 @@ public class Users(IServiceProvider provider) : TnmsAbstractCommandBase(provider
     public override string CommandName => "users";
     public override string CommandDescription => "Lists online players.";
 
+    private const string Permission = "tnms.adminutil.management.server.command.users";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission));
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.server.command.users", true));
+        .Add(new PermissionValidator(Permission, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)
     {

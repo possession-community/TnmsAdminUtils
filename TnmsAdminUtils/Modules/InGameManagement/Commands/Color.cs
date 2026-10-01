@@ -6,6 +6,7 @@ using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.InGameManagement.Commands;
 
@@ -14,11 +15,16 @@ public class Color(IServiceProvider provider) : TnmsAbstractCommandBase(provider
     public override string CommandName => "color";
     public override string CommandDescription => "Sets a player's render color.";
 
+    private const string Permission = "tnms.adminutil.management.ingame.command.color";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Choice("AdminMenu.Step.Color", "red", "green", "blue", "yellow", "orange", "purple", "cyan", "pink", "white", "black").Optional());
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.ingame.command.color", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(1, true))
         .Add(new TargetValidator(1, true));
 

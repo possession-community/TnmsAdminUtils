@@ -6,6 +6,7 @@ using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.ClientManagement.Commands;
 
@@ -13,12 +14,17 @@ public class ReplicateCvar(IServiceProvider provider): TnmsAbstractCommandBase(p
 {
     public override string CommandName => "rcvar";
     public override string CommandDescription => "Replicate cvar value to the client.";
+
+    private const string Permission = "tnms.adminutil.management.server.command.rcvar";
     
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Target().Text("AdminMenu.Step.CvarName").Text("AdminMenu.Step.CvarValue"));
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.server.command.rcvar", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(3, true))
         .Add(new TargetValidator(1, true, true));
 

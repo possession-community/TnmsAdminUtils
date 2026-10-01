@@ -6,6 +6,7 @@ using TnmsPluginFoundation.Extensions.Client;
 using TnmsPluginFoundation.Models.Command;
 using TnmsPluginFoundation.Models.Command.Validators;
 using TnmsPluginFoundation.Utils.Entity;
+using TnmsAdminUtils.Modules.UiInteractions;
 
 namespace TnmsAdminUtils.Modules.ServerManagement.Commands;
 
@@ -14,11 +15,16 @@ public class Cvar(IServiceProvider provider): TnmsAbstractCommandBase(provider)
     public override string CommandName => "cvar";
     public override string CommandDescription => "Executes a specified command in server console.";
 
+    private const string Permission = "tnms.adminutil.management.server.command.cvar";
+
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission).Text("AdminMenu.Step.CvarName").Text("AdminMenu.Step.CvarValue").Optional());
+
     protected override ICommandValidator? GetValidator() => new CompositeValidator()
-        .Add(new PermissionValidator("tnms.adminutil.management.server.command.cvar", true))
+        .Add(new PermissionValidator(Permission, true))
         .Add(new ArgumentCountValidator(1, true));
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)
