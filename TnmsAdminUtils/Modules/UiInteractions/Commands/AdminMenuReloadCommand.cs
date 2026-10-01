@@ -10,13 +10,18 @@ namespace TnmsAdminUtils.Modules.UiInteractions.Commands;
 /// </summary>
 public class AdminMenuReloadCommand(IServiceProvider provider) : TnmsAbstractCommandBase(provider)
 {
+    private const string Permission = "tnms.adminutil.menu.reload";
+
     public override string CommandName => "adminmenu_reload";
     public override string CommandDescription => "Reloads the menu TOMLs and the admin menu command lists.";
 
     public override TnmsCommandRegistrationType CommandRegistrationType =>
         TnmsCommandRegistrationType.Client | TnmsCommandRegistrationType.Server;
 
-    protected override ICommandValidator? GetValidator() => new PermissionValidator("tnms.adminutil.menu.reload", true);
+    protected override void OnRegistered()
+        => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(AdminMenuEntry.Create(CommandName, Permission));
+
+    protected override ICommandValidator? GetValidator() => new PermissionValidator(Permission, true);
 
     protected override ValidationFailureResult OnValidationFailed(ValidationFailureContext context)
     {

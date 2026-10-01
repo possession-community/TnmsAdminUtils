@@ -236,6 +236,7 @@
     "AdminMenu.Command.ynvote": "Yes/No 投票",
     "AdminMenu.Command.cvar": "cvar 変更",
     "AdminMenu.Command.rcon": "rcon",
+    "AdminMenu.Command.adminmenu_reload": "管理メニューを再読み込み",
     "AdminMenu.Command.users": "ユーザー一覧",
 
     "AdminMenu.OpenPanel": "パネルを開く",
@@ -353,6 +354,7 @@
     "AdminMenu.Description.terminateround": "ラウンドを強制終了",
     "AdminMenu.Description.users": "オンラインプレイヤー一覧 (スロット, 名前, SteamID)",
     "AdminMenu.Description.rcon": "サーバーコンソールコマンドを実行",
+    "AdminMenu.Description.adminmenu_reload": "メニュー TOML (configs/menus) とコマンド一覧を再読み込み",
     "AdminMenu.Description.cvar": "ConVar の表示・設定",
     "AdminMenu.Description.qcvar": "クライアントの ConVar 値を照会",
     "AdminMenu.Description.rcvar": "クライアントに ConVar 値を複製",

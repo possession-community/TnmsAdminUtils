@@ -236,6 +236,7 @@
     "AdminMenu.Command.ynvote": "Yes/No vote",
     "AdminMenu.Command.cvar": "Cvar",
     "AdminMenu.Command.rcon": "Rcon",
+    "AdminMenu.Command.adminmenu_reload": "Reload Admin Menu",
     "AdminMenu.Command.users": "Users",
 
     "AdminMenu.OpenPanel": "Open Panel",
@@ -353,6 +354,7 @@
     "AdminMenu.Description.terminateround": "Terminate the current round",
     "AdminMenu.Description.users": "List online players (slot, name, steamid)",
     "AdminMenu.Description.rcon": "Execute a server console command",
+    "AdminMenu.Description.adminmenu_reload": "Reload the menu TOMLs (configs/menus) and the command lists",
     "AdminMenu.Description.cvar": "View or set a ConVar value",
     "AdminMenu.Description.qcvar": "Query a client ConVar value",
     "AdminMenu.Description.rcvar": "Replicate a ConVar value to a client",
