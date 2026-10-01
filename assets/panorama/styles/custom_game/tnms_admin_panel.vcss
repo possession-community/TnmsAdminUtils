@@ -9,21 +9,25 @@
 	z-index: 10600;
 }
 
-/* Liuli places the box's top-left corner at the placement point; pull it back by half its size
- * so the placement (default 50 / 50) is the panel's center. Keep in sync with the width/height.
- * X is moved on the band, not the box: anything outside the band's bounds is drawn but not hit-tested
- * (a box shifted left of its band lost hover/clicks on its left half). The band is full height, so Y can
- * stay on the box. */
-.lu-band#tapx {
-	margin-left: -570px;
+/* The placement point is the card's top-left corner, as for every Liuli surface, so the !ui map matches.
+ * (A negative margin-left on the band to center it had no effect; margin-top on the box did, which mixed the
+ * axes.) Default placement 20 / 18 centers the 1140 x 700 card on the 1920 x 1080 Panorama canvas. */
+.lu-box.tap-card {
+	width: 1140px;
+	height: 700px;
+	padding: 0px;
 }
 
-.lu-box.tap-card {
+/* Sidebar + main. The box itself does not flow, so the !ui name chip overlays instead of taking a slot. */
+.tap-in {
 	flow-children: right;
 	width: 1140px;
 	height: 700px;
-	margin-top: -350px;
-	padding: 0px;
+}
+
+/* !ui preview chip: lift it above the card so it does not cover the brand. */
+.tap-card .lu-ptag {
+	margin-top: -30px;
 }
 
 /* Hidden sections / rows / items. visibility (not opacity) so hidden panels do not hit-test. */

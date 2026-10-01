@@ -45,7 +45,7 @@ public sealed class AdminPanelService(TnmsAdminUtils plugin)
                 BandPanelId = "tapx",
                 BoxPanelId = "tap",
                 DisplayName = "Admin Panel",
-                DefaultPlacement = new LiuliPlacement(50f, 50f, 100),
+                DefaultPlacement = new LiuliPlacement(20f, 18f, 100),
             });
         }
         catch (Exception e)
