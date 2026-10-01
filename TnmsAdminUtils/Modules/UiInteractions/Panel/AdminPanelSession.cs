@@ -19,6 +19,7 @@ public sealed class AdminPanelSession : IAdminSession
         Match,
         Users,
         Commands,
+        Dev,
     }
 
     // What the Users page shows: the list, or one player's details / commands.
@@ -46,6 +47,31 @@ public sealed class AdminPanelSession : IAdminSession
     // Command list selections besides a category key: All is null.
     private const string FavoritesTab = "\0favorites";
 
+    // Dev sub pages besides Server (null).
+    private const string VersionsTab = "versions";
+    private const string PluginsTab = "plugins";
+
+    // Dev groups: the layout has two columns of two groups (tap-dvg{slot}); the first of each column (0, 2) has
+    // PluginRows rows (a module's details / dependencies), the second (1, 3) DevRows.
+    private const int PluginRows = 18;
+    private const int DevRows = 9;
+    // Rows of the module list (tap-mr{i}), all filled at once: Panorama scrolls the list on the client.
+    private const int ModuleListRows = 64;
+
+    private static readonly (AdminPanelDevGroup Group, int Slot, string HeadingKey)[] ServerGroups =
+    [
+        (AdminPanelDevGroup.Performance, 0, "AdminPanel.Dev.Group.Performance"),
+        (AdminPanelDevGroup.Uptime, 1, "AdminPanel.Dev.Group.Uptime"),
+        (AdminPanelDevGroup.Resources, 2, "AdminPanel.Dev.Group.Resources"),
+        (AdminPanelDevGroup.Connections, 3, "AdminPanel.Dev.Group.Connections"),
+    ];
+
+    private static readonly (AdminPanelDevGroup Group, int Slot, string HeadingKey)[] VersionGroups =
+    [
+        (AdminPanelDevGroup.Runtime, 0, "AdminPanel.Dev.Group.Runtime"),
+        (AdminPanelDevGroup.Components, 2, "AdminPanel.Dev.Group.Components"),
+    ];
+
     // Detail groups: id letter in the layout (tap-d{x}g / tap-d{x}h / tap-d{x}r{i}) and heading key.
     private static readonly (AdminPanelDetailGroup Group, char Id, string HeadingKey)[] DetailGroups =
     [
@@ -64,8 +90,8 @@ public sealed class AdminPanelSession : IAdminSession
         ("AdminPanel.Team.Spec", [CStrikeTeam.Spectator, CStrikeTeam.UnAssigned]),
     ];
 
-    private static readonly string[] Sections = ["tap-ov", "tap-us", "tap-dt", "tap-ls"];
-    private static readonly string[] NavKeys = ["AdminPanel.Nav.Match", "AdminPanel.Nav.Users", "AdminPanel.Nav.Commands"];
+    private static readonly string[] Sections = ["tap-ov", "tap-us", "tap-dt", "tap-ls", "tap-dv", "tap-ml"];
+    private static readonly string[] NavKeys = ["AdminPanel.Nav.Match", "AdminPanel.Nav.Users", "AdminPanel.Nav.Commands", "AdminPanel.Nav.Dev"];
     // "x" collapses an unused slot; the rest follow AdminPanelColumnWidth.
     private static readonly string[] WidthSizes = ["x", "xs", "s", "m", "l", "xl"];
 
@@ -87,6 +113,9 @@ public sealed class AdminPanelSession : IAdminSession
     // The command list shown: FavoritesTab, a category key, or null for All.
     private string? _tab;
     private int _teamFilter;
+    // Dev > Plugins: the module opened (by name); the names on the module list's rows.
+    private string? _module;
+    private readonly string?[] _moduleRows = new string?[ModuleListRows];
     private List<SideItem> _side = [];
     private int _sidePage;
     private IReadOnlyList<AdminMenuEntry> _entries = [];
@@ -245,13 +274,17 @@ public sealed class AdminPanelSession : IAdminSession
                 Render();
                 return;
 
-            // Breadcrumb: the page's top, then (Users) the player's details.
+            // Breadcrumb: the page's top, then the player's details (Users) or the module list (Dev).
             case "tap-bc0":
                 GoTo(_page);
                 return;
 
             case "tap-bc1":
-                ShowUser(UserView.Detail);
+                if (_page == Page.Dev)
+                    CloseModule();
+                else
+                    ShowUser(UserView.Detail);
+
                 return;
 
             case "tap-pkprev":
@@ -265,7 +298,9 @@ public sealed class AdminPanelSession : IAdminSession
 
         if (TryIndex(panelId, "tap-nav", out var nav))
         {
-            GoTo((Page)nav);
+            // A click on Dev that arrives after the permission went away.
+            if ((Page)nav != Page.Dev || CanSeeDev())
+                GoTo((Page)nav);
         }
         else if (TryIndex(panelId, "tap-si", out var sideSlot))
         {
@@ -273,6 +308,11 @@ public sealed class AdminPanelSession : IAdminSession
 
             if (index < _side.Count)
                 _side[index].Click?.Invoke();
+        }
+        else if (TryIndex(panelId, "tap-mr", out var moduleRow))
+        {
+            if (_page == Page.Dev && _tab == PluginsTab && _module is null && moduleRow < ModuleListRows && _moduleRows[moduleRow] is { } name)
+                OpenModule(name);
         }
         else if (TryIndex(panelId, "tap-sort", out var column))
         {
@@ -324,11 +364,12 @@ public sealed class AdminPanelSession : IAdminSession
         _playerTarget = null;
         _form = null;
         _listPage = 0;
+        _module = null;
         Render();
     }
 
     /// <summary>
-    /// Switches the command list (Commands page, or the player's commands).
+    /// Switches the command list (Commands page, or the player's commands), or the Dev sub page.
     /// </summary>
     private void ShowTab(string? tab)
     {
@@ -340,6 +381,24 @@ public sealed class AdminPanelSession : IAdminSession
 
         _tab = tab;
         _form = null;
+        _listPage = 0;
+        _module = null;
+        Render();
+    }
+
+    private void OpenModule(string name)
+    {
+        _module = name;
+        _listPage = 0;
+        Render();
+    }
+
+    private void CloseModule()
+    {
+        if (_module is null)
+            return;
+
+        _module = null;
         _listPage = 0;
         Render();
     }
@@ -429,8 +488,21 @@ public sealed class AdminPanelSession : IAdminSession
             _form = null;
         }
 
+        // Checked every render, so a permission taken away mid-session closes the page.
+        var canSeeDev = CanSeeDev();
+
+        if (_page == Page.Dev && !canSeeDev)
+        {
+            _page = Page.Match;
+            _tab = null;
+            _listPage = 0;
+            _module = null;
+        }
+
         for (var i = 0; i < NavKeys.Length; i++)
             Class($"tap-nav{i}", "tap-sel", i == (int)_page);
+
+        Class($"tap-nav{(int)Page.Dev}", Off, !canSeeDev);
 
         RenderSide();
 
@@ -438,6 +510,9 @@ public sealed class AdminPanelSession : IAdminSession
         {
             case Page.Match:
                 RenderMatch();
+                break;
+            case Page.Dev:
+                RenderDev();
                 break;
             case Page.Users when _userView == UserView.List:
                 RenderUsers();
@@ -521,6 +596,14 @@ public sealed class AdminPanelSession : IAdminSession
 
             case Page.Commands:
                 return CommandTabs(targetOnly: false);
+
+            case Page.Dev:
+                return
+                [
+                    new(L("AdminPanel.Dev.Server"), _tab is null, () => ShowTab(null)),
+                    new(L("AdminPanel.Dev.Versions"), _tab == VersionsTab, () => ShowTab(VersionsTab)),
+                    new(L("AdminPanel.Dev.Plugins"), _tab == PluginsTab, () => ShowTab(PluginsTab)),
+                ];
 
             default:
                 return [];
@@ -682,6 +765,133 @@ public sealed class AdminPanelSession : IAdminSession
             }
         }
     }
+
+    /// <summary>
+    /// Dev: the server's measurements, the versions or one module, as headed groups of "label  value" rows; the
+    /// module list has its own section.
+    /// </summary>
+    private void RenderDev()
+    {
+        var view = L(_tab switch
+        {
+            VersionsTab => "AdminPanel.Dev.Versions",
+            PluginsTab => "AdminPanel.Dev.Plugins",
+            _ => "AdminPanel.Dev.Server",
+        });
+
+        // By slot; a slot left null is hidden. Wide groups give the label (a module / assembly name) most of the row.
+        var groups = new (string Heading, List<(string Label, string Value)> Rows, bool Wide)?[4];
+        var title = view;
+        string? step = null;
+        var pages = 1;
+
+        if (_tab == PluginsTab)
+        {
+            var modules = AdminPanelModules.List(_plugin.SharedSystem);
+
+            // The list, or the opened module was unloaded: back to the list.
+            if (_module is null || modules.FirstOrDefault(m => m.Name == _module) is not { } module)
+            {
+                _module = null;
+                RenderModuleList(view, modules);
+                return;
+            }
+
+            var dependencies = AdminPanelModules.Dependencies(module);
+            pages = Math.Max(1, (dependencies.Count + PluginRows - 1) / PluginRows);
+            _listPage = Math.Clamp(_listPage, 0, pages - 1);
+
+            title = module.DisplayName ?? module.Name;
+            step = view;
+            view = module.Name;
+
+            groups[0] = (L("AdminPanel.Dev.Group.Module"), AdminPanelModules.Info(module).Select(i => (L(i.LabelKey), i.Value)).ToList(), false);
+            groups[2] = (L("AdminPanel.Dev.Group.Dependencies"), dependencies.Count == 0
+                ? [(L("AdminPanel.Dev.Module.NoDependencies"), string.Empty)]
+                : dependencies.Skip(_listPage * PluginRows).Take(PluginRows).ToList(), true);
+        }
+        else
+        {
+            var args = new AdminPanelDevArgs(Admin, _service.Panel.Stats, L);
+
+            foreach (var (group, slot, headingKey) in _tab == VersionsTab ? VersionGroups : ServerGroups)
+            {
+                var rows = _service.Panel.DevInfo.Of(group);
+
+                if (rows.Count > 0)
+                    groups[slot] = (L(headingKey), rows.Select(r => (L(r.LabelKey), r.Value(args))).ToList(), false);
+            }
+        }
+
+        ShowSection("tap-dv");
+        Header(title, string.Empty, step, view);
+        Pager(_listPage, pages);
+
+        for (var slot = 0; slot < groups.Length; slot++)
+        {
+            Class($"tap-dvg{slot}", Off, groups[slot] is null);
+
+            if (groups[slot] is not { } group)
+                continue;
+
+            Class($"tap-dvg{slot}", "tap-dvw", group.Wide);
+            Text($"tap-dvh{slot}", "t", group.Heading);
+
+            for (var row = 0; row < (slot % 2 == 0 ? PluginRows : DevRows); row++)
+            {
+                var rowId = $"tap-dv{slot}r{row}";
+
+                if (row >= group.Rows.Count)
+                {
+                    Class(rowId, Off, true);
+                    continue;
+                }
+
+                Class(rowId, Off, false);
+                Text(rowId, "k", group.Rows[row].Label);
+                Text(rowId, "v", group.Rows[row].Value);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Every module at once (up to <see cref="ModuleListRows"/>) with its display name, author and version; the state
+    /// only when it is not Running. Panorama scrolls the list, so there is no pager.
+    /// </summary>
+    private void RenderModuleList(string view, IReadOnlyList<AdminPanelModule> modules)
+    {
+        ShowSection("tap-ml");
+        Header(view, L("AdminPanel.Dev.PluginCount", modules.Count), null, view);
+        Pager(0, 1);
+
+        string[] heads = ["AdminPanel.Dev.Module.Name", "AdminPanel.Dev.Module.DisplayName", "AdminPanel.Dev.Module.Author", "AdminPanel.Dev.Module.Version"];
+
+        for (var i = 0; i < heads.Length; i++)
+            Text("tap-mh", $"c{i}", L(heads[i]));
+
+        for (var row = 0; row < ModuleListRows; row++)
+        {
+            var rowId = $"tap-mr{row}";
+
+            if (row >= modules.Count)
+            {
+                _moduleRows[row] = null;
+                Class(rowId, Off, true);
+                continue;
+            }
+
+            var module = modules[row];
+            _moduleRows[row] = module.Name;
+
+            Class(rowId, Off, false);
+            Text(rowId, "c0", module.Name);
+            Text(rowId, "c1", module.DisplayName ?? "-");
+            Text(rowId, "c2", module.Author ?? "-");
+            Text(rowId, "c3", module.State is null or "Running" ? module.Version : $"{module.Version}  {module.State}");
+        }
+    }
+
+    private bool CanSeeDev() => TnmsPlugin.AdminManager.PlayerHasPermission(Admin.SteamId, AdminPanelService.DevPermission);
 
     /// <summary>
     /// Header click: a new column sorts ascending, the same column flips the direction.

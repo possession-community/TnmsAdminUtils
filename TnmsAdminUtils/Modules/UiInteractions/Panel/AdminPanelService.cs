@@ -15,11 +15,14 @@ public sealed class AdminPanelService(TnmsAdminUtils plugin)
 {
     public const string Permission = "tnms.adminutil.panel";
     public const string IpPermission = "tnms.adminutil.panel.ip";
+    public const string DevPermission = "tnms.adminutil.panel.dev";
 
     private const string SurfaceKey = "tnms.adminpanel";
 
     public AdminPanelColumns Columns { get; } = new();
     public AdminPanelDetails Details { get; } = new();
+    public AdminPanelDevInfo DevInfo { get; } = new();
+    public AdminPanelServerStats Stats { get; } = new(plugin.SharedSystem);
 
     public ILiuliSurface? Surface { get; private set; }
 
@@ -36,6 +39,9 @@ public sealed class AdminPanelService(TnmsAdminUtils plugin)
 
         foreach (var field in AdminPanelDetails.BuiltIn())
             Details.Register(field);
+
+        foreach (var row in AdminPanelDevInfo.BuiltIn(plugin.SharedSystem))
+            DevInfo.Register(row);
 
         try
         {
@@ -102,6 +108,8 @@ public sealed class AdminPanelService(TnmsAdminUtils plugin)
 
     private void Refresh()
     {
+        Stats.Sample();
+
         foreach (var session in _menu.Sessions.OfType<AdminPanelSession>().ToList())
             session.Refresh();
     }

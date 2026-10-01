@@ -418,6 +418,102 @@
 	text-overflow: shrink min( 10px ) ellipsis;
 }
 
+/* ---- dev ---- */
+/* Module / assembly names: the name takes the label column, the version sits at the right end. */
+.tap-dvw .tap-drow-k {
+	width: 300px;
+	font-size: 14px;
+	color: #f4f6f8;
+}
+
+.tap-dvw .tap-drow-v {
+	width: 120px;
+	text-align: right;
+	font-size: 14px;
+	color: #c5ccd3;
+}
+
+/* Plugins: one box with a header row and the scrolling rows below, down to the bottom. */
+.tap-mlist {
+	flow-children: down;
+	width: 900px;
+	height: fill-parent-flow( 1.0 );
+	margin-bottom: 12px;
+	padding: 6px 12px 6px 9px;
+	background-color: #2e3c50cc;
+	border: 1px solid #ffffff14;
+	border-left: 3px solid #ffde85;
+}
+
+/* Scrolled by Panorama on the client; the bar is csgostyles' VerticalScrollBar. */
+.tap-mscroll {
+	flow-children: down;
+	width: 100%;
+	height: fill-parent-flow( 1.0 );
+	overflow: squish scroll;
+}
+
+/* Content 875 (900 less the padding and borders): 260 + 240 + 220 + 140 = 860, the rest keeps the version clear of
+   the scroll bar. */
+.tap-mrow {
+	flow-children: right;
+	width: 874px;
+	height: 26px;
+	border-top: 1px solid #ffffff0d;
+}
+
+.tap-mrow:hover {
+	background-color: #41567a99;
+}
+
+.tap-mhead {
+	border-top: 0px solid #00000000;
+}
+
+.tap-mhead:hover {
+	background-color: #00000000;
+}
+
+.tap-mcell {
+	vertical-align: center;
+	padding-left: 4px;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	color: #c5ccd3;
+	white-space: nowrap;
+	text-overflow: shrink min( 10px ) ellipsis;
+}
+
+.tap-mc0 {
+	width: 260px;
+	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
+	color: #f4f6f8;
+}
+
+.tap-mc1 {
+	width: 240px;
+}
+
+.tap-mc2 {
+	width: 220px;
+}
+
+.tap-mc3 {
+	width: 140px;
+	text-align: right;
+}
+
+.tap-mrow:hover .tap-mc0 {
+	color: #ffeaa8;
+}
+
+.tap-mhead .tap-mcell {
+	font-family: Stratum2 Bold, Stratum2, Arial, sans-serif;
+	font-size: 13px;
+	letter-spacing: 1px;
+	color: #ffde85;
+}
+
 /* ---- users table ---- */
 .tap-urow {
 	flow-children: right;

@@ -6,7 +6,7 @@
 		<!-- Header bar: brand, the pages (tap-nav{i}), the cursor hint and Close. -->
 		<Panel class="tap-top" hittest="false">
 			<Label id="tap-brand" class="tap-brand" hittest="false" text="{s:t}" />
-			<liuli:repeat count="3" var="i">
+			<liuli:repeat count="4" var="i">
 				<Button id="tap-nav{i}" class="tap-nav">
 					<Label class="tap-nav-t" hittest="false" text="{s:t}" />
 				</Button>
@@ -129,6 +129,77 @@
 									</Panel>
 								</liuli:repeat>
 							</Panel>
+						</Panel>
+					</Panel>
+				</Panel>
+
+				<!-- Dev: the sub page's groups of "label  value" rows in two columns of two (tap-dvg{slot}: 0 / 1 left,
+				     2 / 3 right). tap-dvw on a group widens its labels for module / assembly names. -->
+				<Panel id="tap-dv" class="tap-sec" hittest="false">
+					<Panel class="tap-dt-cols" hittest="false">
+						<Panel class="tap-dt-col" hittest="false">
+							<Panel id="tap-dvg0" class="tap-dgroup" hittest="false">
+								<Label id="tap-dvh0" class="tap-dgroup-h" hittest="false" text="{s:t}" />
+								<liuli:repeat count="18" var="i">
+									<Panel id="tap-dv0r{i}" class="tap-drow" hittest="false">
+										<Label class="tap-drow-k" hittest="false" text="{s:k}" />
+										<Label class="tap-drow-v" hittest="false" text="{s:v}" />
+									</Panel>
+								</liuli:repeat>
+							</Panel>
+							<Panel id="tap-dvg1" class="tap-dgroup" hittest="false">
+								<Label id="tap-dvh1" class="tap-dgroup-h" hittest="false" text="{s:t}" />
+								<liuli:repeat count="9" var="i">
+									<Panel id="tap-dv1r{i}" class="tap-drow" hittest="false">
+										<Label class="tap-drow-k" hittest="false" text="{s:k}" />
+										<Label class="tap-drow-v" hittest="false" text="{s:v}" />
+									</Panel>
+								</liuli:repeat>
+							</Panel>
+						</Panel>
+						<Panel class="tap-dt-col" hittest="false">
+							<Panel id="tap-dvg2" class="tap-dgroup" hittest="false">
+								<Label id="tap-dvh2" class="tap-dgroup-h" hittest="false" text="{s:t}" />
+								<liuli:repeat count="18" var="i">
+									<Panel id="tap-dv2r{i}" class="tap-drow" hittest="false">
+										<Label class="tap-drow-k" hittest="false" text="{s:k}" />
+										<Label class="tap-drow-v" hittest="false" text="{s:v}" />
+									</Panel>
+								</liuli:repeat>
+							</Panel>
+							<Panel id="tap-dvg3" class="tap-dgroup" hittest="false">
+								<Label id="tap-dvh3" class="tap-dgroup-h" hittest="false" text="{s:t}" />
+								<liuli:repeat count="9" var="i">
+									<Panel id="tap-dv3r{i}" class="tap-drow" hittest="false">
+										<Label class="tap-drow-k" hittest="false" text="{s:k}" />
+										<Label class="tap-drow-v" hittest="false" text="{s:v}" />
+									</Panel>
+								</liuli:repeat>
+							</Panel>
+						</Panel>
+					</Panel>
+				</Panel>
+
+				<!-- Dev > Plugins: every module in one list that Panorama scrolls on the client (mouse wheel / the bar), so
+				     all 64 rows are filled at once. A row (tap-mr{i}) opens the module. The scroll panel hit-tests to get
+				     the wheel. -->
+				<Panel id="tap-ml" class="tap-sec" hittest="false">
+					<Panel class="tap-mlist" hittest="false">
+						<Panel id="tap-mh" class="tap-mrow tap-mhead" hittest="false">
+							<Label class="tap-mcell tap-mc0" hittest="false" text="{s:c0}" />
+							<Label class="tap-mcell tap-mc1" hittest="false" text="{s:c1}" />
+							<Label class="tap-mcell tap-mc2" hittest="false" text="{s:c2}" />
+							<Label class="tap-mcell tap-mc3" hittest="false" text="{s:c3}" />
+						</Panel>
+						<Panel class="tap-mscroll">
+							<liuli:repeat count="64" var="i">
+								<Button id="tap-mr{i}" class="tap-mrow">
+									<Label class="tap-mcell tap-mc0" hittest="false" text="{s:c0}" />
+									<Label class="tap-mcell tap-mc1" hittest="false" text="{s:c1}" />
+									<Label class="tap-mcell tap-mc2" hittest="false" text="{s:c2}" />
+									<Label class="tap-mcell tap-mc3" hittest="false" text="{s:c3}" />
+								</Button>
+							</liuli:repeat>
 						</Panel>
 					</Panel>
 				</Panel>
