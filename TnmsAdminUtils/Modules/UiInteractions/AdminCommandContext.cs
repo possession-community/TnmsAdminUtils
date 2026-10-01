@@ -26,44 +26,24 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
 
     public IGameClient Admin => admin;
 
-    public IEnumerable<AdminMenuEntry> VisibleEntries(AdminMenuTree tree, AdminMenuValue? chosenTarget = null)
+    /// <summary>
+    /// The admin's commands of one list, from <see cref="AdminCommandCache"/>. With a selector chosen as the target,
+    /// Players keeps only the commands that accept selectors.
+    /// </summary>
+    public IReadOnlyList<AdminMenuEntry> VisibleEntries(AdminMenuTree tree, AdminMenuValue? chosenTarget = null)
     {
-        var authority = TnmsPlugin.AdminManager;
+        var entries = service.Commands.Get(admin.SteamId, tree);
 
-        foreach (var entry in service.Registry.Entries)
-        {
-            if (!authority.PlayerHasPermission(admin.SteamId, entry.Permission))
-                continue;
-
-            var primary = entry.PrimaryTarget;
-
-            // Players lists every command with a target, whatever its category.
-            var visible = tree switch
-            {
-                AdminMenuTree.Players => primary is not null && (chosenTarget is not { IsSelector: true } || primary.AllowSelectors),
-                AdminMenuTree.Server => entry.Category == AdminMenuCategory.Server,
-                AdminMenuTree.Notification => entry.Category == AdminMenuCategory.Notification,
-                _ => entry.Category == AdminMenuCategory.Normal,
-            };
-
-            if (visible)
-                yield return entry;
-        }
+        return tree == AdminMenuTree.Players && chosenTarget is { IsSelector: true }
+            ? entries.Where(e => e.PrimaryTarget!.AllowSelectors).ToList()
+            : entries;
     }
 
     /// <summary>
     /// Favorites in the order they were added, skipping ids that are not registered or not permitted right now.
     /// </summary>
     public List<AdminMenuEntry> FavoriteEntries(AdminFavorites favorites)
-    {
-        var authority = TnmsPlugin.AdminManager;
-        var entries = service.Registry.Entries
-            .Where(e => authority.PlayerHasPermission(admin.SteamId, e.Permission))
-            .GroupBy(e => e.MenuId)
-            .ToDictionary(g => g.Key, g => g.First());
-
-        return favorites.Ids.Where(entries.ContainsKey).Select(id => entries[id]).ToList();
-    }
+        => favorites.Ids.Select(id => service.Commands.Find(admin.SteamId, id)).OfType<AdminMenuEntry>().ToList();
 
     public static AdminMenuTree TreeOf(AdminMenuEntry entry) => entry.Category switch
     {

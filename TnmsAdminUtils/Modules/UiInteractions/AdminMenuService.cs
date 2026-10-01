@@ -3,6 +3,7 @@ using Sharp.Shared.Listeners;
 using Sharp.Shared.Objects;
 using TnmsPluginFoundation;
 using TnmsAdminUtils.Modules.UiInteractions.Panel;
+using Wuling.Abstract.Tianshi.Authority;
 
 namespace TnmsAdminUtils.Modules.UiInteractions;
 
@@ -21,33 +22,69 @@ public interface IAdminSession
 /// <summary>
 /// Owns the admin menu registry and the open menus / panels, and feeds chat messages to the one waiting for text.
 /// </summary>
-public sealed class AdminMenuService(TnmsAdminUtils plugin) : IClientListener
+public sealed class AdminMenuService : IClientListener
 {
     public int ListenerVersion => 1;
     public int ListenerPriority => 0;
 
     public AdminMenuRegistry Registry { get; } = new();
-    public AdminMenuConfig Config { get; private set; } = new();
-    public AdminPanelService Panel { get; } = new(plugin);
 
+    /// <summary>
+    /// menu.json, read once at load and again on <see cref="Reload"/>.
+    /// </summary>
+    public AdminMenuConfig Config { get; private set; } = new();
+
+    public AdminCommandCache Commands { get; }
+    public AdminPanelService Panel { get; }
+
+    private readonly TnmsAdminUtils _plugin;
     private readonly Dictionary<ulong, IAdminSession> _sessions = new();
+    private IDisposable? _authoritySubscription;
+
+    public AdminMenuService(TnmsAdminUtils plugin)
+    {
+        _plugin = plugin;
+        Commands = new AdminCommandCache(Registry);
+        Panel = new AdminPanelService(plugin);
+    }
 
     public void Load()
     {
-        plugin.SharedSystem.GetClientManager().InstallClientListener(this);
+        Config = AdminMenuConfig.Load(_plugin.ModuleDirectory, _plugin.Logger);
+        _plugin.SharedSystem.GetClientManager().InstallClientListener(this);
     }
 
     /// <summary>
-    /// Wuling is resolved after every module has loaded, so the panel layout is registered here.
+    /// Wuling is resolved after every module has loaded, so the panel layout and the permission events hook in here.
     /// </summary>
     public void OnAllPluginsLoaded()
     {
         Panel.Load(this);
+
+        // Raised (on the main thread) when a joining player's permissions finish loading and whenever they change.
+        _authoritySubscription = TnmsPlugin.Wuling.EventBus.Subscribe<OnAuthorityChanged>(e =>
+        {
+            if (e.PlayerId is { } playerId)
+                Commands.Build(playerId);
+            else
+                Commands.Clear();
+        });
+    }
+
+    /// <summary>
+    /// !adminmenu_reload: reads menu.json again and rebuilds every admin's command lists.
+    /// </summary>
+    public void Reload()
+    {
+        Config = AdminMenuConfig.Load(_plugin.ModuleDirectory, _plugin.Logger);
+        Commands.Clear();
     }
 
     public void Unload()
     {
-        plugin.SharedSystem.GetClientManager().RemoveClientListener(this);
+        _authoritySubscription?.Dispose();
+        _authoritySubscription = null;
+        _plugin.SharedSystem.GetClientManager().RemoveClientListener(this);
 
         foreach (var session in _sessions.Values.ToList())
             session.Close();
@@ -61,8 +98,7 @@ public sealed class AdminMenuService(TnmsAdminUtils plugin) : IClientListener
         if (TnmsPlugin.Wuling.Registry.GetPlayer(admin) is not { } player)
             return;
 
-        ReloadConfig();
-        Replace(admin, new AdminMenuSession(plugin, this, admin, player)).Start();
+        Replace(admin, new AdminMenuSession(_plugin, this, admin, player)).Start();
     }
 
     public void OpenPanel(IGameClient admin)
@@ -70,8 +106,7 @@ public sealed class AdminMenuService(TnmsAdminUtils plugin) : IClientListener
         if (TnmsPlugin.Wuling.Registry.GetPlayer(admin) is not { } player || Panel.Surface is null)
             return;
 
-        ReloadConfig();
-        Replace(admin, new AdminPanelSession(plugin, this, admin, player)).Start();
+        Replace(admin, new AdminPanelSession(_plugin, this, admin, player)).Start();
     }
 
     public IAdminSession? GetSession(IGameClient client) => _sessions.GetValueOrDefault(client.SteamId);
@@ -93,11 +128,6 @@ public sealed class AdminMenuService(TnmsAdminUtils plugin) : IClientListener
         return session;
     }
 
-    /// <summary>
-    /// Re-read on every open so edits to menu.json apply without a reload.
-    /// </summary>
-    private void ReloadConfig() => Config = AdminMenuConfig.Load(plugin.ModuleDirectory, plugin.Logger);
-
     public ECommandAction OnClientSayCommand(IGameClient client, bool teamOnly, bool isCommand, string commandName, string message)
     {
         if (isCommand || !_sessions.TryGetValue(client.SteamId, out var session))
@@ -110,5 +140,7 @@ public sealed class AdminMenuService(TnmsAdminUtils plugin) : IClientListener
     {
         if (_sessions.TryGetValue(client.SteamId, out var session))
             session.Close();
+
+        Commands.Remove(client.SteamId);
     }
 }

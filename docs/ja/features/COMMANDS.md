@@ -129,6 +129,7 @@
 | ノード | 説明 |
 |---|---|
 | tnms.adminutil.menu | !admin の使用 |
+| tnms.adminutil.menu.reload | !adminmenu_reload の使用 (menu.json とコマンド一覧の再読み込み) |
 | tnms.adminutil.chat.command.say.normal | !say の使用 |
 | tnms.adminutil.chat.command.say.center | !csay の使用 |
 | tnms.adminutil.chat.command.say.hint | !hsay の使用 |

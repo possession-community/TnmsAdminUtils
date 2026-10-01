@@ -48,7 +48,7 @@ public sealed class AdminPanelSession : IAdminSession
     private Page _page;
     // Set on the Users page after a row click: the command list of that player.
     private AdminMenuValue? _playerTarget;
-    private List<AdminMenuEntry> _entries = [];
+    private IReadOnlyList<AdminMenuEntry> _entries = [];
     private AdminCommandForm? _form;
     private List<AdminFormChoice> _choices = [];
     private bool _cursor;
@@ -468,10 +468,10 @@ public sealed class AdminPanelSession : IAdminSession
         _entries = _page switch
         {
             Page.Favorites => _context.FavoriteEntries(_favorites),
-            Page.Server => _context.VisibleEntries(AdminMenuTree.Server).ToList(),
-            Page.Notification => _context.VisibleEntries(AdminMenuTree.Notification).ToList(),
-            Page.Users => _context.VisibleEntries(AdminMenuTree.Players, _playerTarget).ToList(),
-            _ => _context.VisibleEntries(AdminMenuTree.Commands).ToList(),
+            Page.Server => _context.VisibleEntries(AdminMenuTree.Server),
+            Page.Notification => _context.VisibleEntries(AdminMenuTree.Notification),
+            Page.Users => _context.VisibleEntries(AdminMenuTree.Players, _playerTarget),
+            _ => _context.VisibleEntries(AdminMenuTree.Commands),
         };
 
         var title = _page switch
@@ -575,6 +575,7 @@ public sealed class AdminPanelSession : IAdminSession
 
             Class("tap-pk-pager", Off, pages <= 1);
             Text("tap-pkpage", "t", $"{form.PickerPage + 1} / {pages}");
+            PageButtons("tap-pkprev", "tap-pknext", form.PickerPage, pages);
         }
 
         Text("tap-fm-line", "t", _context.CommandLine(entry, form.PreviewValues));
@@ -642,6 +643,17 @@ public sealed class AdminPanelSession : IAdminSession
         Class("tap-next", Off, !paged);
         Class("tap-page", Off, !paged);
         Text("tap-page", "t", $"{page + 1} / {pages}");
+        PageButtons("tap-prev", "tap-next", page, pages);
+    }
+
+    /// <summary>
+    /// Hides prev on the first page and next on the last one. Invisible rather than collapsed so the pager does not
+    /// shift; a click on a hidden button is clamped away by the next render.
+    /// </summary>
+    private void PageButtons(string prevId, string nextId, int page, int pages)
+    {
+        Class(prevId, "tap-ghost", page <= 0);
+        Class(nextId, "tap-ghost", page >= pages - 1);
     }
 
     private void ShowSection(string id)

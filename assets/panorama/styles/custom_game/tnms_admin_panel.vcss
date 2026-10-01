@@ -35,6 +35,11 @@
 	visibility: collapse;
 }
 
+/* Hidden but keeping its place (prev / next at the ends). Still hit-tests; the server ignores those clicks. */
+.tap-ghost {
+	opacity: 0;
+}
+
 /* ---- sidebar ---- */
 .tap-side {
 	flow-children: down;

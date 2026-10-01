@@ -9,14 +9,21 @@ public sealed class AdminMenuRegistry
 
     public IReadOnlyList<AdminMenuEntry> Entries => _entries;
 
+    /// <summary>
+    /// Raised after an entry is registered or removed.
+    /// </summary>
+    public event Action? Changed;
+
     public void Register(AdminMenuEntry entry)
     {
         _entries.RemoveAll(e => e.CommandName == entry.CommandName);
         _entries.Add(entry);
+        Changed?.Invoke();
     }
 
     public void Unregister(string commandName)
     {
-        _entries.RemoveAll(e => e.CommandName == commandName);
+        if (_entries.RemoveAll(e => e.CommandName == commandName) > 0)
+            Changed?.Invoke();
     }
 }

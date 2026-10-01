@@ -47,8 +47,8 @@ Vote options are typed at once, separated by commas (`,` or `、`). At least 2 o
 
 ## menu.json
 
-Created in the module directory with the default presets when `!admin` is opened for the first time.
-It is read every time the menu opens, so edits apply immediately.
+Read when the plugin loads (created in the module directory with the default presets if missing).
+After editing it, run `!adminmenu_reload` (permission `tnms.adminutil.menu.reload`).
 Keys that are missing fall back to the defaults.
 
 ```json
@@ -67,6 +67,12 @@ Keys that are missing fall back to the defaults.
 | give | Weapon list |
 | addtime / settime | Seconds |
 | terminateround | Delay (seconds) |
+
+## Command list cache
+
+Each admin's list of usable commands is built once their permissions finish loading after joining; the menu and the
+panel read from it. It is rebuilt when their permissions change, when commands are registered or removed, and on
+`!adminmenu_reload`.
 
 ## Translations
 

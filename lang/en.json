@@ -128,6 +128,7 @@
     "Users.Notification.Entry": "#{LIME}{0}{WHITE} | {LIME}{1}{WHITE} | {LIME}{2}{WHITE}",
     "Users.Notification.Usage": "Usage: !users",
 
+    "AdminMenu.Reloaded": "Reloaded menu.json and the admin menu command lists.",
     "AdminMenu.Title": "Admin Menu",
     "AdminMenu.Root.Commands": "General Commands",
     "AdminMenu.Root.Players": "Players",

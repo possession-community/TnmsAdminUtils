@@ -128,6 +128,7 @@
     "Users.Notification.Entry": "#{LIME}{0}{WHITE} | {LIME}{1}{WHITE} | {LIME}{2}{WHITE}",
     "Users.Notification.Usage": "使用法: !users",
 
+    "AdminMenu.Reloaded": "menu.json と管理メニューのコマンド一覧を再読み込みしました。",
     "AdminMenu.Title": "管理メニュー",
     "AdminMenu.Root.Commands": "通常コマンド",
     "AdminMenu.Root.Players": "プレイヤー",
