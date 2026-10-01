@@ -3,6 +3,8 @@
 All commands are registered with the `ms_` prefix (e.g. `ms_slay`).
 In chat, `!slay` / `css_slay` can also be used.
 
+`!admin` opens a menu that runs these commands. See [Admin Menu](ADMIN_MENU.md).
+
 ## Chat Commands
 
 | Command | Alias | Permission Node | Description |
@@ -125,6 +127,7 @@ Available colors: `red`, `green`, `blue`, `yellow`, `orange`, `purple`, `cyan`, 
 
 | Node | Description |
 |---|---|
+| tnms.adminutil.menu | Use !admin |
 | tnms.adminutil.chat.command.say.normal | Use !say |
 | tnms.adminutil.chat.command.say.center | Use !csay |
 | tnms.adminutil.chat.command.say.hint | Use !hsay |

@@ -1,0 +1,93 @@
+# Admin Menu
+
+`!admin` opens a menu that runs the admin commands without typing them.
+
+Permission: `tnms.adminutil.menu`
+
+> Requires TnmsPluginFoundation with the command `OnRegistered` hook (commit `8267947` or later).
+> Replace `shared/TnmsPluginFoundation` before deploying this version; with an older Foundation the plugin fails to load.
+
+## Menu Tree
+
+| Root | Flow |
+|---|---|
+| Commands | command → options → target → confirm → execute |
+| Players | target → command → options → confirm → execute |
+| Server | command → options → confirm → execute |
+
+- Targets list `@all` / `@ct` / `@t` / `@spec` and the players you can target.
+- Commands you have no permission for are hidden. A root is hidden when it has no command.
+- Every page has a Back item. The menu closes after execution.
+
+The menu runs the command as you (`ms_<command> ...`), so permission checks, logs and broadcasts are the same as typing it in chat.
+
+## Options
+
+| Kind | How it is chosen |
+|---|---|
+| Preset | Values from `menu.json`, or "Type in chat" for any value |
+| Choice | Fixed list (team, color, on/off, round end reason) |
+| Text | Typed in chat |
+| Optional | "Default (skip)" leaves the argument to the command's default |
+
+### Text input
+
+When a step needs text, the menu closes and asks in chat.
+
+- Your next chat message is used as the value and is not shown in chat.
+- Type `cancel` to stop.
+- The input expires after 60 seconds; later messages are sent to chat as usual.
+- After the input, the rest of the flow opens as a new menu.
+
+Vote options are typed at once, separated by commas (`,` or `、`). At least 2 options are required.
+
+## menu.json
+
+Created in the module directory with the default presets when `!admin` is opened for the first time.
+It is read every time the menu opens, so edits apply immediately.
+Keys that are missing fall back to the defaults.
+
+```json
+{
+  "Presets": {
+    "slap": ["0", "1", "5", "10", "50", "100"],
+    "give": ["ak47", "m4a1_silencer", "awp", "deagle", "knife"]
+  }
+}
+```
+
+| Key | Used by |
+|---|---|
+| slap / hp / money / setkev / drop / gravity / speed | Value of the command |
+| freeze / blind / shake | Duration (seconds) |
+| give | Weapon list |
+| addtime / settime | Seconds |
+| terminateround | Delay (seconds) |
+
+## Translations
+
+Menu texts are `AdminMenu.*` keys in `lang/<culture>.json`.
+Command labels are `AdminMenu.Command.<command name>`; the command name is shown when the key is missing.
+
+## Adding a command to the menu
+
+Register an entry in `OnRegistered` of the command. Arguments are listed in command line order.
+
+```csharp
+private const string Permission = "tnms.adminutil.management.ingame.command.slap";
+
+protected override void OnRegistered()
+    => ((TnmsAdminUtils)Plugin).AdminMenu.Registry.Register(
+        AdminMenuEntry.Create(CommandName, Permission).Target().Preset("slap").Optional());
+```
+
+| Method | Argument |
+|---|---|
+| `Target(allowSelectors)` | Player select. The first one is the target picked in the Players tree |
+| `Preset(key)` | Preset from `menu.json` |
+| `Choice(titleKey, ...)` / `Toggle()` / `TeamChoice()` | Fixed choices |
+| `Text(titleKey, quote)` | Text typed in chat |
+| `TextList(titleKey, minCount)` | Comma separated texts, each quoted |
+| `Optional(defaultRaw)` | Makes the last argument optional |
+
+Commands without a `Target` are listed under Server.

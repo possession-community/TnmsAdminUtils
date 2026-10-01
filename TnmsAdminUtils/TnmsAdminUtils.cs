@@ -6,6 +6,7 @@ using TnmsAdminUtils.Modules.Chat;
 using TnmsAdminUtils.Modules.ClientManagement;
 using TnmsAdminUtils.Modules.InGameManagement;
 using TnmsAdminUtils.Modules.ServerManagement;
+using TnmsAdminUtils.Modules.UiInteractions;
 using TnmsPluginFoundation;
 
 namespace TnmsAdminUtils;
@@ -28,8 +29,16 @@ public class TnmsAdminUtils(
 
     private AdminChatListener? _adminChatListener;
 
+    /// <summary>
+    /// Admin menu. Commands register themselves to <see cref="AdminMenuService.Registry"/> in OnRegistered.
+    /// </summary>
+    public AdminMenuService AdminMenu { get; private set; } = null!;
+
     protected override void TnmsOnPluginLoad(bool hotReload)
     {
+        AdminMenu = new AdminMenuService(this);
+        AdminMenu.Load();
+
         AddTnmsCommandsUnderNamespace("TnmsAdminUtils", true);
 
         _adminChatListener = new AdminChatListener(this, SharedSystem);
@@ -42,6 +51,8 @@ public class TnmsAdminUtils(
     {
         if (_adminChatListener != null)
             SharedSystem.GetClientManager().RemoveClientListener(_adminChatListener);
+
+        AdminMenu.Unload();
     }
 
     /// <summary>

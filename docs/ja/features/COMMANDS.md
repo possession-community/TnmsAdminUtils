@@ -3,6 +3,8 @@
 全コマンドは `ms_` プレフィックス付きで登録されます (例: `ms_slay`)。
 チャットでは `!slay` / `css_slay` でも使用可能です。
 
+`!admin` でこれらのコマンドを実行できるメニューを開けます。[管理メニュー](ADMIN_MENU.md) を参照してください。
+
 ## チャットコマンド
 
 | コマンド | エイリアス | 権限ノード | 説明 |
@@ -125,6 +127,7 @@
 
 | ノード | 説明 |
 |---|---|
+| tnms.adminutil.menu | !admin の使用 |
 | tnms.adminutil.chat.command.say.normal | !say の使用 |
 | tnms.adminutil.chat.command.say.center | !csay の使用 |
 | tnms.adminutil.chat.command.say.hint | !hsay の使用 |
