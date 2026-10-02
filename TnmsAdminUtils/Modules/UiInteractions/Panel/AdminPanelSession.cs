@@ -16,7 +16,7 @@ public sealed class AdminPanelSession : IAdminSession
     // Same order as the header bar buttons (tap-nav{i}).
     private enum Page
     {
-        Match,
+        Overview,
         Users,
         Commands,
         Dev,
@@ -108,7 +108,7 @@ public sealed class AdminPanelSession : IAdminSession
     ];
 
     private static readonly string[] Sections = ["tap-ov", "tap-us", "tap-dt", "tap-ls", "tap-dv", "tap-ml"];
-    private static readonly string[] NavKeys = ["AdminPanel.Nav.Match", "AdminPanel.Nav.Users", "AdminPanel.Nav.Commands", "AdminPanel.Nav.Dev"];
+    private static readonly string[] NavKeys = ["AdminPanel.Nav.Overview", "AdminPanel.Nav.Users", "AdminPanel.Nav.Commands", "AdminPanel.Nav.Dev"];
     // "x" collapses an unused slot; the rest follow AdminPanelColumnWidth.
     private static readonly string[] WidthSizes = ["x", "xs", "s", "m", "l", "xl"];
 
@@ -180,7 +180,7 @@ public sealed class AdminPanelSession : IAdminSession
 
         _surface.Show(_player);
 
-        GoTo(Page.Match);
+        GoTo(Page.Overview);
     }
 
     /// <summary>
@@ -623,7 +623,7 @@ public sealed class AdminPanelSession : IAdminSession
 
         if (_page == Page.Dev && !canSeeDev)
         {
-            _page = Page.Match;
+            _page = Page.Overview;
             _tab = null;
             _listPage = 0;
             _module = null;
@@ -638,7 +638,7 @@ public sealed class AdminPanelSession : IAdminSession
 
         switch (_page)
         {
-            case Page.Match:
+            case Page.Overview:
                 RenderMatch();
                 break;
             case Page.Dev:
@@ -722,6 +722,7 @@ public sealed class AdminPanelSession : IAdminSession
         size ??= icon is null || image ? "m" : IconSizes.GetValueOrDefault(icon, "m");
         Class(panelId, "tap-ico-s", size == "s");
         Class(panelId, "tap-ico-l", size == "l");
+        Class(panelId, "tap-ico-dot", icon == IconFallback);
         Text(panelId, "i", image || icon is null ? string.Empty : icon);
     }
 
@@ -760,6 +761,10 @@ public sealed class AdminPanelSession : IAdminSession
 
             case Page.Commands:
                 return CommandTabs(targetOnly: false);
+
+            // Only Match for now; more overview pages go here.
+            case Page.Overview:
+                return [new(L("AdminPanel.Match.Title"), true, () => ShowTab(null), Icon: "competitive")];
 
             case Page.Dev:
                 return

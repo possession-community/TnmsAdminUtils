@@ -19,7 +19,7 @@ The pages are in the header bar; the sidebar holds the current page's own items.
 
 | Page | Shows |
 |---|---|
-| Match | Map, round time, scores and team counts |
+| Overview | Match (sidebar): map, round time, scores and team counts |
 | Users | The player list (team filter in the sidebar). A row opens the player's details and the commands for them |
 | Commands | Favorites / All / the categories, and the form of the chosen command (see [ADMIN_MENU](ADMIN_MENU.md)) |
 | Dev | Server state, versions and the loaded modules |

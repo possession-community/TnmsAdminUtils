@@ -68,7 +68,7 @@
 					</Panel>
 				</Panel>
 
-				<!-- Match: 8 stat cards in two rows. -->
+				<!-- Overview > Match: 8 stat cards in two rows. -->
 				<Panel id="tap-ov" class="tap-sec" hittest="false">
 					<Panel class="tap-ov-row" hittest="false">
 						<liuli:repeat count="4" var="i">

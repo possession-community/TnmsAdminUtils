@@ -215,6 +215,11 @@
 	font-size: 19px;
 }
 
+/* The fallback dot sits above the labels' middle. */
+.tap-ico-dot .tap-ig {
+	padding-top: 2px;
+}
+
 /* Previous / Next: arrowhead (pointing up) as it is / turned down. */
 .tap-ico-up .tap-sbtn-i, .tap-ico-down .tap-sbtn-i {
 	background-image: url("s2r://panorama/images/icons/ui/arrowhead.vsvg");
