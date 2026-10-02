@@ -16,6 +16,9 @@ public interface IAdminSession
 
     void Close();
 
+    /// <summary>True while a chat message would be taken as typed text (not timed out).</summary>
+    bool IsWaitingText { get; }
+
     bool TryAcceptText(string message);
 }
 
@@ -39,6 +42,8 @@ public sealed class AdminMenuService : IClientListener
 
     private readonly TnmsAdminUtils _plugin;
     private readonly Dictionary<ulong, IAdminSession> _sessions = new();
+    // The last chat message taken as text: who, what and on which tick (the other say listeners run in the same tick).
+    private (ulong SteamId, string Message, int Tick)? _lastTaken;
     private IDisposable? _authoritySubscription;
 
     public AdminMenuService(TnmsAdminUtils plugin)
@@ -133,12 +138,29 @@ public sealed class AdminMenuService : IClientListener
         return session;
     }
 
+    /// <summary>
+    /// Whether this chat message is (or just was) the admin's typed text for their menu / panel, so other chat handlers
+    /// (admin chat's "@...") leave it alone. True while waiting for text, and for the message taken as text in this
+    /// tick: the say listeners run in no fixed order, and taking the text ends the wait.
+    /// </summary>
+    public bool IsTextInput(IGameClient client, string message)
+    {
+        if (_sessions.TryGetValue(client.SteamId, out var session) && session.IsWaitingText)
+            return true;
+
+        return _lastTaken is { } taken
+            && taken.SteamId == (ulong)client.SteamId
+            && taken.Message == message
+            && taken.Tick == _plugin.SharedSystem.GetModSharp().GetGlobals().TickCount;
+    }
+
     public ECommandAction OnClientSayCommand(IGameClient client, bool teamOnly, bool isCommand, string commandName, string message)
     {
-        if (isCommand || !_sessions.TryGetValue(client.SteamId, out var session))
+        if (isCommand || !_sessions.TryGetValue(client.SteamId, out var session) || !session.TryAcceptText(message))
             return ECommandAction.Skipped;
 
-        return session.TryAcceptText(message) ? ECommandAction.Stopped : ECommandAction.Skipped;
+        _lastTaken = ((ulong)client.SteamId, message, _plugin.SharedSystem.GetModSharp().GetGlobals().TickCount);
+        return ECommandAction.Stopped;
     }
 
     public void OnClientDisconnected(IGameClient client, NetworkDisconnectionReason reason)

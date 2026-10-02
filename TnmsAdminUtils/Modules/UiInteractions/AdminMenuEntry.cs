@@ -29,7 +29,14 @@ public abstract record AdminMenuArgument(AdminMenuText Title)
 /// <summary>
 /// A player argument. The first target of an entry is the primary one (the player picked in the Players tree).
 /// </summary>
-public sealed record TargetArgument(AdminMenuText Title, bool AllowSelectors) : AdminMenuArgument(Title);
+/// <summary>
+/// Players and (when allowed) selectors to choose from; any target string can be typed in chat too, e.g. a selector
+/// another plugin registered.
+/// </summary>
+public sealed record TargetArgument(AdminMenuText Title, bool AllowSelectors) : AdminMenuArgument(Title)
+{
+    public override bool AcceptsText => true;
+}
 
 /// <summary>
 /// Values are read from the menu config's presets by <see cref="PresetKey"/>; any value can be typed in chat too.

@@ -17,6 +17,10 @@ public class AdminChatListener(TnmsAdminUtils plugin, ISharedSystem sharedSystem
         if (!message.StartsWith('@') || message.Length <= 1)
             return ECommandAction.Skipped;
 
+        // Typed text for the admin menu / panel (e.g. a target such as @zombies), whichever listener runs first.
+        if (plugin.AdminMenu.IsTextInput(client, message))
+            return ECommandAction.Skipped;
+
         if (!TnmsPlugin.AdminManager.PlayerHasPermission(client.SteamId, "tnms.adminutil.chat.command.say.admins"))
             return ECommandAction.Skipped;
 

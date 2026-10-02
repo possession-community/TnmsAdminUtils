@@ -34,29 +34,33 @@ public sealed class AdminPanelSession : IAdminSession
     /// <param name="Indent">Listed under a heading</param>
     private sealed record SideItem(string Label, bool Selected, Action? Click, bool Heading = false, bool Indent = false);
 
-    private const int ListSlots = 18;
-    // Command slots per page while the form takes the second column.
-    private const int FormListSlots = 9;
+    // Command rows per page (tap-r{i}); the list scrolls, the form stays beside it.
+    private const int ListSlots = 64;
     private const int FieldSlots = 6;
-    private const int PickerSlots = 12;
+    // Choice cells per page (tap-pc{i}, rows of PickerColumns); the grid scrolls beyond three rows.
+    private const int PickerSlots = 48;
     private const int PickerColumns = 4;
-    private const int UserRows = 16;
-    private const int SideSlots = 14;
+    // User list rows (tap-u{i}): the server maximum, scrolled; no pager.
+    private const int UserRows = 64;
+    // Sidebar items per page (tap-si{i}); the list scrolls, ▲▼ only with more.
+    private const int SideSlots = 32;
     private const string Off = "tap-off";
 
     // Command list selections besides a category key: All is null.
     private const string FavoritesTab = "\0favorites";
+    private const string SearchTab = "\0search";
 
     // Dev sub pages besides Server (null).
     private const string VersionsTab = "versions";
     private const string PluginsTab = "plugins";
 
-    // Dev groups: the layout has two columns of two groups (tap-dvg{slot}); the first of each column (0, 2) has
-    // PluginRows rows (a module's details / dependencies), the second (1, 3) DevRows.
-    private const int PluginRows = 18;
-    private const int DevRows = 9;
-    // Rows of the module list (tap-mr{i}), all filled at once: Panorama scrolls the list on the client.
+    // Dev groups: the layout has two columns of two groups (tap-dvg{slot}) with these rows (slot 0 also holds a
+    // module's details).
+    private static readonly int[] DevGroupRows = [12, 9, 9, 9];
+    // Rows of the module list (tap-mr{i}) and of a module's dependencies (tap-dvdr{i}) per page, all filled at once:
+    // Panorama scrolls them on the client.
     private const int ModuleListRows = 64;
+    private const int DependencyRows = 64;
 
     private static readonly (AdminPanelDevGroup Group, int Slot, string HeadingKey)[] ServerGroups =
     [
@@ -113,9 +117,16 @@ public sealed class AdminPanelSession : IAdminSession
     // The command list shown: FavoritesTab, a category key, or null for All.
     private string? _tab;
     private int _teamFilter;
-    // Dev > Plugins: the module opened (by name); the names on the module list's rows.
+    // Dev > Plugins: the module opened (by name), the module list's page and the names on its rows.
     private string? _module;
+    private int _modulesPage;
     private readonly string?[] _moduleRows = new string?[ModuleListRows];
+    // Command search: the words (kept while the panel is open, for the Commands page and a player's commands alike),
+    // and the time a chat message is taken as new words until (0 while not waiting).
+    private string? _search;
+    private long _searchUntil;
+    // What each scrolling list (by panel id) showed last; a change brings it back to the top.
+    private readonly Dictionary<string, string> _scrollKeys = [];
     private List<SideItem> _side = [];
     private int _sidePage;
     private IReadOnlyList<AdminMenuEntry> _entries = [];
@@ -124,7 +135,6 @@ public sealed class AdminPanelSession : IAdminSession
     private bool _cursor;
     private bool _suspended;
     private int _listPage;
-    private int _userPage;
     // User list sort by column key; null keeps the default order (team, then name).
     private string? _sortColumn;
     private bool _sortDescending;
@@ -150,8 +160,6 @@ public sealed class AdminPanelSession : IAdminSession
 
         Text("tap-brand", "t", L("AdminPanel.Brand"));
         Text("tap-close", "t", L("AdminPanel.Nav.Close"));
-        Text("tap-prev", "t", L("AdminPanel.Prev"));
-        Text("tap-next", "t", L("AdminPanel.Next"));
         Text("tap-hint", "t", L("AdminPanel.CursorHint"));
         Text("tap-fx", "t", L("AdminMenu.Confirm.Execute"));
 
@@ -212,9 +220,11 @@ public sealed class AdminPanelSession : IAdminSession
         _service.OnSessionClosed(this);
     }
 
+    public bool IsWaitingText => !_closed && ((_searchUntil != 0 && Environment.TickCount64 <= _searchUntil) || _form is { IsWaiting: true });
+
     public bool TryAcceptText(string message)
     {
-        if (_closed || _form is null || !_form.TryAcceptText(message))
+        if (_closed || !(TryAcceptSearch(message) || (_form != null && _form.TryAcceptText(message))))
             return false;
 
         // Called from the say listener; draw on the next frame like the other input paths.
@@ -233,6 +243,78 @@ public sealed class AdminPanelSession : IAdminSession
             return;
 
         _form?.ExpireWait();
+
+        if (_searchUntil != 0 && Environment.TickCount64 > _searchUntil)
+            _searchUntil = 0;
+
+        Render();
+    }
+
+    /// <summary>
+    /// The search words while waiting for them; every message counts, "cancel" too (cancelling is in the panel).
+    /// </summary>
+    private bool TryAcceptSearch(string message)
+    {
+        if (_searchUntil == 0 || Environment.TickCount64 > _searchUntil)
+            return false;
+
+        var text = message.Trim().TrimStart('!').Trim();
+
+        if (text.Length == 0)
+            return false;
+
+        // Another plugin's menu may be waiting for its keys.
+        if (text.Length == 1 && char.IsDigit(text[0]) && TnmsPlugin.Wuling.Menu.GetActiveMenu(_player) != null)
+            return false;
+
+        _searchUntil = 0;
+        _search = text;
+
+        // The caller draws on the next frame; switch there too, after the message has been handled.
+        _plugin.SharedSystem.GetModSharp().InvokeFrameAction(() =>
+        {
+            if (!_closed && Admin.IsValid)
+                ShowTab(SearchTab);
+        });
+
+        return true;
+    }
+
+    /// <summary>
+    /// The sidebar's Search: opens the search tab, waiting for words right away when there are none yet.
+    /// </summary>
+    private void OpenSearch()
+    {
+        ShowTab(SearchTab);
+
+        if (_search is null)
+            ToggleSearchInput();
+    }
+
+    /// <summary>
+    /// The search field: waits for words in chat, or (while waiting) stops waiting.
+    /// </summary>
+    private void ToggleSearchInput()
+    {
+        if (_searchUntil != 0)
+        {
+            _searchUntil = 0;
+            _context.PrintToChat("AdminMenu.Text.Cancelled");
+        }
+        else
+        {
+            _form?.CancelWait();
+            _searchUntil = Environment.TickCount64 + AdminCommandContext.TextInputTimeoutSeconds * 1000L;
+            _context.PrintToChat("AdminPanel.Search.Prompt", AdminCommandContext.TextInputTimeoutSeconds);
+        }
+
+        Render();
+    }
+
+    private void ClearSearch()
+    {
+        _search = null;
+        _searchUntil = 0;
         Render();
     }
 
@@ -256,15 +338,27 @@ public sealed class AdminPanelSession : IAdminSession
                 Execute();
                 return;
 
-            case "tap-prev":
-            case "tap-next":
-                var step = panelId == "tap-next" ? 1 : -1;
+            case "tap-sfield":
+                ToggleSearchInput();
+                return;
 
-                if (_page == Page.Users && _userView == UserView.List)
-                    _userPage += step;
-                else
-                    _listPage += step;
+            case "tap-sclear":
+                ClearSearch();
+                return;
 
+
+            // Page bars: the command list and a module's dependencies page with _listPage, the module list its own.
+            case "tap-lprev":
+            case "tap-lnext":
+            case "tap-dvdprev":
+            case "tap-dvdnext":
+                _listPage += panelId.EndsWith("next", StringComparison.Ordinal) ? 1 : -1;
+                Render();
+                return;
+
+            case "tap-mprev":
+            case "tap-mnext":
+                _modulesPage += panelId == "tap-mnext" ? 1 : -1;
                 Render();
                 return;
 
@@ -326,7 +420,7 @@ public sealed class AdminPanelSession : IAdminSession
         else if (TryIndex(panelId, "tap-l", out var slot))
         {
             if (EntryAt(slot) is { } entry)
-                ToggleForm(entry, _listPage * ListSlotsNow() + slot);
+                ToggleForm(entry);
         }
         else if (TryIndex(panelId, "tap-s", out var star))
         {
@@ -338,6 +432,8 @@ public sealed class AdminPanelSession : IAdminSession
         }
         else if (TryIndex(panelId, "tap-fa", out var fieldA) || TryIndex(panelId, "tap-fb", out fieldA))
         {
+            // One chat input at a time: a field starting to wait ends the search wait.
+            _searchUntil = 0;
             _form?.Click(fieldA);
             Render();
         }
@@ -356,6 +452,7 @@ public sealed class AdminPanelSession : IAdminSession
 
     private void GoTo(Page page)
     {
+        _searchUntil = 0;
         _page = page;
         _tab = null;
         _sidePage = 0;
@@ -379,11 +476,40 @@ public sealed class AdminPanelSession : IAdminSession
             return;
         }
 
+        _searchUntil = 0;
         _tab = tab;
         _form = null;
         _listPage = 0;
         _module = null;
         Render();
+    }
+
+    /// <summary>
+    /// Call on every render of a scrolling list with what it shows (page, tab, ...): when that changed, the list goes
+    /// back to the top. The same content keeps its position, e.g. coming back from a module's details.
+    /// </summary>
+    private void ScrollKey(string panelId, string key)
+    {
+        if (_scrollKeys.TryGetValue(panelId, out var last) && last == key)
+            return;
+
+        _scrollKeys[panelId] = key;
+        ResetScroll(panelId);
+    }
+
+    /// <summary>
+    /// Brings a scroll panel back to the top: the server cannot set the position, so scrolling is turned off for a
+    /// moment (tap-sreset). Both changes in one tick would never reach the client.
+    /// </summary>
+    private void ResetScroll(string panelId)
+    {
+        Class(panelId, "tap-sreset", true);
+
+        _plugin.CreateTimer(0.1, () =>
+        {
+            if (!_closed && Admin.IsValid)
+                Class(panelId, "tap-sreset", false);
+        });
     }
 
     private void OpenModule(string name)
@@ -417,6 +543,7 @@ public sealed class AdminPanelSession : IAdminSession
         if (_userTarget is null)
             return;
 
+        _searchUntil = 0;
         _userView = view;
         _tab = tab;
         _form = null;
@@ -431,32 +558,20 @@ public sealed class AdminPanelSession : IAdminSession
         => _userTarget is { IsValid: true } target && target.UserId.AsPrimitive() == _userTargetId ? target : null;
 
     /// <summary>
-    /// Opens the form of a command, or closes it when it is already open. The list page follows so the clicked
-    /// command stays in view when the list switches between 18 and 9 per page.
+    /// Opens the form of a command, or closes it when it is already open. The list stays as it is (and where it is
+    /// scrolled to).
     /// </summary>
-    private void ToggleForm(AdminMenuEntry entry, int index)
+    private void ToggleForm(AdminMenuEntry entry)
     {
         if (_form?.Entry == entry)
-        {
             CloseForm();
-        }
         else
-        {
             _form = new AdminCommandForm(_context, _player, entry, _playerTarget);
-            _listPage = index / FormListSlots;
-        }
 
         Render();
     }
 
-    private void CloseForm()
-    {
-        if (_form is null)
-            return;
-
-        _listPage = _listPage * FormListSlots / ListSlots;
-        _form = null;
-    }
+    private void CloseForm() => _form = null;
 
     /// <summary>
     /// Runs the command and keeps the form as it is, so the same command can be sent again.
@@ -555,9 +670,13 @@ public sealed class AdminPanelSession : IAdminSession
             Text(id, "t", item.Label);
         }
 
-        // Always shown, dim at the ends (both with a single page); clicks there are clamped away.
-        Class("tap-sprev", "tap-dis", _sidePage <= 0);
-        Class("tap-snext", "tap-dis", _sidePage >= pages - 1);
+        // Only when there is a page that way.
+        Class("tap-sprev", Off, _sidePage <= 0);
+        Class("tap-snext", Off, _sidePage >= pages - 1);
+        Text("tap-sprev", "t", L("AdminPanel.Side.Prev", _sidePage + 1, pages));
+        Text("tap-snext", "t", L("AdminPanel.Side.Next", _sidePage + 1, pages));
+
+        ScrollKey("tap-slist", $"{_page}/{_userView}/{_userTargetId}/{_sidePage}");
     }
 
     private List<SideItem> SideItems()
@@ -574,7 +693,6 @@ public sealed class AdminPanelSession : IAdminSession
                     items.Add(new SideItem(L(TeamFilters[i].LabelKey), i == _teamFilter, () =>
                     {
                         _teamFilter = filter;
-                        _userPage = 0;
                         Render();
                     }, Indent: true));
                 }
@@ -611,8 +729,9 @@ public sealed class AdminPanelSession : IAdminSession
     }
 
     /// <summary>
-    /// Favorites, All, then the categories. With <paramref name="targetOnly"/> (a player's commands) only categories
-    /// with commands that take a target. A selected category that went away falls back to All.
+    /// Search (opens the search tab), Favorites, All, then the categories. With <paramref name="targetOnly"/> (a
+    /// player's commands) only categories with commands that take a target. A selected category that went away falls
+    /// back to All.
     /// </summary>
     private List<SideItem> CommandTabs(bool targetOnly)
     {
@@ -620,11 +739,12 @@ public sealed class AdminPanelSession : IAdminSession
             .Where(c => !targetOnly || _context.VisibleEntries(new AdminMenuList(c.Key)).Any(e => e.PrimaryTarget is not null))
             .ToList();
 
-        if (_tab is not (null or FavoritesTab) && categories.All(c => c.Key != _tab))
+        if (_tab is not (null or FavoritesTab or SearchTab) && categories.All(c => c.Key != _tab))
             _tab = null;
 
         List<SideItem> items =
         [
+            new(L("AdminPanel.Search.Tab"), _tab == SearchTab, OpenSearch),
             new(L("AdminPanel.Tab.Favorites"), _tab == FavoritesTab, () => ShowTab(FavoritesTab)),
             new(L("AdminPanel.Tab.All"), _tab is null, () => ShowTab(null)),
         ];
@@ -638,7 +758,6 @@ public sealed class AdminPanelSession : IAdminSession
     private void RenderMatch()
     {
         ShowSection("tap-ov");
-        Pager(0, 1);
 
         var sharp = _plugin.SharedSystem.GetModSharp();
         var rules = sharp.GetGameRules();
@@ -684,11 +803,8 @@ public sealed class AdminPanelSession : IAdminSession
             .OrderBy(AdminPanelColumns.TeamOrder)
             .ThenBy(c => c.Name, StringComparer.OrdinalIgnoreCase), columns);
 
-        var pages = Math.Max(1, (clients.Count + UserRows - 1) / UserRows);
-        _userPage = Math.Clamp(_userPage, 0, pages - 1);
-
         Header(L("AdminPanel.Users.Title"), L("AdminPanel.Users.Sub", clients.Count));
-        Pager(_userPage, pages);
+        ScrollKey("tap-uscroll", $"{_teamFilter}/{_sortColumn}/{_sortDescending}");
 
         for (var slot = 0; slot < AdminPanelColumns.MaxColumns; slot++)
         {
@@ -710,17 +826,16 @@ public sealed class AdminPanelSession : IAdminSession
 
         for (var row = 0; row < UserRows; row++)
         {
-            var index = _userPage * UserRows + row;
             var rowId = $"tap-u{row}";
 
-            if (index >= clients.Count)
+            if (row >= clients.Count)
             {
                 _rowTargets[row] = null;
                 Class(rowId, Off, true);
                 continue;
             }
 
-            var client = clients[index];
+            var client = clients[row];
             _rowTargets[row] = client;
             Class(rowId, Off, false);
 
@@ -737,7 +852,6 @@ public sealed class AdminPanelSession : IAdminSession
         var target = CurrentUser()!;
 
         ShowSection("tap-dt");
-        Pager(0, 1);
         Header(target.Name, string.Empty, target.Name);
 
         var args = new AdminPanelDetailArgs(target, Admin, L);
@@ -779,11 +893,11 @@ public sealed class AdminPanelSession : IAdminSession
             _ => "AdminPanel.Dev.Server",
         });
 
-        // By slot; a slot left null is hidden. Wide groups give the label (a module / assembly name) most of the row.
-        var groups = new (string Heading, List<(string Label, string Value)> Rows, bool Wide)?[4];
+        // By slot; a slot left null is hidden.
+        var groups = new (string Heading, List<(string Label, string Value)> Rows)?[4];
         var title = view;
         string? step = null;
-        var pages = 1;
+        IReadOnlyList<(string Name, string Version)>? dependencies = null;
 
         if (_tab == PluginsTab)
         {
@@ -797,18 +911,12 @@ public sealed class AdminPanelSession : IAdminSession
                 return;
             }
 
-            var dependencies = AdminPanelModules.Dependencies(module);
-            pages = Math.Max(1, (dependencies.Count + PluginRows - 1) / PluginRows);
-            _listPage = Math.Clamp(_listPage, 0, pages - 1);
-
+            dependencies = AdminPanelModules.Dependencies(module);
             title = module.DisplayName ?? module.Name;
             step = view;
             view = module.Name;
 
-            groups[0] = (L("AdminPanel.Dev.Group.Module"), AdminPanelModules.Info(module).Select(i => (L(i.LabelKey), i.Value)).ToList(), false);
-            groups[2] = (L("AdminPanel.Dev.Group.Dependencies"), dependencies.Count == 0
-                ? [(L("AdminPanel.Dev.Module.NoDependencies"), string.Empty)]
-                : dependencies.Skip(_listPage * PluginRows).Take(PluginRows).ToList(), true);
+            groups[0] = (L("AdminPanel.Dev.Group.Module"), AdminPanelModules.Info(module).Select(i => (L(i.LabelKey), i.Value)).ToList());
         }
         else
         {
@@ -819,13 +927,13 @@ public sealed class AdminPanelSession : IAdminSession
                 var rows = _service.Panel.DevInfo.Of(group);
 
                 if (rows.Count > 0)
-                    groups[slot] = (L(headingKey), rows.Select(r => (L(r.LabelKey), r.Value(args))).ToList(), false);
+                    groups[slot] = (L(headingKey), rows.Select(r => (L(r.LabelKey), r.Value(args))).ToList());
             }
         }
 
         ShowSection("tap-dv");
         Header(title, string.Empty, step, view);
-        Pager(_listPage, pages);
+        RenderDependencies(dependencies);
 
         for (var slot = 0; slot < groups.Length; slot++)
         {
@@ -834,10 +942,9 @@ public sealed class AdminPanelSession : IAdminSession
             if (groups[slot] is not { } group)
                 continue;
 
-            Class($"tap-dvg{slot}", "tap-dvw", group.Wide);
             Text($"tap-dvh{slot}", "t", group.Heading);
 
-            for (var row = 0; row < (slot % 2 == 0 ? PluginRows : DevRows); row++)
+            for (var row = 0; row < DevGroupRows[slot]; row++)
             {
                 var rowId = $"tap-dv{slot}r{row}";
 
@@ -855,14 +962,54 @@ public sealed class AdminPanelSession : IAdminSession
     }
 
     /// <summary>
-    /// Every module at once (up to <see cref="ModuleListRows"/>) with its display name, author and version; the state
-    /// only when it is not Running. Panorama scrolls the list, so there is no pager.
+    /// A module's dependencies in the right column (scrolling, paged beyond <see cref="DependencyRows"/>); null
+    /// hides the box for the usual groups.
     /// </summary>
-    private void RenderModuleList(string view, IReadOnlyList<AdminPanelModule> modules)
+    private void RenderDependencies(IReadOnlyList<(string Name, string Version)>? dependencies)
     {
+        Class("tap-dvd", Off, dependencies is null);
+
+        if (dependencies is null)
+            return;
+
+        var pages = Math.Max(1, (dependencies.Count + DependencyRows - 1) / DependencyRows);
+        _listPage = Math.Clamp(_listPage, 0, pages - 1);
+
+        Text("tap-dvdh", "t", L("AdminPanel.Dev.Group.Dependencies"));
+        ListBar("tap-dvd", _listPage, pages);
+        ScrollKey("tap-dvdscroll", $"{_module}/{_listPage}");
+
+        List<(string Name, string Version)> rows = dependencies.Count == 0
+            ? [(L("AdminPanel.Dev.Module.NoDependencies"), string.Empty)]
+            : dependencies.Skip(_listPage * DependencyRows).Take(DependencyRows).ToList();
+
+        for (var row = 0; row < DependencyRows; row++)
+        {
+            var rowId = $"tap-dvdr{row}";
+            Class(rowId, Off, row >= rows.Count);
+
+            if (row >= rows.Count)
+                continue;
+
+            Text(rowId, "k", rows[row].Name);
+            Text(rowId, "v", rows[row].Version);
+        }
+    }
+
+    /// <summary>
+    /// Every module at once (up to <see cref="ModuleListRows"/> a page) with its display name, author and version; the state
+    /// only when it is not Running. Panorama scrolls the list; the page bar only beyond a page.
+    /// </summary>
+    private void RenderModuleList(string view, IReadOnlyList<AdminPanelModule> all)
+    {
+        var pages = Math.Max(1, (all.Count + ModuleListRows - 1) / ModuleListRows);
+        _modulesPage = Math.Clamp(_modulesPage, 0, pages - 1);
+        var modules = all.Skip(_modulesPage * ModuleListRows).Take(ModuleListRows).ToList();
+
         ShowSection("tap-ml");
-        Header(view, L("AdminPanel.Dev.PluginCount", modules.Count), null, view);
-        Pager(0, 1);
+        Header(view, L("AdminPanel.Dev.PluginCount", all.Count), null, view);
+        ListBar("tap-m", _modulesPage, pages);
+        ScrollKey("tap-mscroll", $"modules/{_modulesPage}");
 
         string[] heads = ["AdminPanel.Dev.Module.Name", "AdminPanel.Dev.Module.DisplayName", "AdminPanel.Dev.Module.Author", "AdminPanel.Dev.Module.Version"];
 
@@ -906,7 +1053,6 @@ public sealed class AdminPanelSession : IAdminSession
         var key = columns[slot].Key;
         _sortDescending = key == _sortColumn && !_sortDescending;
         _sortColumn = key;
-        _userPage = 0;
         Render();
     }
 
@@ -937,6 +1083,7 @@ public sealed class AdminPanelSession : IAdminSession
 
         IEnumerable<AdminMenuEntry> entries = _tab switch
         {
+            SearchTab => SearchEntries(player != null),
             FavoritesTab => _context.FavoriteEntries(_favorites),
             null when player != null => _context.VisibleEntries(AdminMenuList.Players, _playerTarget),
             null => _context.VisibleCategories().SelectMany(c => _context.VisibleEntries(new AdminMenuList(c.Key))),
@@ -947,24 +1094,33 @@ public sealed class AdminPanelSession : IAdminSession
 
         var view = _tab switch
         {
+            SearchTab => L("AdminPanel.Search.Tab"),
             FavoritesTab => L("AdminPanel.Tab.Favorites"),
             null => L("AdminPanel.Commands.All"),
             { } category => _context.VisibleCategories().FirstOrDefault(c => c.Key == category) is { } found ? _context.CategoryName(found) : category,
         };
 
-        var sub = _tab == FavoritesTab && _entries.Count == 0 ? L("AdminMenu.Favorites.Empty") : string.Empty;
+        var sub = _tab switch
+        {
+            FavoritesTab when _entries.Count == 0 => L("AdminMenu.Favorites.Empty"),
+            SearchTab when _search != null => _entries.Count == 0 ? L("AdminPanel.Search.None") : L("AdminPanel.Search.Count", _entries.Count),
+            _ => string.Empty,
+        };
+
+        RenderSearchBar();
 
         if (player != null)
             Header(player.Name, sub, player.Name, view);
         else
             Header(view, sub, null, view);
 
-        var slots = ListSlotsNow();
-        var pages = Math.Max(1, (_entries.Count + slots - 1) / slots);
+        var pages = Math.Max(1, (_entries.Count + ListSlots - 1) / ListSlots);
         _listPage = Math.Clamp(_listPage, 0, pages - 1);
-        Pager(_listPage, pages);
+        ListBar("tap-l", _listPage, pages);
+        ScrollKey("tap-lscroll", $"{_page}/{_userView}/{_userTargetId}/{_tab}/{_search}/{_listPage}");
 
         Class("tap-ls", "tap-form", _form != null);
+        Text("tap-fh", "t", L("AdminPanel.Form.Hint"));
 
         for (var slot = 0; slot < ListSlots; slot++)
         {
@@ -1028,6 +1184,7 @@ public sealed class AdminPanelSession : IAdminSession
             form.PickerPage = Math.Clamp(form.PickerPage, 0, pages - 1);
 
             var first = form.PickerPage * PickerSlots;
+            ScrollKey("tap-pkscroll", $"{form.Entry.MenuId}/{form.OpenField}/{form.PickerPage}");
 
             // Empty rows collapse; empty cells in a used row stay as invisible spacers so the columns keep their width.
             for (var row = 0; row < PickerSlots / PickerColumns; row++)
@@ -1090,16 +1247,62 @@ public sealed class AdminPanelSession : IAdminSession
         Class(id, "tap-empty", !waiting && value is null);
     }
 
-    private int ListSlotsNow() => _form != null ? FormListSlots : ListSlots;
+    /// <summary>
+    /// The search tab's box: the words, or a placeholder / the waiting note. The count is the header's note.
+    /// </summary>
+    private void RenderSearchBar()
+    {
+        Class("tap-ls", "tap-search", _tab == SearchTab);
+
+        if (_tab != SearchTab)
+            return;
+
+        var waiting = _searchUntil != 0;
+
+        Class("tap-sbox", "tap-wait", waiting);
+        Class("tap-sfield", "tap-wait", waiting);
+        Class("tap-sfield", "tap-empty", !waiting && _search is null);
+        Text("tap-sfield", "t", waiting ? L("AdminPanel.Search.Waiting") : _search ?? L("AdminPanel.Search.Placeholder"));
+    }
+
+    /// <summary>
+    /// Commands whose name, label, description or category name contains every word of the search (any case).
+    /// A player's commands search only the ones that take a target (filtered by the caller).
+    /// </summary>
+    private IEnumerable<AdminMenuEntry> SearchEntries(bool forPlayer)
+    {
+        if (_search is null)
+            return [];
+
+        var words = _search.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var categories = _context.VisibleCategories();
+
+        var entries = forPlayer
+            ? _context.VisibleEntries(AdminMenuList.Players, _playerTarget)
+            : categories.SelectMany(c => _context.VisibleEntries(new AdminMenuList(c.Key)));
+
+        return entries.Where(entry =>
+        {
+            var category = categories.FirstOrDefault(c => c.Key == entry.Category);
+
+            string[] texts =
+            [
+                entry.CommandName,
+                _context.TranslatedLabel(entry) ?? string.Empty,
+                _context.Description(entry) ?? string.Empty,
+                category is null ? string.Empty : _context.CategoryName(category),
+            ];
+
+            return words.All(w => texts.Any(t => t.Contains(w, StringComparison.OrdinalIgnoreCase)));
+        });
+    }
 
     private AdminMenuEntry? EntryAt(int slot)
     {
-        var slots = ListSlotsNow();
-
-        if (slot >= slots)
+        if (slot >= ListSlots)
             return null;
 
-        var index = _listPage * slots + slot;
+        var index = _listPage * ListSlots + slot;
         return index < _entries.Count ? _entries[index] : null;
     }
 
@@ -1126,14 +1329,18 @@ public sealed class AdminPanelSession : IAdminSession
         Text("tap-sub", "t", sub);
     }
 
-    private void Pager(int page, int pages)
+    /// <summary>
+    /// A page bar under a scrolling list ({prefix}bar / prev / page / next): only with more than one page, dim at the
+    /// ends (clicks there are clamped away by the next render).
+    /// </summary>
+    private void ListBar(string prefix, int page, int pages)
     {
-        var paged = pages > 1;
-        Class("tap-prev", Off, !paged);
-        Class("tap-next", Off, !paged);
-        Class("tap-page", Off, !paged);
-        Text("tap-page", "t", $"{page + 1} / {pages}");
-        PageButtons("tap-prev", "tap-next", page, pages);
+        Class($"{prefix}bar", Off, pages <= 1);
+        Text($"{prefix}prev", "t", $"‹  {L("AdminPanel.Prev")}");
+        Text($"{prefix}next", "t", $"{L("AdminPanel.Next")}  ›");
+        Text($"{prefix}page", "t", $"{page + 1} / {pages}");
+        Class($"{prefix}prev", "tap-dis", page <= 0);
+        Class($"{prefix}next", "tap-dis", page >= pages - 1);
     }
 
     /// <summary>

@@ -108,7 +108,7 @@ public sealed class AdminFlow
         _context = new AdminCommandContext(plugin, service, admin);
     }
 
-    public bool IsWaitingText => _pendingText != null;
+    public bool IsWaitingText => _pendingText is { } pending && Environment.TickCount64 <= pending.ExpiresAt;
 
     /// <summary>
     /// Root page of the menu: <paramref name="topItems"/>, then Players and the categories.

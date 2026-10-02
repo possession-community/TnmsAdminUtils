@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Globalization;
+using System.Reflection;
 using Sharp.Shared.Objects;
 using TnmsPluginFoundation;
 using TnmsPluginFoundation.Extensions.Client;
@@ -54,7 +56,8 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
     public static AdminMenuList ListOf(AdminMenuEntry entry) => new(entry.Category);
 
     /// <summary>
-    /// Selectors (with their current player count) and the players the admin can target.
+    /// Selectors (with their current player count): the usual ones, then the others registered to TargetingManager
+    /// (e.g. @zombies); then the players the admin can target.
     /// </summary>
     public List<AdminMenuChoiceItem> TargetChoices(bool allowSelectors)
     {
@@ -63,10 +66,16 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
 
         if (allowSelectors)
         {
-            foreach (var (target, labelKey) in Selectors)
+            var selectors = Selectors.Select(s => (s.Target, Display: L(s.LabelKey)))
+                .Concat(RegisteredSelectors()
+                    .Where(t => Selectors.All(s => !s.Target.Equals(t, StringComparison.OrdinalIgnoreCase)))
+                    .Order(StringComparer.OrdinalIgnoreCase)
+                    .Select(t => (Target: t, Display: t)));
+
+            foreach (var (target, display) in selectors)
             {
                 var count = TnmsPlugin.TargetingManager.GetByTarget(admin, target).Count();
-                var value = new AdminMenuValue(target, L(labelKey), IsSelector: true);
+                var value = new AdminMenuValue(target, display, IsSelector: true);
                 items.Add(new AdminMenuChoiceItem(value, $"{value.Display} ({count})"));
             }
         }
@@ -84,6 +93,27 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
         }
 
         return items;
+    }
+
+    /// <summary>
+    /// The selectors registered to TargetingManager. It has no API listing them: read from its resolver table
+    /// (_targetResolvers, keyed by the selector such as "@all") by reflection; empty when its internals change.
+    /// </summary>
+    private static IEnumerable<string> RegisteredSelectors()
+    {
+        try
+        {
+            var manager = TnmsPlugin.TargetingManager;
+
+            if (manager.GetType().GetField("_targetResolvers", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(manager) is not IDictionary table)
+                return [];
+
+            return table.Keys.OfType<string>().Where(k => k.StartsWith('@')).ToList();
+        }
+        catch (Exception)
+        {
+            return [];
+        }
     }
 
     /// <summary>
@@ -143,6 +173,9 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
             return true;
         }
 
+        if (argument is TargetArgument target)
+            return TryParseTarget(target, text, out value);
+
         if (argument is TextListArgument list)
         {
             var items = text.Split([',', '、'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -161,6 +194,40 @@ public sealed class AdminCommandContext(TnmsAdminUtils plugin, AdminMenuService 
         value = argument is TextArgument { Quote: true }
             ? new AdminMenuValue(AdminMenuValue.Quote(text), text)
             : new AdminMenuValue(text, text);
+        return true;
+    }
+
+    /// <summary>
+    /// A typed target: anything TargetingManager resolves to at least one player. A field that takes one player
+    /// takes a string that resolves to exactly one, as that player; otherwise "@..." and names matching several are
+    /// written as typed (as selectors).
+    /// </summary>
+    private bool TryParseTarget(TargetArgument argument, string text, out AdminMenuValue value)
+    {
+        var found = TnmsPlugin.TargetingManager.GetByTarget(admin, text).ToList();
+        value = null!;
+
+        if (found.Count == 0)
+        {
+            PrintToChat("AdminPanel.Target.NoMatch", text);
+            return false;
+        }
+
+        var selector = text.StartsWith('@') || found.Count > 1;
+
+        if (!selector || (!argument.AllowSelectors && found.Count == 1))
+        {
+            value = PlayerValue(found[0]);
+            return true;
+        }
+
+        if (!argument.AllowSelectors)
+        {
+            PrintToChat("AdminPanel.Target.NeedOne", text, found.Count);
+            return false;
+        }
+
+        value = new AdminMenuValue(text.Contains(' ') ? AdminMenuValue.Quote(text) : text, text, IsSelector: true);
         return true;
     }
 

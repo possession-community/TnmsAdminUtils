@@ -35,6 +35,16 @@
 	visibility: collapse;
 }
 
+/* Lists scrolled by Panorama on the client (wheel / bar; the bar is csgostyles' VerticalScrollBar). The server
+   cannot set the position: it adds tap-sreset for a moment to bring a list back to the top. */
+.tap-scroll {
+	overflow: squish scroll;
+}
+
+.tap-scroll.tap-sreset {
+	overflow: squish clip;
+}
+
 /* Hidden but keeping its place (prev / next at the ends). Still hit-tests; the server ignores those clicks. */
 .tap-ghost {
 	opacity: 0;
@@ -139,7 +149,7 @@
 	border-right: 1px solid #ffffff14;
 }
 
-/* Takes the rest between the up / down buttons; fixed by the parent, so down stays put. */
+/* The sidebar's whole height (Previous / Next included); scrolls. */
 .tap-slist {
 	flow-children: down;
 	width: 199px;
@@ -204,34 +214,41 @@
 	color: #9aa4af;
 }
 
-/* Thin page buttons above and below the items, always shown; dim when there is no page that way. */
+/* Previous / Next as the list's first / last entries, only when there is a page that way. Shaped like an item, told
+   apart by a tinted background, a line towards the items and a gold hover. */
 .tap-sbtn {
 	width: 199px;
-	height: 18px;
-	background-color: #ffffff08;
+	height: 38px;
+	padding: 0px 18px;
+	background-color: #ffffff0a;
+	border-left: 3px solid #00000000;
+}
+
+.tap-sbtn-prev {
+	border-bottom: 1px solid #ffffff14;
+}
+
+.tap-sbtn-next {
+	border-top: 1px solid #ffffff14;
 }
 
 .tap-sbtn:hover {
-	background-color: #41567a99;
+	background-color: #ffde8514;
+	border-left: 3px solid #ffde8599;
 }
 
 .tap-sbtn-t {
-	horizontal-align: center;
+	width: 142px;
 	vertical-align: center;
-	font-size: 10px;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 14px;
 	color: #9aa4af;
+	white-space: nowrap;
+	text-overflow: shrink min( 10px ) ellipsis;
 }
 
 .tap-sbtn:hover .tap-sbtn-t {
-	color: #ffeaa8;
-}
-
-.tap-sbtn.tap-dis, .tap-sbtn.tap-dis:hover {
-	background-color: #ffffff03;
-}
-
-.tap-sbtn.tap-dis .tap-sbtn-t, .tap-sbtn.tap-dis:hover .tap-sbtn-t {
-	color: #9aa4af33;
+	color: #ffde85;
 }
 
 /* ---- main ---- */
@@ -419,18 +436,45 @@
 }
 
 /* ---- dev ---- */
-/* Module / assembly names: the name takes the label column, the version sits at the right end. */
-.tap-dvw .tap-drow-k {
-	width: 300px;
+/* A module's dependencies: as high as its rows, up to the right column's height (552), then the list scrolls; the
+   page bar under it. Rows 12 narrower than the box for the scroll bar. */
+.tap-dvd {
+	height: fit-children;
+	max-height: 552px;
+	margin-bottom: 0px;
+}
+
+/* 470 = 552 less the box's padding and border (16), the heading (22) and the page bar (42). */
+.tap-dvdscroll {
+	flow-children: down;
+	width: 420px;
+	height: fit-children;
+	max-height: 470px;
+}
+
+.tap-dvd .tap-drow {
+	width: 408px;
+}
+
+.tap-dvd .tap-drow-k {
+	width: 290px;
 	font-size: 14px;
 	color: #f4f6f8;
 }
 
-.tap-dvw .tap-drow-v {
-	width: 120px;
+.tap-dvd .tap-drow-v {
+	width: 118px;
 	text-align: right;
 	font-size: 14px;
 	color: #c5ccd3;
+}
+
+.tap-dvd .tap-lbar {
+	width: 408px;
+}
+
+.tap-mlist .tap-lbar {
+	width: 862px;
 }
 
 /* Plugins: one box with a header row and the scrolling rows below, down to the bottom. */
@@ -445,12 +489,10 @@
 	border-left: 3px solid #ffde85;
 }
 
-/* Scrolled by Panorama on the client; the bar is csgostyles' VerticalScrollBar. */
 .tap-mscroll {
 	flow-children: down;
 	width: 100%;
 	height: fill-parent-flow( 1.0 );
-	overflow: squish scroll;
 }
 
 /* Content 875 (900 less the padding and borders): 260 + 240 + 220 + 140 = 860, the rest keeps the version clear of
@@ -521,6 +563,17 @@
 	height: 26px;
 	padding: 0px 6px;
 	overflow: noclip noclip;
+}
+
+/* The rows under the header; 12 narrower than it for the scroll bar (the columns line up from the left). */
+.tap-uscroll {
+	flow-children: down;
+	width: 900px;
+	height: fill-parent-flow( 1.0 );
+}
+
+.tap-uscroll .tap-urow {
+	width: 888px;
 }
 
 Button.tap-urow:hover {
@@ -646,23 +699,165 @@ Button.tap-urow:hover .tap-cell {
 #tap-us.w9-xl .tap-c9 { width: 230px; }
 
 /* ---- list ---- */
+/* The list column, then the hint or the form, full height. */
 #tap-ls {
 	flow-children: right;
 }
 
-.tap-ls-col {
+/* The search box (search tab), the list and its page bar. 452 = rows 440 + 12 for the scroll bar; then 8 + the form 440 = 900. */
+.tap-lcol {
 	flow-children: down;
-	width: 440px;
-	margin-right: 20px;
+	width: 452px;
+	height: 552px;
+	margin-right: 8px;
 }
 
-.tap-ls-col:last-child {
-	margin-right: 0px;
+/* ---- search box ---- */
+/* The field and clear share a frame the size of a command row (440 x 54, the same gap under it) above the list;
+   clear sits where the star is. Darker than the rows with a lighter frame, so it reads as a sunken text field; gold
+   frame while waiting for chat. Search tab only; the gap only while shown. */
+.tap-sbox {
+	visibility: collapse;
+	flow-children: right;
+	width: 440px;
+	height: 54px;
+	background-color: #141b26;
+	border: 1px solid #ffffff33;
+}
+
+#tap-ls.tap-search .tap-sbox {
+	visibility: visible;
+	margin-bottom: 8px;
+}
+
+.tap-sbox:hover {
+	border: 1px solid #ffffff55;
+}
+
+.tap-sbox.tap-wait, .tap-sbox.tap-wait:hover {
+	border: 1px solid #ffde85;
+}
+
+/* Looks like a text field; a button that starts / stops the chat input. */
+.tap-sfield {
+	width: fill-parent-flow( 1.0 );
+	height: 100%;
+	padding: 0px 16px;
+}
+
+.tap-sfield:hover {
+	background-color: #ffffff08;
+}
+
+.tap-sfield.tap-wait {
+	background-color: #ffde850f;
+}
+
+.tap-sfield-t {
+	width: 100%;
+	vertical-align: center;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 17px;
+	color: #e6e9ed;
+	white-space: nowrap;
+	text-overflow: shrink min( 11px ) ellipsis;
+}
+
+/* Placeholder, or waiting for chat. */
+.tap-sfield.tap-empty .tap-sfield-t {
+	color: #6b747d;
+}
+
+.tap-sfield.tap-wait .tap-sfield-t {
+	color: #ffde85;
+}
+
+.tap-sclear {
+	width: 48px;
+	height: 100%;
+}
+
+.tap-sclear:hover {
+	background-color: #ffffff0d;
+}
+
+.tap-sclear-t {
+	horizontal-align: center;
+	vertical-align: center;
+	font-size: 18px;
+	color: #5c6670;
+}
+
+.tap-sclear:hover .tap-sclear-t {
+	color: #ffde85;
+}
+
+
+/* What the page bar leaves. */
+.tap-lscroll {
+	flow-children: down;
+	width: 452px;
+	height: fill-parent-flow( 1.0 );
+}
+
+/* Page bar under a scrolling list (commands, modules, dependencies), as wide as its rows: Previous | page | Next.
+   Tinted with a gold hover like the sidebar's Previous / Next. Only with more than one page. */
+.tap-lbar {
+	flow-children: right;
+	width: 440px;
+	height: 38px;
+	margin-top: 4px;
+	background-color: #ffffff0a;
+	border-top: 1px solid #ffffff14;
+}
+
+.tap-lbtn {
+	width: 140px;
+	height: 100%;
+	padding: 0px 14px;
+}
+
+.tap-lbtn:hover {
+	background-color: #ffde8514;
+}
+
+.tap-lbtn-t {
+	vertical-align: center;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	color: #9aa4af;
+	white-space: nowrap;
+}
+
+.tap-lbtn-next .tap-lbtn-t {
+	horizontal-align: right;
+}
+
+.tap-lbtn:hover .tap-lbtn-t {
+	color: #ffde85;
+}
+
+/* No page that way: dim, no hover. */
+.tap-lbtn.tap-dis, .tap-lbtn.tap-dis:hover {
+	background-color: #00000000;
+}
+
+.tap-lbtn.tap-dis .tap-lbtn-t, .tap-lbtn.tap-dis:hover .tap-lbtn-t {
+	color: #9aa4af33;
+}
+
+.tap-lpage {
+	width: fill-parent-flow( 1.0 );
+	vertical-align: center;
+	text-align: center;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 14px;
+	color: #c5ccd3;
 }
 
 /* One framed row per item: the command and its favorite star share the frame (two buttons, no nesting,
  * since a hit-testable child would take the parent button's click). */
-/* 9 rows x 54 + 8 x 8 gaps = 550; the form beside the list uses the same height. */
+/* 54 high with 8 between, the form beside the list as high as the visible part. */
 .tap-irow {
 	flow-children: right;
 	width: 440px;
@@ -745,7 +940,7 @@ Button.tap-urow:hover .tap-cell {
 	color: #ffde85;
 }
 
-/* Open command: the second list column gives way to the form. */
+/* Open command: the form, else the hint in its place. */
 #tap-fm {
 	visibility: collapse;
 }
@@ -754,8 +949,23 @@ Button.tap-urow:hover .tap-cell {
 	visibility: visible;
 }
 
-#tap-ls.tap-form #tap-ls2 {
+#tap-ls.tap-form #tap-fh {
 	visibility: collapse;
+}
+
+.tap-fh {
+	width: 440px;
+	height: 552px;
+	background-color: #1a233066;
+	border: 1px solid #ffffff0d;
+}
+
+.tap-fh-t {
+	horizontal-align: center;
+	vertical-align: center;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 15px;
+	color: #6b747d;
 }
 
 .tap-item.tap-on {
@@ -768,8 +978,8 @@ Button.tap-urow:hover .tap-cell {
 
 /* ---- command form ---- */
 /* Two layers: the fields from the top, the command line and execute button pinned to the bottom. */
-/* Same 440 as the list column it replaces; content 410 after the padding. */
-/* Ends on the same line as the 9-row list beside it (9 x 54 + 8 x 8 = 550); 550 came out 1-2px short in game. */
+/* 440 wide, content 410 after the padding. 552 high like the list column beside it (550 came out 1-2px short in
+   game against the old 9-row list). */
 .tap-fm {
 	flow-children: none;
 	width: 440px;
@@ -944,9 +1154,17 @@ Button.tap-urow:hover .tap-cell {
 	visibility: visible;
 }
 
+/* Three rows (3 x 29) visible, the rest scrolled; rows 12 narrower for the scroll bar. */
+.tap-pkscroll {
+	flow-children: down;
+	width: 410px;
+	height: fit-children;
+	max-height: 88px;
+}
+
 .tap-pk-row {
 	flow-children: right;
-	width: 410px;
+	width: 398px;
 }
 
 /* Cells share the row width (fill-parent-flow) instead of a fixed width. */
@@ -1077,21 +1295,3 @@ Button.tap-urow:hover .tap-cell {
 	color: #6b747d;
 }
 
-/* ---- pager (right end of the header) ---- */
-.tap-pager {
-	flow-children: right;
-	width: fit-children;
-	vertical-align: bottom;
-}
-
-.tap-fbtn {
-	padding: 4px 16px;
-}
-
-.tap-page {
-	vertical-align: center;
-	margin: 0px 12px;
-	font-family: Stratum2 Regular Monodigit, Stratum2, Arial, sans-serif;
-	font-size: 14px;
-	color: #9aa4af;
-}

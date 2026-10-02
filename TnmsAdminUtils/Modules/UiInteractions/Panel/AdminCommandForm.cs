@@ -33,6 +33,9 @@ public sealed class AdminCommandForm
     /// </summary>
     public int WaitField { get; private set; } = -1;
 
+    /// <summary>A field is waiting for chat and has not timed out.</summary>
+    public bool IsWaiting => WaitField >= 0 && Environment.TickCount64 <= _waitExpiresAt;
+
     /// <param name="target">Pre-filled primary target (the player picked in the user list)</param>
     public AdminCommandForm(AdminCommandContext context, IPlayerEntry player, AdminMenuEntry entry, AdminMenuValue? target)
     {
@@ -63,6 +66,10 @@ public sealed class AdminCommandForm
 
         var wasWaiting = WaitField == index;
         WaitField = -1;
+
+        // Clicking the waiting field again is the cancel (a typed "cancel" would be a value like any other).
+        if (wasWaiting)
+            _context.PrintToChat("AdminMenu.Text.Cancelled");
 
         if (OpenField == index)
         {
@@ -114,6 +121,8 @@ public sealed class AdminCommandForm
     /// <summary>
     /// Ends a wait that ran out. Returns true when the form changed.
     /// </summary>
+    public void CancelWait() => WaitField = -1;
+
     public bool ExpireWait()
     {
         if (WaitField < 0 || Environment.TickCount64 <= _waitExpiresAt)
@@ -124,7 +133,8 @@ public sealed class AdminCommandForm
     }
 
     /// <summary>
-    /// Uses a chat message as the value of the waiting field. Returns true when the message was consumed.
+    /// Uses a chat message as the value of the waiting field. Returns true when the message was consumed. There is no
+    /// typed cancel: the panel cancels by clicking the field again.
     /// </summary>
     public bool TryAcceptText(string message)
     {
@@ -141,13 +151,6 @@ public sealed class AdminCommandForm
             return false;
 
         var index = WaitField;
-
-        if (text.Equals("cancel", StringComparison.OrdinalIgnoreCase))
-        {
-            WaitField = -1;
-            _context.PrintToChat("AdminMenu.Text.Cancelled");
-            return true;
-        }
 
         if (!_context.TryParseText(Entry.Arguments[index], text, out var value))
         {
@@ -178,7 +181,7 @@ public sealed class AdminCommandForm
         _waitExpiresAt = Expiry();
 
         var title = $"{_context.CommandLabel(Entry)}: {_context.Title(Entry.Arguments[index])}";
-        _context.PrintToChat("AdminMenu.Text.Prompt", title, AdminCommandContext.TextInputTimeoutSeconds);
+        _context.PrintToChat("AdminPanel.Text.Prompt", title, AdminCommandContext.TextInputTimeoutSeconds);
     }
 
     private static long Expiry() => Environment.TickCount64 + AdminCommandContext.TextInputTimeoutSeconds * 1000L;

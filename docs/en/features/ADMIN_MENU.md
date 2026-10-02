@@ -18,10 +18,11 @@ Permission: `tnms.adminutil.menu`
 | Categories added by a TOML | Same as General Commands |
 
 - Root order: Open Panel (with permission) / Favorites / Players / General / Server / Notification / TOML categories. Favorites is listed even when empty so the item numbers stay put.
-- In the admin panel, the Commands page's sidebar lists Favorites / All / the categories (14 at a time; ▲ / ▼ switch the page).
+- In the admin panel, the Commands page's sidebar lists Search / Favorites / All / the categories (see [ADMIN_PANEL](ADMIN_PANEL.md)).
 - Command lists show the chat command next to the label, e.g. `!slay | Slay`.
 - Players lists every command that takes a target, whatever its category.
-- Targets list `@all` / `@ct` / `@t` / `@spec` and the players you can target.
+- Targets list `@all` / `@ct` / `@t` / `@spec`, the other selectors registered to TargetingManager (e.g. `@alive`, a
+  plugin's `@zombies`), and the players you can target.
 - Commands you have no permission for are hidden. A root is hidden when it has no command.
 - Every page has a Back item. The menu closes after execution.
 
@@ -41,7 +42,7 @@ The menu runs the command as you (`ms_<command> ...`), so permission checks, log
 When a step needs text, the menu closes and asks in chat.
 
 - Your next chat message is used as the value and is not shown in chat.
-- Type `cancel` to stop.
+- Type `cancel` to stop (the admin panel cancels in the panel instead, see [ADMIN_PANEL](ADMIN_PANEL.md)).
 - The input expires after 60 seconds; later messages are sent to chat as usual.
 - After the input, the rest of the flow opens as a new menu.
 

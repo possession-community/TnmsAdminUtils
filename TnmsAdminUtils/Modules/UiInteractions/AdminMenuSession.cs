@@ -54,6 +54,8 @@ public sealed class AdminMenuSession : IAdminFlowView, IAdminSession
         Finish();
     }
 
+    public bool IsWaitingText => _flow.IsWaitingText;
+
     public bool TryAcceptText(string message) => _flow.TryAcceptText(message);
 
     void IAdminFlowView.Show(string title, IReadOnlyList<AdminFlowItem> items, Action? back, string? usage, string? emptyText)
