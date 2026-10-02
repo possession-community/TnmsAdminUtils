@@ -105,7 +105,7 @@ public sealed class AdminMenuConfig
     private sealed class MenuReader(string file, ILogger logger)
     {
         private static readonly string[] MenuKeys = ["presets", "category", "operations"];
-        private static readonly string[] CategoryKeys = ["Name", "NameKey", "RequiredPermission"];
+        private static readonly string[] CategoryKeys = ["Name", "NameKey", "RequiredPermission", "Icon", "IconSize"];
         private static readonly string[] OperationKeys = ["Category", "Command", "Name", "NameKey", "Description", "DescriptionKey", "RequiredPermission", "args"];
         private static readonly string[] ArgumentKeys = ["Type", "Name", "NameKey", "Optional", "Default", "AllowSelectors", "SuggestValues", "AllowCustomInput", "Min", "Max", "Quote", "MinCount", "Choices"];
         private static readonly string[] ChoiceKeys = ["Value", "Name", "NameKey"];
@@ -191,10 +191,18 @@ public sealed class AdminMenuConfig
 
                 WarnUnknownKeys(where, category, CategoryKeys);
 
-                if (!TryText(category, "Name", where, out var name) || !TryString(category, "RequiredPermission", where, out var permission))
+                if (!TryText(category, "Name", where, out var name) || !TryString(category, "RequiredPermission", where, out var permission)
+                    || !TryString(category, "Icon", where, out var icon) || !TryString(category, "IconSize", where, out var iconSize))
                     continue;
 
-                categories.Add(new AdminMenuCategoryDefinition(key, name ?? AdminMenuText.FromInline(new Dictionary<string, string> { ["en"] = key }), permission));
+                if (iconSize is not (null or "s" or "m" or "l"))
+                {
+                    Error(where, $"IconSize must be \"s\", \"m\" or \"l\" (got \"{iconSize}\")");
+                    continue;
+                }
+
+                categories.Add(new AdminMenuCategoryDefinition(key, name ?? AdminMenuText.FromInline(new Dictionary<string, string> { ["en"] = key }), permission,
+                    string.IsNullOrWhiteSpace(icon) ? null : icon.Trim(), iconSize));
             }
         }
 

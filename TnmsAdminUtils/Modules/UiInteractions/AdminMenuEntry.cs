@@ -136,9 +136,9 @@ public static class AdminMenuCategory
 
     public static readonly IReadOnlyList<AdminMenuCategoryDefinition> BuiltIn =
     [
-        new(General, AdminMenuText.FromKey("AdminMenu.Root.Commands"), null),
-        new(Server, AdminMenuText.FromKey("AdminMenu.Root.Server"), null),
-        new(Notification, AdminMenuText.FromKey("AdminMenu.Root.Notification"), null),
+        new(General, AdminMenuText.FromKey("AdminMenu.Root.Commands"), null, "player"),
+        new(Server, AdminMenuText.FromKey("AdminMenu.Root.Server"), null, "settings"),
+        new(Notification, AdminMenuText.FromKey("AdminMenu.Root.Notification"), null, "alert"),
     ];
 
     public static bool IsBuiltIn(string key) => BuiltIn.Any(c => c.Key == key);
@@ -148,7 +148,9 @@ public static class AdminMenuCategory
 /// A command list of the menu / panel.
 /// </summary>
 /// <param name="Permission">Needed to see the list, or null to show it to anyone who can run one of its commands</param>
-public sealed record AdminMenuCategoryDefinition(string Key, AdminMenuText Name, string? Permission);
+/// <param name="Icon">The panel sidebar's icon: a CS2 UI icon name (AdminPanelIcons) or a glyph (no emoji); null for the fallback</param>
+/// <param name="IconSize">Size correction of the icon: "s", "m" or "l"; null for the panel's own choice</param>
+public sealed record AdminMenuCategoryDefinition(string Key, AdminMenuText Name, string? Permission, string? Icon = null, string? IconSize = null);
 
 /// <param name="Value">Value passed to the command</param>
 /// <param name="Label">Label of the choice, or null to show <see cref="Value"/></param>

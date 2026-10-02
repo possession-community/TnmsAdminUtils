@@ -157,10 +157,12 @@
 }
 
 /* Sidebar 200 - its border-right 1. */
+/* 10 on the left (the icon near the edge), 18 on the right. */
 .tap-si {
+	flow-children: right;
 	width: 199px;
 	height: 38px;
-	padding: 0px 18px;
+	padding: 0px 18px 0px 10px;
 	border-left: 3px solid #00000000;
 	overflow: noclip noclip;
 }
@@ -174,9 +176,62 @@
 	border-left: 3px solid #ffde85;
 }
 
-/* 142 = button 199 - padding 2 x 18 - border-left 3; long labels shrink to fit. */
+/* Icon, then the label 8 px after it. The icon panel sits at the same place on every item (indenting moves only the label) and
+   shows one of CS2's own UI icons as its background (ico-<name> on the item, rules below) or a glyph in its label
+   (tap-ig). Both are tinted by wash-color: grey, gold on hover / selected. Glyphs come from different fallback fonts:
+   tap-ico-s / -l on the item correct a glyph's size, and one wider than the box shrinks to fit. */
+.tap-si-i, .tap-sbtn-i {
+	width: 22px;
+	height: 20px;
+	margin-right: 8px;
+	vertical-align: center;
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+	background-size: 18px 18px;
+	wash-color: #9aa4af;
+}
+
+.tap-si:hover .tap-si-i, .tap-si.tap-sel .tap-si-i, .tap-sbtn:hover .tap-sbtn-i {
+	wash-color: #ffde85;
+}
+
+.tap-ig {
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	vertical-align: center;
+	font-family: Stratum2, Arial, sans-serif;
+	font-size: 16px;
+	color: #ffffff;
+	white-space: nowrap;
+	text-overflow: shrink min( 8px ) ellipsis;
+}
+
+.tap-ico-s .tap-ig {
+	font-size: 13px;
+}
+
+.tap-ico-l .tap-ig {
+	font-size: 19px;
+}
+
+/* Previous / Next: arrowhead (pointing up) as it is / turned down. */
+.tap-ico-up .tap-sbtn-i, .tap-ico-down .tap-sbtn-i {
+	background-image: url("s2r://panorama/images/icons/ui/arrowhead.vsvg");
+	background-size: 12px 12px;
+}
+
+.tap-ico-down .tap-sbtn-i {
+	transform: rotateZ( 180deg );
+}
+
+.tap-si:hover .tap-si-i, .tap-si.tap-sel .tap-si-i, .tap-sbtn:hover .tap-sbtn-i {
+	color: #ffde85;
+}
+
+/* After the icon (22 + 8); long labels shrink to fit. */
 .tap-si-t {
-	width: 142px;
+	width: 120px;
 	vertical-align: center;
 	font-family: Stratum2, Arial, sans-serif;
 	font-size: 16px;
@@ -190,12 +245,10 @@
 }
 
 /* Items under a heading. */
-.tap-si.tap-ind {
-	padding-left: 32px;
-}
-
+/* Items under a heading: the label steps in, the icon stays in its column. */
 .tap-si.tap-ind .tap-si-t {
-	width: 128px;
+	margin-left: 10px;
+	width: 110px;
 }
 
 /* A heading: not an item, no hover. */
@@ -206,7 +259,13 @@
 	border-left: 3px solid #00000000;
 }
 
+/* Headings have no icon: the label takes its place. */
+.tap-si.tap-sih .tap-si-i {
+	visibility: collapse;
+}
+
 .tap-si.tap-sih .tap-si-t, .tap-si.tap-sih:hover .tap-si-t {
+	width: 142px;
 	vertical-align: bottom;
 	margin-bottom: 6px;
 	font-size: 12px;
@@ -217,9 +276,10 @@
 /* Previous / Next as the list's first / last entries, only when there is a page that way. Shaped like an item, told
    apart by a tinted background, a line towards the items and a gold hover. */
 .tap-sbtn {
+	flow-children: right;
 	width: 199px;
 	height: 38px;
-	padding: 0px 18px;
+	padding: 0px 18px 0px 10px;
 	background-color: #ffffff0a;
 	border-left: 3px solid #00000000;
 }
@@ -238,7 +298,7 @@
 }
 
 .tap-sbtn-t {
-	width: 142px;
+	width: 120px;
 	vertical-align: center;
 	font-family: Stratum2, Arial, sans-serif;
 	font-size: 14px;
@@ -250,6 +310,91 @@
 .tap-sbtn:hover .tap-sbtn-t {
 	color: #ffde85;
 }
+
+/* CS2's own UI icons by name (AdminPanelIcons.Names). */
+.ico-addplayer .tap-si-i, .ico-addplayer .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/addplayer.vsvg"); }
+.ico-alert .tap-si-i, .ico-alert .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/alert.vsvg"); }
+.ico-arrowhead .tap-si-i, .ico-arrowhead .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/arrowhead.vsvg"); }
+.ico-bomb_c4 .tap-si-i, .ico-bomb_c4 .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/bomb_c4.vsvg"); }
+.ico-bot .tap-si-i, .ico-bot .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/bot.vsvg"); }
+.ico-broadcast_ring .tap-si-i, .ico-broadcast_ring .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/broadcast_ring.vsvg"); }
+.ico-buyzone .tap-si-i, .ico-buyzone .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/buyzone.vsvg"); }
+.ico-camera .tap-si-i, .ico-camera .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/camera.vsvg"); }
+.ico-cancel .tap-si-i, .ico-cancel .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/cancel.vsvg"); }
+.ico-casual .tap-si-i, .ico-casual .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/casual.vsvg"); }
+.ico-check .tap-si-i, .ico-check .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/check.vsvg"); }
+.ico-clock .tap-si-i, .ico-clock .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/clock.vsvg"); }
+.ico-community_servers .tap-si-i, .ico-community_servers .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/community_servers.vsvg"); }
+.ico-competitive .tap-si-i, .ico-competitive .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/competitive.vsvg"); }
+.ico-crosshair_circle .tap-si-i, .ico-crosshair_circle .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/crosshair_circle.vsvg"); }
+.ico-ct_logo_1c .tap-si-i, .ico-ct_logo_1c .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/ct_logo_1c.vsvg"); }
+.ico-defuser_white .tap-si-i, .ico-defuser_white .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/defuser_white.vsvg"); }
+.ico-elimination .tap-si-i, .ico-elimination .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/elimination.vsvg"); }
+.ico-exit .tap-si-i, .ico-exit .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/exit.vsvg"); }
+.ico-favorite_star_filled .tap-si-i, .ico-favorite_star_filled .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/favorite_star_filled.vsvg"); }
+.ico-film .tap-si-i, .ico-film .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/film.vsvg"); }
+.ico-filter .tap-si-i, .ico-filter .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/filter.vsvg"); }
+.ico-filter_team .tap-si-i, .ico-filter_team .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/filter_team.vsvg"); }
+.ico-find .tap-si-i, .ico-find .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/find.vsvg"); }
+.ico-gift .tap-si-i, .ico-gift .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/gift.vsvg"); }
+.ico-graph .tap-si-i, .ico-graph .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/graph.vsvg"); }
+.ico-home .tap-si-i, .ico-home .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/home.vsvg"); }
+.ico-hostage_alive .tap-si-i, .ico-hostage_alive .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/hostage_alive.vsvg"); }
+.ico-hourglass .tap-si-i, .ico-hourglass .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/hourglass.vsvg"); }
+.ico-info .tap-si-i, .ico-info .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/info.vsvg"); }
+.ico-info_i .tap-si-i, .ico-info_i .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/info_i.vsvg"); }
+.ico-inventory .tap-si-i, .ico-inventory .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/inventory.vsvg"); }
+.ico-invite .tap-si-i, .ico-invite .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/invite.vsvg"); }
+.ico-kill .tap-si-i, .ico-kill .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/kill.vsvg"); }
+.ico-kill_headshot .tap-si-i, .ico-kill_headshot .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/kill_headshot.vsvg"); }
+.ico-leader .tap-si-i, .ico-leader .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/leader.vsvg"); }
+.ico-link .tap-si-i, .ico-link .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/link.vsvg"); }
+.ico-lobby .tap-si-i, .ico-lobby .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/lobby.vsvg"); }
+.ico-locked .tap-si-i, .ico-locked .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/locked.vsvg"); }
+.ico-map_onmap .tap-si-i, .ico-map_onmap .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/map_onmap.vsvg"); }
+.ico-menu .tap-si-i, .ico-menu .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/menu.vsvg"); }
+.ico-message_arrow .tap-si-i, .ico-message_arrow .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/message_arrow.vsvg"); }
+.ico-music_kit .tap-si-i, .ico-music_kit .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/music_kit.vsvg"); }
+.ico-muted .tap-si-i, .ico-muted .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/muted.vsvg"); }
+.ico-overwatch .tap-si-i, .ico-overwatch .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/overwatch.vsvg"); }
+.ico-picture .tap-si-i, .ico-picture .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/picture.vsvg"); }
+.ico-player .tap-si-i, .ico-player .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/player.vsvg"); }
+.ico-plus .tap-si-i, .ico-plus .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/plus.vsvg"); }
+.ico-power .tap-si-i, .ico-power .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/power.vsvg"); }
+.ico-random .tap-si-i, .ico-random .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/random.vsvg"); }
+.ico-refresh .tap-si-i, .ico-refresh .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/refresh.vsvg"); }
+.ico-remove .tap-si-i, .ico-remove .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/remove.vsvg"); }
+.ico-report_server .tap-si-i, .ico-report_server .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/report_server.vsvg"); }
+.ico-search .tap-si-i, .ico-search .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/search.vsvg"); }
+.ico-secure_connection .tap-si-i, .ico-secure_connection .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/secure_connection.vsvg"); }
+.ico-settings .tap-si-i, .ico-settings .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/settings.vsvg"); }
+.ico-settings_sliders .tap-si-i, .ico-settings_sliders .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/settings_sliders.vsvg"); }
+.ico-shield .tap-si-i, .ico-shield .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/shield.vsvg"); }
+.ico-shield_alert .tap-si-i, .ico-shield_alert .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/shield_alert.vsvg"); }
+.ico-smile .tap-si-i, .ico-smile .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/smile.vsvg"); }
+.ico-sort .tap-si-i, .ico-sort .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/sort.vsvg"); }
+.ico-sound_2 .tap-si-i, .ico-sound_2 .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/sound_2.vsvg"); }
+.ico-sound_off .tap-si-i, .ico-sound_off .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/sound_off.vsvg"); }
+.ico-star .tap-si-i, .ico-star .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/star.vsvg"); }
+.ico-stats .tap-si-i, .ico-stats .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/stats.vsvg"); }
+.ico-stream .tap-si-i, .ico-stream .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/stream.vsvg"); }
+.ico-t_logo_1c .tap-si-i, .ico-t_logo_1c .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/t_logo_1c.vsvg"); }
+.ico-teamcolor .tap-si-i, .ico-teamcolor .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/teamcolor.vsvg"); }
+.ico-timer .tap-si-i, .ico-timer .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/timer.vsvg"); }
+.ico-trade .tap-si-i, .ico-trade .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/trade.vsvg"); }
+.ico-trash .tap-si-i, .ico-trash .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/trash.vsvg"); }
+.ico-trophy .tap-si-i, .ico-trophy .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/trophy.vsvg"); }
+.ico-tune .tap-si-i, .ico-tune .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/tune.vsvg"); }
+.ico-undo .tap-si-i, .ico-undo .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/undo.vsvg"); }
+.ico-unmuted .tap-si-i, .ico-unmuted .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/unmuted.vsvg"); }
+.ico-vacnet .tap-si-i, .ico-vacnet .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/vacnet.vsvg"); }
+.ico-vote_check .tap-si-i, .ico-vote_check .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/vote_check.vsvg"); }
+.ico-votesurrender .tap-si-i, .ico-votesurrender .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/votesurrender.vsvg"); }
+.ico-voteteamswitch .tap-si-i, .ico-voteteamswitch .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/voteteamswitch.vsvg"); }
+.ico-warning .tap-si-i, .ico-warning .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/warning.vsvg"); }
+.ico-watch .tap-si-i, .ico-watch .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/watch.vsvg"); }
+.ico-watch_tv .tap-si-i, .ico-watch_tv .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/watch_tv.vsvg"); }
+.ico-zoom_in .tap-si-i, .ico-zoom_in .tap-sbtn-i { background-image: url("s2r://panorama/images/icons/ui/zoom_in.vsvg"); }
 
 /* ---- main ---- */
 .tap-main {

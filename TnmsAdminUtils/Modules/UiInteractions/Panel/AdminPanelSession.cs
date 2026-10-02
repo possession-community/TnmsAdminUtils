@@ -30,9 +30,22 @@ public sealed class AdminPanelSession : IAdminSession
         Commands,
     }
 
-    /// <param name="Heading">A heading, not clickable</param>
+    /// <param name="Heading">A heading, not clickable, no icon</param>
     /// <param name="Indent">Listed under a heading</param>
-    private sealed record SideItem(string Label, bool Selected, Action? Click, bool Heading = false, bool Indent = false);
+    /// <param name="Icon">A CS2 UI icon name (<see cref="AdminPanelIcons"/>) or a glyph (no emoji), or null for
+    /// <see cref="IconFallback"/></param>
+    /// <param name="IconSize">A glyph's "s" / "m" / "l", or null to look it up in <see cref="IconSizes"/></param>
+    private sealed record SideItem(string Label, bool Selected, Action? Click, bool Heading = false, bool Indent = false, string? Icon = null,
+        string? IconSize = null);
+
+    private const string IconFallback = "●";
+
+    // Size corrections of glyphs ("s" / "l"; the rest are "m"): they come from different fallback fonts.
+    private static readonly Dictionary<string, string> IconSizes = new()
+    {
+        ["☺"] = "l",
+        [IconFallback] = "s",
+    };
 
     // Command rows per page (tap-r{i}); the list scrolls, the form stays beside it.
     private const int ListSlots = 64;
@@ -86,12 +99,12 @@ public sealed class AdminPanelSession : IAdminSession
     ];
 
     // User list filter: the label key and the teams it keeps (null keeps everyone).
-    private static readonly (string LabelKey, CStrikeTeam[]? Teams)[] TeamFilters =
+    private static readonly (string LabelKey, CStrikeTeam[]? Teams, string Icon)[] TeamFilters =
     [
-        ("AdminPanel.Tab.All", null),
-        ("AdminPanel.Team.Ct", [CStrikeTeam.CT]),
-        ("AdminPanel.Team.T", [CStrikeTeam.TE]),
-        ("AdminPanel.Team.Spec", [CStrikeTeam.Spectator, CStrikeTeam.UnAssigned]),
+        ("AdminPanel.Tab.All", null, "filter_team"),
+        ("AdminPanel.Team.Ct", [CStrikeTeam.CT], "ct_logo_1c"),
+        ("AdminPanel.Team.T", [CStrikeTeam.TE], "t_logo_1c"),
+        ("AdminPanel.Team.Spec", [CStrikeTeam.Spectator, CStrikeTeam.UnAssigned], "watch"),
     ];
 
     private static readonly string[] Sections = ["tap-ov", "tap-us", "tap-dt", "tap-ls", "tap-dv", "tap-ml"];
@@ -127,6 +140,8 @@ public sealed class AdminPanelSession : IAdminSession
     private long _searchUntil;
     // What each scrolling list (by panel id) showed last; a change brings it back to the top.
     private readonly Dictionary<string, string> _scrollKeys = [];
+    // The ico-<name> class each sidebar panel has now, so a change removes only the old one.
+    private readonly Dictionary<string, string?> _iconClasses = [];
     private List<SideItem> _side = [];
     private int _sidePage;
     private IReadOnlyList<AdminMenuEntry> _entries = [];
@@ -667,16 +682,47 @@ public sealed class AdminPanelSession : IAdminSession
             Class(id, "tap-sel", item.Selected);
             Class(id, "tap-sih", item.Heading);
             Class(id, "tap-ind", item.Indent);
+            SetIcon(id, item.Heading ? null : item.Icon ?? IconFallback, item.IconSize);
             Text(id, "t", item.Label);
         }
 
         // Only when there is a page that way.
         Class("tap-sprev", Off, _sidePage <= 0);
         Class("tap-snext", Off, _sidePage >= pages - 1);
+        SetIcon("tap-sprev", AdminPanelIcons.Up, null);
+        SetIcon("tap-snext", AdminPanelIcons.Down, null);
         Text("tap-sprev", "t", L("AdminPanel.Side.Prev", _sidePage + 1, pages));
         Text("tap-snext", "t", L("AdminPanel.Side.Next", _sidePage + 1, pages));
 
         ScrollKey("tap-slist", $"{_page}/{_userView}/{_userTargetId}/{_sidePage}");
+    }
+
+    /// <summary>
+    /// Draws an item's icon: a CS2 UI icon by its class (the glyph label left empty), or the glyph with its size
+    /// correction (tap-ico-s / tap-ico-l; neither for "m"). Null clears it (headings).
+    /// </summary>
+    private void SetIcon(string panelId, string? icon, string? size)
+    {
+        var image = icon != null && AdminPanelIcons.IsImage(icon);
+        var iconClass = !image ? null : icon switch
+        {
+            AdminPanelIcons.Up => "tap-ico-up",
+            AdminPanelIcons.Down => "tap-ico-down",
+            _ => $"ico-{icon}",
+        };
+
+        if (_iconClasses.GetValueOrDefault(panelId) is { } old && old != iconClass)
+            Class(panelId, old, false);
+
+        if (iconClass != null)
+            Class(panelId, iconClass, true);
+
+        _iconClasses[panelId] = iconClass;
+
+        size ??= icon is null || image ? "m" : IconSizes.GetValueOrDefault(icon, "m");
+        Class(panelId, "tap-ico-s", size == "s");
+        Class(panelId, "tap-ico-l", size == "l");
+        Text(panelId, "i", image || icon is null ? string.Empty : icon);
     }
 
     private List<SideItem> SideItems()
@@ -694,7 +740,7 @@ public sealed class AdminPanelSession : IAdminSession
                     {
                         _teamFilter = filter;
                         Render();
-                    }, Indent: true));
+                    }, Indent: true, Icon: TeamFilters[i].Icon));
                 }
 
                 return items;
@@ -704,7 +750,7 @@ public sealed class AdminPanelSession : IAdminSession
             {
                 List<SideItem> items =
                 [
-                    new(L("AdminPanel.Side.Details"), _userView == UserView.Detail, () => ShowUser(UserView.Detail)),
+                    new(L("AdminPanel.Side.Details"), _userView == UserView.Detail, () => ShowUser(UserView.Detail), Icon: "info_i"),
                     new(L("AdminPanel.Detail.Execute"), false, null, Heading: true),
                 ];
 
@@ -718,15 +764,16 @@ public sealed class AdminPanelSession : IAdminSession
             case Page.Dev:
                 return
                 [
-                    new(L("AdminPanel.Dev.Server"), _tab is null, () => ShowTab(null)),
-                    new(L("AdminPanel.Dev.Versions"), _tab == VersionsTab, () => ShowTab(VersionsTab)),
-                    new(L("AdminPanel.Dev.Plugins"), _tab == PluginsTab, () => ShowTab(PluginsTab)),
+                    new(L("AdminPanel.Dev.Server"), _tab is null, () => ShowTab(null), Icon: "stats"),
+                    new(L("AdminPanel.Dev.Versions"), _tab == VersionsTab, () => ShowTab(VersionsTab), Icon: "info"),
+                    new(L("AdminPanel.Dev.Plugins"), _tab == PluginsTab, () => ShowTab(PluginsTab), Icon: "settings_sliders"),
                 ];
 
             default:
                 return [];
         }
     }
+
 
     /// <summary>
     /// Search (opens the search tab), Favorites, All, then the categories. With <paramref name="targetOnly"/> (a
@@ -744,13 +791,14 @@ public sealed class AdminPanelSession : IAdminSession
 
         List<SideItem> items =
         [
-            new(L("AdminPanel.Search.Tab"), _tab == SearchTab, OpenSearch),
-            new(L("AdminPanel.Tab.Favorites"), _tab == FavoritesTab, () => ShowTab(FavoritesTab)),
-            new(L("AdminPanel.Tab.All"), _tab is null, () => ShowTab(null)),
+            new(L("AdminPanel.Search.Tab"), _tab == SearchTab, OpenSearch, Icon: "search"),
+            new(L("AdminPanel.Tab.Favorites"), _tab == FavoritesTab, () => ShowTab(FavoritesTab), Icon: "favorite_star_filled"),
+            new(L("AdminPanel.Tab.All"), _tab is null, () => ShowTab(null), Icon: "menu"),
         ];
 
         foreach (var category in categories)
-            items.Add(new SideItem(_context.CategoryName(category), _tab == category.Key, () => ShowTab(category.Key)));
+            items.Add(new SideItem(_context.CategoryName(category), _tab == category.Key, () => ShowTab(category.Key), Icon: category.Icon,
+                IconSize: category.IconSize));
 
         return items;
     }

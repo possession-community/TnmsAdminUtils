@@ -31,6 +31,9 @@ toast = ["3s", "5s", "10s", "20s"]
 # [admin.menu.category.fun]
 # Name = { en = "Fun Commands", ja = "おもしろコマンド" }  # or Name = "Fun Commands", or NameKey = "<lang key>"
 # RequiredPermission = "myplugin.menu.fun"                 # optional: hides the whole list without it
+# Icon = "kill"                                            # optional: the panel sidebar's icon: a CS2 UI icon name
+#                                                          # (docs/*/features/ADMIN_MENU.md lists them) or a glyph
+# IconSize = "l"                                           # optional, glyphs only: "s" / "m" (default) / "l"
 #
 # An operation is one entry of a list. The table key is its id (favorites remember it), and must not be the name of
 # a built-in command. Category is required: a category above, or one of the built-in general / server / notification.

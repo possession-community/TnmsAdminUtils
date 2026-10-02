@@ -18,20 +18,30 @@
 		</Panel>
 
 		<Panel class="tap-body" hittest="false">
-			<!-- The page's own items (tap-si{i}; headings are tap-sih) in a list Panorama scrolls (tap-slist), 32 at a
-			     time. Previous / Next (with the page) are the list's first / last entries, scrolling with it, shown only
+			<!-- The page's own items (tap-si{i}: an icon (a CS2 UI icon by the ico-<name> class on the item, or a glyph
+			     in i) and the label; headings are tap-sih) in a list
+			     Panorama scrolls (tap-slist), 32 at a time. Previous / Next (with the page) are the list's first / last entries, scrolling with it, shown only
 			     when there is a page that way. -->
 			<Panel class="tap-side" hittest="false">
 				<Panel id="tap-slist" class="tap-slist tap-scroll">
 					<Button id="tap-sprev" class="tap-sbtn tap-sbtn-prev">
+						<Panel class="tap-sbtn-i" hittest="false">
+							<Label class="tap-ig" hittest="false" text="{s:i}" />
+						</Panel>
 						<Label class="tap-sbtn-t" hittest="false" text="{s:t}" />
 					</Button>
 					<liuli:repeat count="32" var="i">
 						<Button id="tap-si{i}" class="tap-si">
+							<Panel class="tap-si-i" hittest="false">
+								<Label class="tap-ig" hittest="false" text="{s:i}" />
+							</Panel>
 							<Label class="tap-si-t" hittest="false" text="{s:t}" />
 						</Button>
 					</liuli:repeat>
 					<Button id="tap-snext" class="tap-sbtn tap-sbtn-next">
+						<Panel class="tap-sbtn-i" hittest="false">
+							<Label class="tap-ig" hittest="false" text="{s:i}" />
+						</Panel>
 						<Label class="tap-sbtn-t" hittest="false" text="{s:t}" />
 					</Button>
 				</Panel>

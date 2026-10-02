@@ -90,7 +90,13 @@ An extra command list. The table key (`fun`) is its id. Listed after the built-i
 [admin.menu.category.fun]
 Name = { en = "Fun Commands", ja = "おもしろコマンド" }
 RequiredPermission = "myplugin.menu.fun"   # optional: hides the whole list from admins without it
+Icon = "kill"                      # optional: the panel sidebar's icon (see below); "●" without it
+IconSize = "l"                     # optional, glyphs only: "s" / "m" (default) / "l" when one looks too small or large
 ```
+
+`Icon` is the name of one of CS2's own UI icons (drawn like the built-in lists' icons), or any other text, drawn as
+a glyph (BMP symbols such as `⚔` or `★`; no emoji, and glyphs differ in size, hence `IconSize`). The names:
+`addplayer`, `alert`, `arrowhead`, `bomb_c4`, `bot`, `broadcast_ring`, `buyzone`, `camera`, `cancel`, `casual`, `check`, `clock`, `community_servers`, `competitive`, `crosshair_circle`, `ct_logo_1c`, `defuser_white`, `elimination`, `exit`, `favorite_star_filled`, `film`, `filter`, `filter_team`, `find`, `gift`, `graph`, `home`, `hostage_alive`, `hourglass`, `info`, `info_i`, `inventory`, `invite`, `kill`, `kill_headshot`, `leader`, `link`, `lobby`, `locked`, `map_onmap`, `menu`, `message_arrow`, `music_kit`, `muted`, `overwatch`, `picture`, `player`, `plus`, `power`, `random`, `refresh`, `remove`, `report_server`, `search`, `secure_connection`, `settings`, `settings_sliders`, `shield`, `shield_alert`, `smile`, `sort`, `sound_2`, `sound_off`, `star`, `stats`, `stream`, `t_logo_1c`, `teamcolor`, `timer`, `trade`, `trash`, `trophy`, `tune`, `undo`, `unmuted`, `vacnet`, `vote_check`, `votesurrender`, `voteteamswitch`, `warning`, `watch`, `watch_tv`, `zoom_in`.
 
 `general` / `server` / `notification` are the ids of the built-in lists (General / Server / Notification) and cannot be
 redefined.

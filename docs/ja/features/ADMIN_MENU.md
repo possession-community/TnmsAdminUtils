@@ -89,7 +89,13 @@ give = ["ak47", "m4a1_silencer", "awp", "deagle", "knife"]
 [admin.menu.category.fun]
 Name = { en = "Fun Commands", ja = "おもしろコマンド" }
 RequiredPermission = "myplugin.menu.fun"   # 省略可。無い管理者には一覧ごと表示しない
+Icon = "kill"                      # 省略可。パネルのサイドバーのアイコン (下記)。無ければ「●」
+IconSize = "l"                     # 省略可、記号のみ。"s" / "m" (既定) / "l"。小さく / 大きく見えるときの補正
 ```
+
+`Icon` には CS2 の UI アイコンの名前 (組み込みの一覧と同じ見た目) か、それ以外の文字 (記号として表示) を書きます。
+記号は `⚔` や `★` などの BMP の文字だけで、絵文字は表示されません。記号は大きさが揃わないので `IconSize` で補正します。名前の一覧:
+`addplayer`, `alert`, `arrowhead`, `bomb_c4`, `bot`, `broadcast_ring`, `buyzone`, `camera`, `cancel`, `casual`, `check`, `clock`, `community_servers`, `competitive`, `crosshair_circle`, `ct_logo_1c`, `defuser_white`, `elimination`, `exit`, `favorite_star_filled`, `film`, `filter`, `filter_team`, `find`, `gift`, `graph`, `home`, `hostage_alive`, `hourglass`, `info`, `info_i`, `inventory`, `invite`, `kill`, `kill_headshot`, `leader`, `link`, `lobby`, `locked`, `map_onmap`, `menu`, `message_arrow`, `music_kit`, `muted`, `overwatch`, `picture`, `player`, `plus`, `power`, `random`, `refresh`, `remove`, `report_server`, `search`, `secure_connection`, `settings`, `settings_sliders`, `shield`, `shield_alert`, `smile`, `sort`, `sound_2`, `sound_off`, `star`, `stats`, `stream`, `t_logo_1c`, `teamcolor`, `timer`, `trade`, `trash`, `trophy`, `tune`, `undo`, `unmuted`, `vacnet`, `vote_check`, `votesurrender`, `voteteamswitch`, `warning`, `watch`, `watch_tv`, `zoom_in`
 
 `general` / `server` / `notification` は組み込みの一覧 (通常 / サーバー / 通知) の ID で、定義し直すことはできません。
 
